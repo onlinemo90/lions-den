@@ -1,8 +1,22 @@
 import base64
+from .utils.qrcode_creator import create_request_qrcode
 
 from django.db import models
 
-class BaseModel:
+from .zoos import zoos
+
+class BaseModel(models.Model):
+	class Meta:
+		abstract = True
+	
+	@property
+	def db(self):
+		""""
+			Returns the ID of the database from which the model instance has been retrieved from/saved to
+			 If model instance was instantiated rather than queried from DB, then will return None
+		 """
+		return self._state.db
+	
 	def _get_text_field(self, field_name):
 		field = getattr(self, field_name)
 		return field if field else ''
@@ -12,7 +26,7 @@ class BaseModel:
 		return base64.b64encode(field).decode() if field is not None else None
 
 
-class Species(models.Model, BaseModel):
+class Species(BaseModel):
 	id = models.IntegerField(primary_key=True, db_column='_id')
 	_name = models.TextField(db_column='name')
 	_image = models.BinaryField(db_column='image')
@@ -36,9 +50,17 @@ class Species(models.Model, BaseModel):
 	
 	@property
 	def audio(self): return self._get_blob_field('_audio')
+	
+	@property
+	def qrcode(self):
+		assert self.db is not None, 'Cannot create QR Code for non-DB Species instance'
+		return create_request_qrcode(
+			zoo=zoos[self.db],
+			request='I|' + str(self.id)
+		)
 
 
-class Individual(models.Model, BaseModel):
+class Individual(BaseModel):
 	id = models.IntegerField(primary_key=True, db_column='_id')
 	species_id = models.ForeignKey(Species, on_delete=models.CASCADE) # If the species is deleted, so are the related individuals
 	_name = models.TextField(db_column='name')

@@ -7,7 +7,7 @@
 	<div class="row col-lg-8">
 		<div class="col">Image</div>
 		<div class="col">
-			<img class="img-fluid" src="data:image/bmp;base64,{{ species.image }}"/>
+			<img class="img-fluid" src="data:image/png;base64,{{ species.image }}"/>
 		</div>
 	</div>
 	<div class="row col-lg-8">
@@ -21,5 +21,10 @@
 	<div class="row col-lg-8">
 		<div class="col">Description</div>
 		<div class="col"><p class="p">{{ species.description }}</p></div>
+	</div>
+	
+	<div class="row col-lg-8">
+		<div class="col">QR Code</div>
+		<img class="img-fluid" src="data:image/png;base64,{{ species.qrcode }}"/>
 	</div>
 {% endblock %}
