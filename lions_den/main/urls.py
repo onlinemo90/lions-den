@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
 
 urlpatterns = [
+    path('', lambda request : redirect('login'), name='home'),
     path('', include('users.urls')),
     path('zoos/', include('model_editor.urls'), name='zoos'),
     path('admin/', admin.site.urls),

@@ -1,5 +1,4 @@
 {% load static %}
-<!DOCTYPE html>
 <html>
 	<head>
 		
@@ -7,28 +6,38 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		
-		<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
-		
 		<!-- Bootstrap CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
 			  integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
 			  crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
 		
 		<title>Lion's Den</title>
 	</head>
 	<body>
-		<div class="container">
-			<!-- Messages -->
-			{% if messages %}
-				{% for message in messages %}
-					<div class="alert alert-{{ message.tags }}">
-						{{ message }}
-					</div>
-				{% endfor %}
-			{% endif %}
-			
-			<!-- Content -->
-			{% block content %}{% endblock %}
-		</div>
+		<nav class="navbar navbar-dark no-vertical-padding">
+			<a class="navbar-brand no-vertical-padding" href="{% url 'home' %}">
+				<img src="{% static 'images/logo.png' %}" height="64" alt="Zooverse"/>
+				Lion's Den
+			</a>
+<!--			<ul class="nav navbar-nav navbar-right">-->
+<!--              <li><a class="text-info" href="{% url 'login' %}">Login</a></li>-->
+<!--            </ul>-->
+		</nav>
+		<main style="padding:16px 32px 32px 32px;">
+			<div class="container">
+				<!-- Messages -->
+				{% if messages %}
+					{% for message in messages %}
+						<div class="alert alert-{{ message.tags }}">
+							{{ message }}
+						</div>
+					{% endfor %}
+				{% endif %}
+				
+				<!-- Content -->
+				{% block content %}{% endblock %}
+			</div>
+		</main>
 	</body>
 </html>
