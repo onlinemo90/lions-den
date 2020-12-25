@@ -1,9 +1,11 @@
+import functools
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 
 from .zoos import zoos
 
-def login_and_zoo_access_required(func):
+def login_and_zoo_access_required(view_function):
+	@functools.wraps(view_function)
 	@login_required(login_url='login')
 	def wrapper(*args, **kwargs):
 		# Get request and zoo_id arguments
@@ -13,7 +15,7 @@ def login_and_zoo_access_required(func):
 		# Check user permissions
 		zoo_access_permission = 'zoo:' + zoo_id + ':access'
 		if zoo_id in zoos and request.user.has_perm(zoo_access_permission):
-			return func(*args, **kwargs)
+			return view_function(*args, **kwargs)
 		else:
 			return redirect('home')
 	
