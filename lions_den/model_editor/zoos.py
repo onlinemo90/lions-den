@@ -5,9 +5,14 @@ class _Zoo:
 		self.id = id
 		self.name = name
 		self.encryption_key = encryption_key
+	
+	def __str__(self):
+		return self.name
+
 
 zoos = {
 	'test' : _Zoo(id='test', name='Test Zoo', encryption_key='12345678901234567890123456789012'),
+	'test2' : _Zoo(id='test2', name='Test Zoo 2', encryption_key='12345678901234567890123456789012'),
 }
 
 # Confirm that zoos and databases match up
