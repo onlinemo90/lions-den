@@ -15,15 +15,14 @@
 		<title>Lion's Den</title>
 	</head>
 	<body>
-		<nav class="navbar navbar-dark no-vertical-padding">
-			<a class="navbar-brand no-vertical-padding" href="{% url 'home' %}">
-				<img src="{% static 'images/logo.png' %}" style="height:64	; padding-top:5px; padding-bottom:5px" alt="Zooverse"/>
-				Lion's Den
-			</a>
-<!--			<ul class="nav navbar-nav navbar-right">-->
-<!--              <li><a class="text-info" href="{% url 'login' %}">Login</a></li>-->
-<!--            </ul>-->
-		</nav>
+		{% block navbar %}
+			<nav class="navbar navbar-dark bg-primary no-vertical-padding">
+				<a class="navbar-brand no-vertical-padding" href="{% url 'home' %}">
+					<img src="{% static 'images/logo.png' %}" style="height:64; padding-top:5px; padding-bottom:5px" alt="Zooverse"/>
+					Lion's Den
+				</a>
+			</nav>
+		{% endblock %}
 		<main style="padding:16px 32px 32px 32px;">
 			<div class="container">
 				<!-- Messages -->

@@ -2,11 +2,11 @@ td, p{
 	white-space: pre-wrap;
 }
 
-nav{
-	background-color: #68b733 !important;
-}
-
 .no-vertical-padding{
 	padding-top: 0px;
 	padding-bottom: 0px;
+}
+
+.bg-primary{
+	background-color: #68b733 !important;
 }
