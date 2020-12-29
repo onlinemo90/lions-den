@@ -25,6 +25,8 @@
 	
 	<div class="row col-lg-8">
 		<div class="col">QR Code</div>
-		<img class="img-fluid" src="data:image/png;base64,{{ species.qrcode }}"/>
+		<a download="{{ species.name }}-QR-Code" href="data:image/png;base64,{{ species.qrcode }}">
+			<img class="img-fluid" src="data:image/png;base64,{{ species.qrcode }}" />
+		</a>
 	</div>
 {% endblock %}
