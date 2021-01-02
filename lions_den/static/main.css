@@ -1,3 +1,10 @@
+:root{
+	--colorPrimary: #68b733;
+	--colorPrimaryDark: #528f29;
+	--colorForeground: #808080;
+	--colorBackground: #ffffff;
+}
+
 td, p{
 	white-space: pre-wrap;
 }
@@ -8,5 +15,9 @@ td, p{
 }
 
 .bg-primary{
-	background-color: #68b733 !important;
+	background-color: var(--colorPrimary) !important;
+}
+
+a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-primary:hover{
+	background-color: var(--colorPrimaryDark) !important;
 }

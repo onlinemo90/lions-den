@@ -1,6 +1,7 @@
 # Custom - Databases
 **/databases/**
 !test.db
+!test2.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
