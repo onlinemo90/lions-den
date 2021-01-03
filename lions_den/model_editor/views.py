@@ -7,7 +7,12 @@ from .models import Species
 
 @login_required
 def zoos_index(request):
-	allowed_zoos = [zoos[zoo_id] for zoo_id in zoos if request.user.has_perm('zoo:' + zoo_id + ':access')]
+	#TODO: move this permission-check logic into a User model method
+	if request.user.is_superuser:
+		allowed_zoos = zoos.values()
+	else:
+		allowed_zoos = [zoos[user_group.name] for user_group in request.user.groups.all() if user_group.name in zoos]
+	
 	if len(allowed_zoos) == 1:
 		return redirect(allowed_zoos[0].id + '/')
 	return render(

@@ -13,8 +13,7 @@ def login_and_zoo_access_required(view_function):
 		zoo_id = kwargs['zoo_id'] if 'zoo_id' in kwargs else args[1]
 		
 		# Check user permissions
-		zoo_access_permission = 'zoo:' + zoo_id + ':access'
-		if zoo_id in zoos and request.user.has_perm(zoo_access_permission):
+		if zoo_id in zoos and (request.user.is_superuser or request.user.groups.filter(name=zoo_id).exists()):
 			return view_function(*args, **kwargs)
 		else:
 			return redirect('home')
