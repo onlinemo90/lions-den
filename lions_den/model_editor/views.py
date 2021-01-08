@@ -23,10 +23,18 @@ def zoos_index(request):
 
 @login_and_zoo_access_required
 def zoo_home(request, zoo_id):
-	all_species = Species.objects.using(zoo_id).all()
 	return render(
 		request=request,
 		template_name='model_editor/zoo.html',
+		context={'zoo': zoos[zoo_id]}
+	)
+
+
+def species_list(request, zoo_id):
+	all_species = Species.objects.using(zoo_id).all()
+	return render(
+		request=request,
+		template_name='model_editor/species_list.html',
 		context={'zoo': zoos[zoo_id], 'all_species' : all_species}
 	)
 

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+	<div class="container">
+		{% for species in all_species %}
+			<a href="{{ species.id }}">{{ species.name }}</a>
+			<br/>
+		{% endfor %}
+	</div>
+{% endblock %}

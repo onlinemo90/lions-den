@@ -5,6 +5,10 @@
 	--colorBackground: #ffffff;
 }
 
+h1{
+    color: #68b733;
+}
+
 td, p{
 	white-space: pre-wrap;
 }
