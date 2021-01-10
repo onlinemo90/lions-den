@@ -29,7 +29,7 @@ def zoo_home(request, zoo_id):
 		context={'zoo': zoos[zoo_id]}
 	)
 
-
+@login_and_zoo_access_required
 def species_list(request, zoo_id):
 	all_species = Species.objects.using(zoo_id).all()
 	return render(
@@ -45,4 +45,13 @@ def species(request, zoo_id, species_id):
 		request=request,
 		template_name='model_editor/species.html',
 		context={'zoo': zoos[zoo_id], 'species': species}
+	)
+
+@login_and_zoo_access_required
+def attributes_list(request, zoo_id):
+	all_attributes = Species.objects.using(zoo_id).all()
+	return render(
+		request=request,
+		template_name='model_editor/attributes_list.html',
+		context={'zoo': zoos[zoo_id], 'all_attributes' : all_attributes}
 	)
