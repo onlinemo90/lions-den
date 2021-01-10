@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+	<div class="row col-lg-8">
+		<form enctype="multipart/form-data" method="POST">
+			{% csrf_token %}
+			{{ attributes_formset.management_form }}
+			<table>
+				<tr>
+					<td><legend>{{ subject_form.name.label }}</legend></td>
+					<td>{{ subject_form.name }}</td>
+				</tr>
+			</table>
+			
+			<hr>
+			
+			<table>
+				<legend>{{ subject_form.image.label }}</legend>
+				<img style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
+				<br/><br/>
+				{{ subject_form.image }}
+			</table>
+			
+			<hr>
+			
+			{% if 'audio' in subject_form.fields %}
+				<table>
+					<legend>{{ subject_form.audio.label }}</legend>
+					<audio controls><source src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
+					<br/><br/>
+					{{ subject_form.audio }}
+				</table>
+				
+				<hr>
+			{% endif %}
+		
+			
+			<br/>
+			<h2>Attributes</h2>
+			<br/>
+				<table>
+					{{ attributes_formset|crispy }}
+<!--					{% for attribute_form in attributes_formset %}-->
+<!--						{{ attribute_form|crispy }}-->
+<!--					{% endfor %}-->
+				</table>
+			<button type="submit">Submit</button>
+		</form>
+	</div>
+{% endblock content %}

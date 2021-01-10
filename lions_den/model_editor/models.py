@@ -1,37 +1,52 @@
+import io
 import base64
-from .utils.qrcode_creator import create_request_qrcode
 
 from django.db import models
 
+from .utils.qrcode_creator import create_request_qrcode
 from .zoos import zoos
 
-class BaseModel(models.Model):
+
+MAX_CHAR_FIELD_LENGTH = 12
+
+def blob_to_str(value):
+	base64.b64encode(value.read()).decode()
+
+
+class BlobField(models.BinaryField):
+	def from_db_value(self, value, expression, connection):
+		return io.BytesIO(value) if value is not None else None
+	
+	def get_prep_value(self, value):
+		return value.read()
+
+
+class AbstractBaseModel(models.Model):
+	id = models.IntegerField(db_column='_id', primary_key=True)
+	
 	class Meta:
 		abstract = True
 	
+	def __getattribute__(self, name):
+		try:
+			return super().__getattribute__(name)
+		except AttributeError:
+			try:
+				blob_field = name.removesuffix('_str')
+				return base64.b64encode(super().__getattribute__(blob_field).read()).decode()
+			except:
+				return super().__getattribute__(name) # raise original exception
+	
 	@property
-	def db(self):
-		""""
-			Returns the ID of the database from which the model instance has been retrieved from/saved to
-			 If model instance was instantiated rather than queried from DB, then will return None
-		 """
-		return self._state.db
-	
-	def _get_text_field(self, field_name):
-		field = getattr(self, field_name)
-		return field if field else ''
-	
-	def _get_blob_field(self, field_name):
-		field = getattr(self, field_name)
-		return base64.b64encode(field).decode() if field is not None else None
+	def zoo(self):
+		assert self._state.db is not None, f'{self} does not belong to any zoo'
+		return zoos[self._state.db]
 
 
-class Species(BaseModel):
-	id = models.IntegerField(primary_key=True, db_column='_id')
-	_name = models.TextField(db_column='name')
-	_image = models.BinaryField(db_column='image')
-	_description = models.TextField(db_column='description')
-	_audio = models.TextField(db_column='audio')
+class Species(AbstractBaseModel):
+	name = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
+	image = BlobField(editable=True)
+	audio = BlobField(editable=True)
 	
 	class Meta:
 		db_table = 'SPECIES'
@@ -40,56 +55,50 @@ class Species(BaseModel):
 		return self.name
 	
 	@property
-	def name(self): return self._get_text_field('_name')
-	
-	@property
-	def image(self): return self._get_blob_field('_image')
-
-	@property
-	def description(self): return self._get_text_field('_description')
-	
-	@property
-	def audio(self): return self._get_blob_field('_audio')
-	
-	@property
 	def qrcode(self):
-		assert self.db is not None, 'Cannot create QR Code for non-DB Species instance'
 		return create_request_qrcode(
-			zoo=zoos[self.db],
+			zoo=self.zoo,
 			request='I|' + str(self.id)
 		)
 
 
-class Individual(BaseModel):
-	id = models.IntegerField(primary_key=True, db_column='_id')
-	species_id = models.ForeignKey(Species, on_delete=models.CASCADE) # If the species is deleted, so are the related individuals
-	_name = models.TextField(db_column='name')
-	_dob = models.IntegerField(db_column='dob')
-	_place_of_birth = models.TextField(db_column='place_of_birth')
-	_gender = models.TextField(db_column='gender')
-	_weight = models.TextField(db_column='weight')
-	_image = models.TextField(db_column='image')
+class Individual(AbstractBaseModel):
+	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE) # If the species is deleted, so are the related individuals
+	name = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
+	dob = models.DateField()
+	place_of_birth = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
+	gender = models.TextField() # TODO: Turn into a choice field
+	weight = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
+	image = BlobField(editable=True)
 	
 	class Meta:
 		db_table = 'INDIVIDUAL'
 	
 	def __str__(self):
 		return self.name
-	
-	@property
-	def name(self): return self._get_text_field('_name')
-	
-	@property
-	def dob(self): return self._get_text_field('_dob')
-	
-	@property
-	def place_of_birth(self): return self._get_text_field('_place_of_birth')
-	
-	@property
-	def gender(self): return self._get_text_field('_gender')
-	
-	@property
-	def weight(self): return self._get_text_field('_weight')
-	
-	@property
-	def image(self): return self._get_blob_field('_image')
+
+
+class AttributeCategory(AbstractBaseModel):
+	name = models.TextField()
+	priority = models.TextField(unique=True)
+	class Meta: db_table = 'ATTRIBUTE_CATEGORY'
+	def __str__(self): return self.name
+
+
+class AbstractAttribute(AbstractBaseModel):
+	category = models.ForeignKey(AttributeCategory, on_delete=models.CASCADE)
+	attribute = models.TextField()
+	class Meta: abstract = True
+	def __str__(self): return f'{self.category} -> {self.attribute}'
+
+
+class SpeciesAttribute(AbstractAttribute):
+	subject = models.ForeignKey(Species, related_name='attributes', on_delete=models.CASCADE)
+	class Meta: db_table = 'SPECIES_ATTRIBUTES'
+
+
+class IndividualAttribute(AbstractAttribute):
+	subject = models.ForeignKey(Individual, related_name='attributes', on_delete=models.CASCADE)
+	class Meta: db_table = 'INDIVIDUALS_ATTRIBUTES'
+
+

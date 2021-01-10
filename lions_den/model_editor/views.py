@@ -3,7 +3,9 @@ from django.contrib.auth.decorators import login_required
 
 from .decorators import login_and_zoo_access_required
 from .zoos import zoos
-from .models import Species
+from .models import Species, Individual
+from .forms import get_subject_form, get_attributes_formset
+
 
 @login_required
 def zoos_index(request):
@@ -39,12 +41,39 @@ def species_list(request, zoo_id):
 	)
 
 @login_and_zoo_access_required
-def species(request, zoo_id, species_id):
+def species_page(request, zoo_id, species_id):
 	species = Species.objects.using(zoo_id).filter(id=species_id).get()
+	return subject(request, species)
+
+@login_and_zoo_access_required
+def individual(request, zoo_id, individual_id):
+	species = Individual.objects.using(zoo_id).filter(id=individual_id).get().individuals.first()
+	return subject(request, species)
+
+#-------------------------------------------------------------------------------------------------------
+
+def subject(request, subject):
+	if request.method == 'POST':
+		species_form = get_subject_form(subject, request.POST, request.FILES, prefix='subject')
+		attributes_formset = get_attributes_formset(subject, request.POST, prefix='attributes')
+		
+		if species_form.is_valid():
+			species_form.save()
+		if attributes_formset.is_valid():
+			attributes_formset.save()
+	else:
+		species_form = get_subject_form(subject=subject, prefix='subject')
+		attributes_formset = get_attributes_formset(subject=subject, prefix='attributes')
+	
 	return render(
 		request=request,
-		template_name='model_editor/species.html',
-		context={'zoo': zoos[zoo_id], 'species': species}
+		template_name='model_editor/subject.html',
+		context={
+			'zoo': zoos[subject.zoo.id],
+			'subject': subject,
+			'subject_form': species_form,
+			'attributes_formset': attributes_formset
+		}
 	)
 
 @login_and_zoo_access_required
