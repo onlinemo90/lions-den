@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from .decorators import login_and_zoo_access_required
-from .models import Zoo, Species, Individual
+from .models import Zoo, Species, Individual, AttributeCategory
 from .forms import get_subject_form, get_attributes_formset
 
 
@@ -52,7 +52,7 @@ def individual(request, zoo_id, individual_id):
 
 @login_and_zoo_access_required
 def attributes_list(request, zoo_id):
-	all_attributes = Species.objects.using(zoo_id).all()
+	all_attributes = AttributeCategory.objects.using(zoo_id).all()
 	return render(
 		request=request,
 		template_name='model_editor/attributes_list.html',
