@@ -2,8 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from .decorators import login_and_zoo_access_required
-from .zoos import zoos
-from .models import Species, Individual
+from .models import Zoo, Species, Individual
 from .forms import get_subject_form, get_attributes_formset
 
 
@@ -11,9 +10,10 @@ from .forms import get_subject_form, get_attributes_formset
 def zoos_index(request):
 	#TODO: move this permission-check logic into a User model method
 	if request.user.is_superuser:
-		allowed_zoos = zoos.values()
+		allowed_zoos = Zoo.objects.all()
 	else:
-		allowed_zoos = [zoos[user_group.name] for user_group in request.user.groups.all() if user_group.name in zoos]
+		user_groups = {group.name for group in request.user.groups.all()}
+		allowed_zoos = [zoo for zoo in Zoo.objects.all() if zoo.id in user_groups]
 	
 	if len(allowed_zoos) == 1:
 		return redirect(allowed_zoos[0].id + '/')
@@ -28,7 +28,7 @@ def zoo_home(request, zoo_id):
 	return render(
 		request=request,
 		template_name='model_editor/zoo.html',
-		context={'zoo': zoos[zoo_id]}
+		context={'zoo': Zoo.objects.filter(id=zoo_id).get()}
 	)
 
 @login_and_zoo_access_required
@@ -37,7 +37,7 @@ def species_list(request, zoo_id):
 	return render(
 		request=request,
 		template_name='model_editor/species_list.html',
-		context={'zoo': zoos[zoo_id], 'all_species' : all_species}
+		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_species' : all_species}
 	)
 
 @login_and_zoo_access_required
@@ -49,6 +49,15 @@ def species_page(request, zoo_id, species_id):
 def individual(request, zoo_id, individual_id):
 	species = Individual.objects.using(zoo_id).filter(id=individual_id).get().individuals.first()
 	return subject(request, species)
+
+@login_and_zoo_access_required
+def attributes_list(request, zoo_id):
+	all_attributes = Species.objects.using(zoo_id).all()
+	return render(
+		request=request,
+		template_name='model_editor/attributes_list.html',
+		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_attributes' : all_attributes}
+	)
 
 #-------------------------------------------------------------------------------------------------------
 
@@ -69,18 +78,9 @@ def subject(request, subject):
 		request=request,
 		template_name='model_editor/subject.html',
 		context={
-			'zoo': zoos[subject.zoo.id],
+			'zoo': subject.zoo,
 			'subject': subject,
 			'subject_form': species_form,
 			'attributes_formset': attributes_formset
 		}
-	)
-
-@login_and_zoo_access_required
-def attributes_list(request, zoo_id):
-	all_attributes = Species.objects.using(zoo_id).all()
-	return render(
-		request=request,
-		template_name='model_editor/attributes_list.html',
-		context={'zoo': zoos[zoo_id], 'all_attributes' : all_attributes}
 	)

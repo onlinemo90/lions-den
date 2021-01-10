@@ -4,9 +4,21 @@ import base64
 from django.db import models
 
 from .utils.qrcode_creator import create_request_qrcode
-from .zoos import zoos
 
 
+class Zoo(models.Model):
+	_id = models.IntegerField(primary_key=True)
+	id = models.CharField(unique=True, max_length=10)
+	name = models.CharField(unique=True, max_length=128)
+	encryption_key = models.CharField(unique=True, max_length=35)
+	image = models.ImageField()
+	date_joined = models.DateField(auto_now_add=True)
+	
+	def __str__(self):
+		return self.name
+
+
+#---------------------------------------------------------------------------------------
 MAX_CHAR_FIELD_LENGTH = 12
 
 def blob_to_str(value):
@@ -40,7 +52,7 @@ class AbstractBaseModel(models.Model):
 	@property
 	def zoo(self):
 		assert self._state.db is not None, f'{self} does not belong to any zoo'
-		return zoos[self._state.db]
+		return Zoo.objects.filter(id=self._state.db).first()
 
 
 class Species(AbstractBaseModel):

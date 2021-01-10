@@ -2,7 +2,7 @@ import functools
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 
-from .zoos import zoos
+from .models import Zoo
 
 def login_and_zoo_access_required(view_function):
 	@functools.wraps(view_function)
@@ -13,7 +13,7 @@ def login_and_zoo_access_required(view_function):
 		zoo_id = kwargs['zoo_id'] if 'zoo_id' in kwargs else args[1]
 		
 		# Check user permissions
-		if zoo_id in zoos and (request.user.is_superuser or request.user.groups.filter(name=zoo_id).exists()):
+		if Zoo.objects.filter(id=zoo_id).exists() and (request.user.is_superuser or request.user.groups.filter(name=zoo_id).exists()):
 			return view_function(*args, **kwargs)
 		else:
 			return redirect('home')
