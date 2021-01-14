@@ -20,7 +20,6 @@ class Zoo(models.Model):
 
 
 #---------------------------------------------------------------------------------------
-MAX_CHAR_FIELD_LENGTH = 12
 
 class Gender(enum.Enum):
 	MALE = 'M'
@@ -43,7 +42,7 @@ class DefaultCharField(models.CharField):
 
 
 class AbstractBaseModel(models.Model):
-	id = models.IntegerField(db_column='_id', primary_key=True)
+	id = models.AutoField(db_column='_id', primary_key=True)
 	
 	class Meta:
 		abstract = True
