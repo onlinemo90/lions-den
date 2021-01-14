@@ -1,3 +1,5 @@
+import datetime
+
 from django import forms
 from django.db import models
 
@@ -25,7 +27,15 @@ class BaseModelForm(forms.ModelForm):
 				self.fields[field.name] = forms.ModelChoiceField(queryset=field.related_model.objects.using(zoo_id).all())
 
 
-class SpeciesForm(BaseModelForm):
+class BaseSubjectForm(BaseModelForm):
+	def save(self, fields_to_delete=[]):
+		for field in fields_to_delete:
+			field_type = type(getattr(self.instance, field))
+			setattr(self.instance, field, field_type())
+		super().save()
+
+
+class SpeciesForm(BaseSubjectForm):
 	image = forms.FileField()
 	audio = forms.FileField()
 	class Meta:
@@ -38,16 +48,29 @@ class SpeciesForm(BaseModelForm):
 		}
 
 
-class IndividualForm(BaseModelForm):
-	name = forms.CharField()
+class IndividualForm(BaseSubjectForm):
 	image = forms.FileField()
-	
+	weight = forms.CharField(required=False)
+	place_of_birth = forms.CharField(required=False)
+	size = forms.CharField(required=False)
+	dob = forms.DateField(
+		widget=forms.widgets.SelectDateWidget(
+			years=list(range(datetime.date.today().year, datetime.date.today().year - 101, -1)),
+			empty_label=''
+		),
+		required=False,
+		label='Date of Birth'
+	)
 	class Meta:
 		model = Individual
-		fields = ['name', 'image']
+		fields = ['name', 'image', 'gender', 'dob', 'place_of_birth', 'size', 'weight']
 		labels = {
 			'name': 'Name',
 			'image': 'Image',
+			'gender' : 'Gender',
+			'weight' : 'Weight',
+			'place_of_birth': 'Place of Birth',
+			'size': 'Size'
 		}
 
 
@@ -81,7 +104,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		SubjectAttribute,
 		form=SubjectAttributeForm,
 		extra=0, # TODO: support additions - breaks formset validation
-		can_delete=False, #TODO: improve deletions - works but doesn't load correctly
+		can_delete=True,
 		can_order=False
 	)
 	

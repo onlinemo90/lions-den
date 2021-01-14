@@ -1,5 +1,6 @@
 import io
 import base64
+import enum
 
 from django.db import models
 
@@ -21,8 +22,9 @@ class Zoo(models.Model):
 #---------------------------------------------------------------------------------------
 MAX_CHAR_FIELD_LENGTH = 12
 
-def blob_to_str(value):
-	base64.b64encode(value.read()).decode()
+class Gender(enum.Enum):
+	MALE = 'M'
+	FEMALE = 'F'
 
 
 class BlobField(models.BinaryField):
@@ -31,6 +33,13 @@ class BlobField(models.BinaryField):
 	
 	def get_prep_value(self, value):
 		return value.read()
+
+
+class DefaultCharField(models.CharField):
+	def __init__(self, *args, **kwargs):
+		if 'max_length' not in kwargs:
+			kwargs['max_length'] = 16
+		super().__init__(*args, **kwargs)
 
 
 class AbstractBaseModel(models.Model):
@@ -56,9 +65,9 @@ class AbstractBaseModel(models.Model):
 
 
 class Species(AbstractBaseModel):
-	name = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
-	image = BlobField(editable=True)
-	audio = BlobField(editable=True)
+	name = DefaultCharField()
+	image = BlobField(editable=True, null=True, blank=False)
+	audio = BlobField(editable=True, null=True, blank=True)
 	
 	class Meta:
 		db_table = 'SPECIES'
@@ -76,12 +85,16 @@ class Species(AbstractBaseModel):
 
 class Individual(AbstractBaseModel):
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE) # If the species is deleted, so are the related individuals
-	name = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
+	name = DefaultCharField()
 	dob = models.DateField()
-	place_of_birth = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
-	gender = models.TextField() # TODO: Turn into a choice field
-	weight = models.CharField(max_length=MAX_CHAR_FIELD_LENGTH)
-	image = BlobField(editable=True)
+	place_of_birth = DefaultCharField()
+	weight = DefaultCharField()
+	image = BlobField(editable=True, null=True, blank=False)
+	size = DefaultCharField()
+	gender = DefaultCharField(
+		choices=( [(None, '')] + [(gender.value, gender.name.title()) for gender in Gender] ),
+		blank=True, null=True
+	)
 	
 	class Meta:
 		db_table = 'INDIVIDUAL'

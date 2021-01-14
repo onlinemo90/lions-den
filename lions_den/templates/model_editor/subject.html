@@ -5,44 +5,69 @@
 		<form enctype="multipart/form-data" method="POST">
 			{% csrf_token %}
 			{{ attributes_formset.management_form }}
-			<table>
-				<tr>
-					<td><legend>{{ subject_form.name.label }}</legend></td>
-					<td>{{ subject_form.name }}</td>
-				</tr>
-			</table>
+			
+			{{ subject_form.name|as_crispy_field }}
+			
+			{% if subject.species %}
+				<table>
+					<tr>
+						<td><legend>Species:</legend></td>
+						<td>{{ subject.species.name }}</td>
+					</tr>
+				</table>
+			{% endif %}
 			
 			<hr>
 			
-			<table>
-				<legend>{{ subject_form.image.label }}</legend>
-				<img style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
-				<br/><br/>
-				{{ subject_form.image }}
-			</table>
+			<legend>{{ subject_form.image.label }}</legend>
+			<img style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
+			<br/><br/>
+			{{ subject_form.image }}
 			
 			<hr>
 			
 			{% if 'audio' in subject_form.fields %}
-				<table>
-					<legend>{{ subject_form.audio.label }}</legend>
-					<audio controls><source src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
-					<br/><br/>
-					{{ subject_form.audio }}
-				</table>
-				
+				<legend>{{ subject_form.audio.label }}</legend>
+				<audio controls><source src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
+				<br/><br/>
+				{{ subject_form.audio|as_crispy_field }}
+				{% if subject.audio %}
+					<input type="checkbox" id="DELETE-FIELD_audio" name="DELETE-FIELD_audio">
+					<label for="DELETE-FIELD_audio" class="form-check-label">Delete</label>
+				{% endif %}
 				<hr>
 			{% endif %}
-		
+			
+			{% if 'gender' in subject_form.fields %}
+				{{ subject_form.gender|as_crispy_field }}
+				<hr>
+			{% endif %}
+			
+			{% if 'dob' in subject_form.fields %}
+				{{ subject_form.dob|as_crispy_field }}
+				<hr>
+			{% endif %}
+			
+			{% if 'place_of_birth' in subject_form.fields %}
+				{{ subject_form.place_of_birth|as_crispy_field }}
+				<hr>
+			{% endif %}
+			
+			{% if 'weight' in subject_form.fields %}
+				{{ subject_form.weight|as_crispy_field }}
+				<hr>
+			{% endif %}
+			
+			{% if 'size' in subject_form.fields %}
+				{{ subject_form.size|as_crispy_field }}
+				<hr>
+			{% endif %}
 			
 			<br/>
 			<h2>Attributes</h2>
 			<br/>
 				<table>
 					{{ attributes_formset|crispy }}
-<!--					{% for attribute_form in attributes_formset %}-->
-<!--						{{ attribute_form|crispy }}-->
-<!--					{% endfor %}-->
 				</table>
 			<button type="submit">Submit</button>
 		</form>

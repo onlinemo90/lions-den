@@ -36,19 +36,28 @@ def species_list(request, zoo_id):
 	all_species = Species.objects.using(zoo_id).all()
 	return render(
 		request=request,
-		template_name='model_editor/species_list.html',
-		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_species' : all_species}
+		template_name='model_editor/subjects_list.html',
+		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_subjects' : all_species}
+	)
+
+@login_and_zoo_access_required
+def individuals_list(request, zoo_id):
+	all_individuals = Individual.objects.using(zoo_id).all()
+	return render(
+		request=request,
+		template_name='model_editor/subjects_list.html',
+		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_subjects' : all_individuals}
 	)
 
 @login_and_zoo_access_required
 def species_page(request, zoo_id, species_id):
 	species = Species.objects.using(zoo_id).filter(id=species_id).get()
-	return subject(request, species)
+	return subject_page(request, species)
 
 @login_and_zoo_access_required
-def individual(request, zoo_id, individual_id):
-	species = Individual.objects.using(zoo_id).filter(id=individual_id).get().individuals.first()
-	return subject(request, species)
+def individual_page(request, zoo_id, individual_id):
+	species = Individual.objects.using(zoo_id).filter(id=individual_id).get()
+	return subject_page(request, species)
 
 @login_and_zoo_access_required
 def attributes_list(request, zoo_id):
@@ -61,18 +70,19 @@ def attributes_list(request, zoo_id):
 
 #-------------------------------------------------------------------------------------------------------
 
-def subject(request, subject):
+def subject_page(request, subject):
 	if request.method == 'POST':
-		species_form = get_subject_form(subject, request.POST, request.FILES, prefix='subject')
+		subject_form = get_subject_form(subject, request.POST, request.FILES, prefix='subject')
 		attributes_formset = get_attributes_formset(subject, request.POST, prefix='attributes')
 		
-		if species_form.is_valid():
-			species_form.save()
-		if attributes_formset.is_valid():
+		if subject_form.is_valid() and attributes_formset.is_valid():
+			subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
+			subject_form.save(fields_to_delete=subject_field_deletions)
 			attributes_formset.save()
-	else:
-		species_form = get_subject_form(subject=subject, prefix='subject')
-		attributes_formset = get_attributes_formset(subject=subject, prefix='attributes')
+			subject = subject._meta.model.objects.using(subject.zoo.id).filter(id=subject.id).get() # reload subject
+	
+	subject_form = get_subject_form(subject=subject, prefix='subject')
+	attributes_formset = get_attributes_formset(subject=subject, prefix='attributes')
 	
 	return render(
 		request=request,
@@ -80,7 +90,7 @@ def subject(request, subject):
 		context={
 			'zoo': subject.zoo,
 			'subject': subject,
-			'subject_form': species_form,
+			'subject_form': subject_form,
 			'attributes_formset': attributes_formset
 		}
 	)

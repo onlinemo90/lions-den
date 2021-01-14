@@ -31,6 +31,6 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
 }
 
 .navbar-nav{
--ms-flex-direction: row !important;
-flex-direction: row !important;
+	-ms-flex-direction: row !important;
+	flex-direction: row !important;
 }
