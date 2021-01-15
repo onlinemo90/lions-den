@@ -43,7 +43,7 @@ class ZooUserCreationForm(UserCreationForm, ZooUserBaseForm):
 
 
 @admin.register(ZooUser)
-class CustomUserAdmin(UserAdmin):
+class ZoomUserAdmin(UserAdmin):
 	model = ZooUser
 	form = ZooUserChangeForm
 	add_form = ZooUserCreationForm
