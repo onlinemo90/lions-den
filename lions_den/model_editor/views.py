@@ -1,19 +1,17 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
+# noinspection PyUnresolvedReferences
+from zoo_auth.models import Zoo
+
 from .decorators import login_and_zoo_access_required
-from .models import Zoo, Species, Individual, AttributeCategory
+from .models import Species, Individual, AttributeCategory
 from .forms import get_subject_form, get_attributes_formset
 
 
 @login_required
 def zoos_index(request):
-	#TODO: move this permission-check logic into a User model method
-	if request.user.is_superuser:
-		allowed_zoos = Zoo.objects.all()
-	else:
-		user_groups = {group.name for group in request.user.groups.all()}
-		allowed_zoos = [zoo for zoo in Zoo.objects.all() if zoo.id in user_groups]
+	allowed_zoos = request.user.zoos.all() if not request.user.is_superuser else Zoo.objects.all()
 	
 	if len(allowed_zoos) == 1:
 		return redirect(allowed_zoos[0].id + '/')

@@ -4,22 +4,11 @@ import enum
 
 from django.db import models
 
+# noinspection PyUnresolvedReferences
+from zoo_auth.models import Zoo
+
 from .utils.qrcode_creator import create_request_qrcode
 
-
-class Zoo(models.Model):
-	_id = models.IntegerField(primary_key=True)
-	id = models.CharField(unique=True, max_length=10)
-	name = models.CharField(unique=True, max_length=128)
-	encryption_key = models.CharField(unique=True, max_length=35)
-	image = models.ImageField()
-	date_joined = models.DateField(auto_now_add=True)
-	
-	def __str__(self):
-		return self.name
-
-
-#---------------------------------------------------------------------------------------
 
 class Gender(enum.Enum):
 	MALE = 'M'
@@ -55,7 +44,7 @@ class AbstractBaseModel(models.Model):
 				blob_field = name.removesuffix('_str')
 				return base64.b64encode(super().__getattribute__(blob_field).read()).decode()
 			except:
-				return super().__getattribute__(name) # raise original exception
+				return super().__getattribute__(name)  # raise original exception
 	
 	@property
 	def zoo(self):
@@ -83,7 +72,7 @@ class Species(AbstractBaseModel):
 
 
 class Individual(AbstractBaseModel):
-	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE) # If the species is deleted, so are the related individuals
+	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
 	name = DefaultCharField()
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()
@@ -91,7 +80,7 @@ class Individual(AbstractBaseModel):
 	image = BlobField(editable=True, null=True, blank=False)
 	size = DefaultCharField()
 	gender = DefaultCharField(
-		choices=( [(None, '')] + [(gender.value, gender.name.title()) for gender in Gender] ),
+		choices=([(None, '')] + [(gender.value, gender.name.title()) for gender in Gender]),
 		blank=True, null=True
 	)
 	
@@ -105,24 +94,30 @@ class Individual(AbstractBaseModel):
 class AttributeCategory(AbstractBaseModel):
 	name = models.TextField()
 	priority = models.TextField(unique=True)
+	
 	class Meta: db_table = 'ATTRIBUTE_CATEGORY'
+	
 	def __str__(self): return self.name
 
 
 class AbstractAttribute(AbstractBaseModel):
 	category = models.ForeignKey(AttributeCategory, on_delete=models.CASCADE)
 	attribute = models.TextField()
+	
 	class Meta: abstract = True
+	
 	def __str__(self): return f'{self.category} -> {self.attribute}'
 
 
 class SpeciesAttribute(AbstractAttribute):
 	subject = models.ForeignKey(Species, related_name='attributes', on_delete=models.CASCADE)
+	
 	class Meta: db_table = 'SPECIES_ATTRIBUTES'
 
 
 class IndividualAttribute(AbstractAttribute):
 	subject = models.ForeignKey(Individual, related_name='attributes', on_delete=models.CASCADE)
+	
 	class Meta: db_table = 'INDIVIDUALS_ATTRIBUTES'
 
 

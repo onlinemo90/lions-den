@@ -29,7 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-	'users.apps.UsersConfig',
+	'zoo_auth.apps.ZooAuthConfig',
 	'model_editor.apps.ModelEditorConfig',
 	'crispy_forms',
 	'django.contrib.admin',
@@ -81,8 +81,8 @@ DATABASES = {
 }
 # Add custom databases
 for db_file in (BASE_DIR / 'model_editor' / 'databases').iterdir():
-    client_id = db_file.name.split('.')[0]
-    DATABASES[client_id] = {
+    zoo_id = db_file.name.split('.')[0]
+    DATABASES[zoo_id] = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': db_file,
     }
@@ -126,7 +126,11 @@ STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 
+MEDIA_ROOT = BASE_DIR / 'media/'
+MEDIA_URL = 'media/'
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+AUTH_USER_MODEL = 'zoo_auth.ZooUser'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/zoos'
