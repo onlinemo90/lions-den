@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin, UserCreationForm
 from .models import Zoo, ZooUser
 
 
-class ZooUserChangeForm(forms.ModelForm):
+class ZooUserBaseForm(forms.ModelForm):
 	zoos = forms.ModelMultipleChoiceField(
 		queryset=Zoo.objects.all(),
 		required=False,
@@ -16,40 +16,6 @@ class ZooUserChangeForm(forms.ModelForm):
 			is_stacked=False
 		)
 	)
-	
-	class Meta:
-		model = ZooUser
-		fields=('zoos',)
-	
-	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		if self.instance and self.instance.pk:
-			self.fields['zoos'].initial = self.instance.zoos.all()
-	
-	def save(self, commit=True):
-		user = super().save(commit=False)
-		if commit:
-			user.save()
-		if user.pk:
-			user.zoos.set(self.cleaned_data['zoos'])
-			self.save_m2m()
-		return user
-
-
-class ZooUserCreationForm(UserCreationForm):
-	zoos = forms.ModelMultipleChoiceField(
-		queryset=Zoo.objects.all(),
-		required=False,
-		widget=FilteredSelectMultiple(
-			verbose_name=_('Zoos'),
-			is_stacked=False
-		)
-	)
-	
-	class Meta:
-		model = ZooUser
-		fields=('email', 'password1', 'password2', 'zoos')
-	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		if self.instance and self.instance.pk:
@@ -62,6 +28,18 @@ class ZooUserCreationForm(UserCreationForm):
 			user.zoos.set(self.cleaned_data['zoos'])
 			self.save_m2m()
 		return user
+
+
+class ZooUserChangeForm(ZooUserBaseForm):
+	class Meta:
+		model = ZooUser
+		fields=('zoos',)
+
+
+class ZooUserCreationForm(UserCreationForm, ZooUserBaseForm):
+	class Meta:
+		model = ZooUser
+		fields=('email', 'password1', 'password2', 'zoos')
 
 
 @admin.register(ZooUser)
