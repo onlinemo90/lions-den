@@ -1,9 +1,45 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-	<div class="container">
-		{% for subject in all_subjects %}
-			<a href="{{ subject.id }}">{{ subject.name }}</a>
-			<br/>
-		{% endfor %}
-	</div>
+<table>
+	{% for subject in all_subjects %}
+	{% if forloop.counter0|divisibleby:2 %}
+		<tr>
+			<th>
+				<a href="{{ subject.id }}" style="text-decoration:none">
+					<div class="mx-3 my-3 content-section">
+						<div class="row">
+							 <div class="col-sm">
+								<img class="rounded-circle subject-thumbnail" src="data:image/png;base64,{{ subject.image_str}}"/>
+							 </div>
+							 <div class="col-sm">
+								 <br>
+								 <h1>{{subject.name}}</h1>
+							 </div>
+						</div>
+					</div>
+				</a>
+			</th>
+	{% else %}
+		<th>
+			<a href="{{ subject.id }}" style="text-decoration:none">
+				<div class="mx-3 my-3 content-section">
+					<div class="row">
+						<div class="col-sm">
+							<img class="rounded-circle subject-thumbnail" src="data:image/png;base64,{{ subject.image_str}}"/>
+						</div>
+						<div class="col-sm">
+							<br>
+							<h1>{{subject.name}}</h1>
+						</div>
+					</div>
+				</div>
+			</a>
+		</th>
+		</tr>
+	{% endif %}
+
+	{% endfor %}
+</<table>
+
 {% endblock %}
