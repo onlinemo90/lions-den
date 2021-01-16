@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<table>
+<table class="subject-table">
 	{% for subject in all_subjects %}
 	{% if forloop.counter0|divisibleby:2 %}
 		<tr>
@@ -10,7 +10,7 @@
 					<div class="mx-3 my-3 content-section">
 						<div class="row">
 							 <div class="col-sm">
-								<img class="rounded-circle subject-thumbnail" src="data:image/png;base64,{{ subject.image_str}}"/>
+								<img class="rounded-circle subject-thumbnail vertical-center" src="data:image/png;base64,{{ subject.image_str}}"/>
 							 </div>
 							 <div class="col-sm">
 								 <br>
@@ -26,7 +26,7 @@
 				<div class="mx-3 my-3 content-section">
 					<div class="row">
 						<div class="col-sm">
-							<img class="rounded-circle subject-thumbnail" src="data:image/png;base64,{{ subject.image_str}}"/>
+							<img class="rounded-circle subject-thumbnail vertical-center" src="data:image/png;base64,{{ subject.image_str}}"/>
 						</div>
 						<div class="col-sm">
 							<br>

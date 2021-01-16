@@ -17,15 +17,17 @@ textarea {
 	resize: both;
 }
 
-table {
-    table-layout: fixed;
-    width: 100%
-}
-
 .no-vertical-padding{
 	padding-top: 0px;
 	padding-bottom: 0px;
 }
+
+.vertical-center {
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  }
 
 .bg-primary{
 	background-color: var(--colorPrimary) !important;
@@ -52,5 +54,17 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
     height: 80px;
     width: 80px;
     margin-right: 20px;
+    margin-bottom: 16px;
+}
+
+.subject-table {
+    table-layout: fixed;
+    width: 100%
+}
+
+.zoo-thumbnail {
+    padding: 10px;
+    object-fit: cover;
+    height: 90px;
     margin-bottom: 16px;
 }
