@@ -17,6 +17,11 @@ textarea {
 	resize: both;
 }
 
+table {
+    table-layout: fixed;
+    width: 100%
+}
+
 .no-vertical-padding{
 	padding-top: 0px;
 	padding-bottom: 0px;
@@ -33,4 +38,19 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
 .navbar-nav{
 	-ms-flex-direction: row !important;
 	flex-direction: row !important;
+}
+
+.content-section {
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    margin-bottom: 20px;
+}
+
+.subject-thumbnail {
+    object-fit: cover;
+    height: 80px;
+    width: 80px;
+    margin-right: 20px;
+    margin-bottom: 16px;
 }
