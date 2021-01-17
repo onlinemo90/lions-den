@@ -2,8 +2,9 @@ import datetime
 
 from django import forms
 from django.db import models
+from django.forms import modelformset_factory
 
-from .models import Species, Individual, SpeciesAttribute, IndividualAttribute
+from .models import Species, Individual, SpeciesAttribute, IndividualAttribute, AttributeCategory
 
 
 class BaseModelForm(forms.ModelForm):
@@ -35,9 +36,17 @@ class BaseSubjectForm(BaseModelForm):
 		super().save()
 
 
+AttributeCategoriesFormset = modelformset_factory(
+	AttributeCategory,
+	fields=('name','priority'),
+	extra=0,
+)
+
+
 class SpeciesForm(BaseSubjectForm):
 	image = forms.FileField()
 	audio = forms.FileField()
+
 	class Meta:
 		model = Species
 		fields = ['name', 'image', 'audio']
