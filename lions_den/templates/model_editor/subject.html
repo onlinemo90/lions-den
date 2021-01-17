@@ -30,7 +30,7 @@
 				<legend>{{ subject_form.audio.label }}</legend>
 				<audio controls><source src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
 				<br/><br/>
-				{{ subject_form.audio|as_crispy_field }}
+				{{ subject_form.audio }}
 				{% if subject.audio %}
 					<input type="checkbox" id="DELETE-FIELD_audio" name="DELETE-FIELD_audio">
 					<label for="DELETE-FIELD_audio" class="form-check-label">Delete</label>

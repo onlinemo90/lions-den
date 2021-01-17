@@ -2,7 +2,7 @@ from django.urls import path
 from .views import zoos_index, zoo_home, species_page, individual_page, species_list, individuals_list, attributes_list
 
 urlpatterns = [
-    path('', zoos_index),
+    path('', zoos_index, name='zoo_index'),
     path('<str:zoo_id>/', zoo_home),
     
     path('<str:zoo_id>/species/', species_list, name='species_list'),

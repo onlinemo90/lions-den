@@ -18,7 +18,7 @@
 		{% block navbar %}
 			<nav class="navbar navbar-dark bg-primary no-vertical-padding">
 
-				<a class="navbar-brand no-vertical-padding" href="{% url 'home' %}">
+				<a class="navbar-brand no-vertical-padding" href="{% url 'zoo_index' %}">
 					<img src="{% static 'images/logo.png' %}" style="height:64; padding-top:5px; padding-bottom:5px" alt="Zooverse"/>
 					Lion's Den
 				</a>
@@ -26,7 +26,7 @@
 				<div class="navbar-nav">
 					{% if request.user.is_authenticated %}
 						{% if not disable_navbar_change_password %}
-							<a class="nav-link mx-2" href="{% url 'change-password' %}">Change password</a>
+							<a class="nav-link mx-2" href="{% url 'change_password' %}">Change password</a>
 						{% endif %}
 						<a class="nav-link mx-2" href="{% url 'logout' %}">Logout</a>
 					{% elif not disable_navbar_login %}

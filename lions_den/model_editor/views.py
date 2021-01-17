@@ -31,7 +31,7 @@ def zoo_home(request, zoo_id):
 
 @login_and_zoo_access_required
 def species_list(request, zoo_id):
-	all_species = Species.objects.using(zoo_id).all()
+	all_species = Species.objects.using(zoo_id).order_by('name').all()
 	return render(
 		request=request,
 		template_name='model_editor/subjects_list.html',
@@ -40,7 +40,7 @@ def species_list(request, zoo_id):
 
 @login_and_zoo_access_required
 def individuals_list(request, zoo_id):
-	all_individuals = Individual.objects.using(zoo_id).all()
+	all_individuals = Individual.objects.using(zoo_id).order_by('name').all()
 	return render(
 		request=request,
 		template_name='model_editor/subjects_list.html',
