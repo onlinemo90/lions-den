@@ -92,8 +92,8 @@ class Individual(AbstractBaseModel):
 
 
 class AttributeCategory(AbstractBaseModel):
-	name = models.CharField(max_length=255)
-	priority = models.IntegerField(unique=True)
+	name = DefaultCharField()
+	priority = models.PositiveIntegerField(unique=True)
 	
 	class Meta: db_table = 'ATTRIBUTE_CATEGORY'
 	
