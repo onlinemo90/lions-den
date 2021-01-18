@@ -69,18 +69,21 @@ def attributes_list(request, zoo_id):
 #-------------------------------------------------------------------------------------------------------
 
 def subject_page(request, subject):
+	request_valid = True
 	if request.method == 'POST':
 		subject_form = get_subject_form(subject, request.POST, request.FILES, prefix='subject')
 		attributes_formset = get_attributes_formset(subject, request.POST, prefix='attributes')
 		
-		if subject_form.is_valid() and attributes_formset.is_valid():
+		request_valid = subject_form.is_valid() and attributes_formset.is_valid()
+		if request_valid:
 			subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
 			subject_form.save(fields_to_delete=subject_field_deletions)
 			attributes_formset.save()
-			subject = subject._meta.model.objects.using(subject.zoo.id).filter(id=subject.id).get() # reload subject
+			subject = subject._meta.model.objects.using(subject.zoo.id).filter(id=subject.id).get()  # reload subject
 	
-	subject_form = get_subject_form(subject=subject, prefix='subject')
-	attributes_formset = get_attributes_formset(subject=subject, prefix='attributes')
+	if request_valid:
+		subject_form = get_subject_form(subject=subject, prefix='subject')
+		attributes_formset = get_attributes_formset(subject=subject, prefix='attributes')
 	
 	return render(
 		request=request,
