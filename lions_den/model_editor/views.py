@@ -11,14 +11,12 @@ from .forms import get_subject_form, get_attributes_formset
 
 @login_required
 def zoos_index(request):
-	allowed_zoos = request.user.zoos.all() if not request.user.is_superuser else Zoo.objects.all()
-	
-	if len(allowed_zoos) == 1:
-		return redirect(allowed_zoos[0].id + '/')
+	if len(request.user.allowed_zoos) == 1:
+		return redirect(request.user.allowed_zoos[0].id + '/')
 	return render(
 		request=request,
 		template_name='model_editor/zoos_index.html',
-		context={'zoos' : allowed_zoos}
+		context={'zoos' : request.user.allowed_zoos}
 	)
 
 @login_and_zoo_access_required

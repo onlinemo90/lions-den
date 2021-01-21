@@ -37,7 +37,14 @@ class ZooUser(AbstractUser):
 
 	def __str__(self):
 		return self.email
-
+	
+	@property
+	def allowed_zoos(self):
+		return Zoo.objects.all() if self.is_superuser else self.zoos.all()
+	
+	def has_access(self, zoo_id):
+		return any(zoo.id==zoo_id for zoo in self.allowed_zoos)
+	
 
 class Zoo(models.Model):
 	_id = models.AutoField(primary_key=True)
