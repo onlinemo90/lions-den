@@ -125,7 +125,7 @@ def get_new_attribute_form(subject, *args, **kwargs):
 				fields = ('category', 'attribute')
 				labels = {'category': 'Header', 'attribute': 'Text'}
 			
-			def __init__(self, *args, **kwargs): # TODO: might need custom is_valid and save methods to save the
+			def __init__(self, *args, **kwargs):
 				super().__init__(zoo_id=subject.zoo.id, *args, **kwargs)
 				self.fields['category'] = forms.ModelChoiceField(queryset=category_queryset, empty_label='')
 			
