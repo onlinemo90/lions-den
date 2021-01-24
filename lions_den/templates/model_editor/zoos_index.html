@@ -16,6 +16,11 @@
 				</a>
 
 			<br/>
+		{% empty %}
+			<div class="alert alert-danger">
+  				You have no zoos assigned yet. Please contact your administrators at
+				<a href="mailto:contact@zooverse.org" class="alert-link">contact@zooverse.org</a>.
+			</div>
 		{% endfor %}
 	</div>
 {% endblock %}
