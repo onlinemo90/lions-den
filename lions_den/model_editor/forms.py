@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from django.db import models
 
-from .models import Species, Individual, SpeciesAttribute, IndividualAttribute
+from .models import Species, Individual, SpeciesAttribute, IndividualAttribute, AttributeCategory
 
 
 class BaseModelForm(forms.ModelForm):
@@ -37,7 +37,7 @@ class BaseSubjectForm(BaseModelForm):
 
 class SpeciesForm(BaseSubjectForm):
 	image = forms.FileField()
-	audio = forms.FileField()
+	audio = forms.FileField(required=False)
 	class Meta:
 		model = Species
 		fields = ['name', 'image', 'audio']
@@ -81,40 +81,57 @@ def get_subject_form(subject, *args, **kwargs):
 
 def get_attributes_formset(subject, *args, **kwargs):
 	SubjectAttribute = SpeciesAttribute if isinstance(subject, Species) else IndividualAttribute
-	
-	# Define form for displaying/editing each attribute
-	class SubjectAttributeForm(BaseModelForm):
-		class Meta:
-			model = SubjectAttribute
-			fields = ('category', 'attribute')
-			labels = {'category': 'Header', 'attribute': 'Text'}
+	if len(subject.attributes.all()) > 0:
+		# Define form for displaying/editing each attribute
+		class SubjectAttributeForm(BaseModelForm):
+			class Meta:
+				model = SubjectAttribute
+				fields = ('attribute',)
+			
+			def __init__(self, *args, **kwargs):
+				super().__init__(*args, **kwargs)
+				self.fields['attribute'].label = self.instance.category.name
 		
-		def __init__(self, *args, **kwargs):
-			super().__init__(*args, **kwargs)
-			self.empty_permitted = False
+		
+		# Define formset for multiple attributes
+		BaseSubjectAttributesFormSet = forms.modelformset_factory(
+			SubjectAttribute,
+			form=SubjectAttributeForm,
+			extra=0,
+			can_delete=True,
+			can_order=False
+		)
+		
+		# Define formset for attributes specific to a subject (Species or Individual)
+		class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
+			def __init__(self, subject, *args, **kwargs):
+				super().__init__(
+					queryset=SubjectAttribute.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('-category__priority').all(),
+					form_kwargs={'zoo_id': subject.zoo.id},
+					*args, **kwargs
+				)
+				
+		return SubjectAttributesFormSet(subject, *args, **kwargs)
+	return None
+
+
+def get_new_attribute_form(subject, *args, **kwargs):
+	used_categories = [attribute.category.id for attribute in subject.attributes.all()]
+	category_queryset = AttributeCategory.objects.using(subject.zoo.id).exclude(id__in=used_categories)
+	if len(category_queryset) > 0:
+		class NewSubjectAttributeForm(BaseModelForm):
+			class Meta:
+				model = SpeciesAttribute if isinstance(subject, Species) else IndividualAttribute
+				fields = ('category', 'attribute')
+				labels = {'category': 'Header', 'attribute': 'Text'}
 			
-			# Set labels correctly - for some reason Django screws this up
-			for field, label in self._meta.labels.items():
-				self.fields[field].label = label
-			self.fields['category'].empty_label = ''
-	
-	
-	# Define formset for multiple attributes
-	BaseSubjectAttributesFormSet = forms.modelformset_factory(
-		SubjectAttribute,
-		form=SubjectAttributeForm,
-		extra=0, # TODO: support additions - breaks formset validation
-		can_delete=True,
-		can_order=False
-	)
-	
-	# Define formset for attributes specific to a subject (Species or Individual)
-	class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
-		def __init__(self, subject, *args, **kwargs):
-			super().__init__(
-				queryset=SubjectAttribute.objects.using(subject.zoo.id).filter(subject_id=subject.id).all(),
-				form_kwargs={'zoo_id': subject.zoo.id},
-				*args, **kwargs
-			)
+			def __init__(self, *args, **kwargs): # TODO: might need custom is_valid and save methods to save the
+				super().__init__(zoo_id=subject.zoo.id, *args, **kwargs)
+				self.fields['category'] = forms.ModelChoiceField(queryset=category_queryset, empty_label='')
 			
-	return SubjectAttributesFormSet(subject, *args, **kwargs)
+			def save(self, commit=True):
+				self.instance.subject = subject
+				super().save(commit)
+		
+		return NewSubjectAttributeForm(*args, **kwargs)
+	return None

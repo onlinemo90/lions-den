@@ -20,7 +20,7 @@ class BlobField(models.BinaryField):
 		return io.BytesIO(value) if value is not None else None
 	
 	def get_prep_value(self, value):
-		return value.read()
+		return value.read() if value is not None else b''
 
 
 class DefaultCharField(models.CharField):
