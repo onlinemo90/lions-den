@@ -19,7 +19,7 @@
 		<hr>
 		
 		<legend>{{ subject_form.image.label }}</legend>
-		<img style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
+		<img id="id_subject_image_display" style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
 		<br/><br/>
 		{{ subject_form.image }}
 		
@@ -27,7 +27,7 @@
 		
 		{% if 'audio' in subject_form.fields %}
 			<legend>{{ subject_form.audio.label }}</legend>
-			<audio controls><source src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
+			<audio id="id_audio_control" controls><source id="id_subject_audio_display" src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
 			<br/><br/>
 			{{ subject_form.audio }}
 			{% if subject.audio %}
@@ -78,3 +78,27 @@
 		{% include 'model_editor/modal_form.html' with form=new_attribute_form submit_btn_name='add_new_attribute' title='New Attribute' %}
 	{% endif %}
 {% endblock content %}
+
+{% block script %}
+	function setDynamicBlobDisplay(displayID, widgetID, audioControlID) {
+		let reloadAudio = function(){ if (audioControlID){ $("#" + audioControlID)[0].load() } };
+		var initialValue = document.getElementById(displayID).src;
+		document.querySelector('#' + widgetID).addEventListener('change', function() {
+			var file = document.getElementById(widgetID).files[0];
+			var displayElement = document.getElementById(displayID);
+			if (file){
+				var reader  = new FileReader();
+				reader.onload = function(e) {
+					displayElement.src = e.target.result;
+					reloadAudio();
+				};
+				reader.readAsDataURL(file);
+			} else {
+				displayElement.src = initialValue;
+				reloadAudio();
+			}
+		});
+	};
+	setDynamicBlobDisplay("id_subject_image_display", "id_subject-image");
+	setDynamicBlobDisplay("id_subject_audio_display", "id_subject-audio", "id_audio_control");
+{% endblock script %}
