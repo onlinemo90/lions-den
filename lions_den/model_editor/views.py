@@ -6,7 +6,7 @@ from zoo_auth.models import Zoo
 
 from .decorators import login_and_zoo_access_required
 from .models import Species, Individual, AttributeCategory
-from .forms import get_subject_form, get_attributes_formset
+from .forms import get_subject_form, get_attributes_formset, get_new_attribute_form
 
 
 @login_required
@@ -69,19 +69,26 @@ def attributes_list(request, zoo_id):
 def subject_page(request, subject):
 	request_valid = True
 	if request.method == 'POST':
-		subject_form = get_subject_form(subject, request.POST, request.FILES, prefix='subject')
-		attributes_formset = get_attributes_formset(subject, request.POST, prefix='attributes')
-		
-		request_valid = subject_form.is_valid() and attributes_formset.is_valid()
-		if request_valid:
-			subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
-			subject_form.save(fields_to_delete=subject_field_deletions)
-			attributes_formset.save()
-			subject = subject._meta.model.objects.using(subject.zoo.id).filter(id=subject.id).get()  # reload subject
+		if 'submit' in request.POST:
+			subject_form = get_subject_form(subject, request.POST, request.FILES, prefix='subject')
+			attributes_formset = get_attributes_formset(subject, request.POST, prefix='attributes')
+			
+			request_valid = subject_form.is_valid() and attributes_formset.is_valid()
+			if request_valid:
+				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
+				subject_form.save(fields_to_delete=subject_field_deletions)
+				attributes_formset.save()
+				subject = subject._meta.model.objects.using(subject.zoo.id).filter(id=subject.id).get()  # reload subject
+		elif 'add_new_attribute' in request.POST:
+			new_attribute_form = get_new_attribute_form(subject, request.POST, prefix='new_attribute')
+			request_valid = new_attribute_form.is_valid()
+			if request_valid:
+				new_attribute_form.save()
 	
 	if request_valid:
 		subject_form = get_subject_form(subject=subject, prefix='subject')
 		attributes_formset = get_attributes_formset(subject=subject, prefix='attributes')
+		new_attribute_form = get_new_attribute_form(subject, prefix='new_attribute')
 	
 	return render(
 		request=request,
@@ -90,6 +97,7 @@ def subject_page(request, subject):
 			'zoo': subject.zoo,
 			'subject': subject,
 			'subject_form': subject_form,
-			'attributes_formset': attributes_formset
+			'attributes_formset': attributes_formset,
+			'new_attribute_form' : new_attribute_form
 		}
 	)
