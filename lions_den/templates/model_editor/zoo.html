@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 	<div class="container">
-		<h1>Welcome to {{ zoo }} - Lion's Den</h1>
+		<h1 class="title">Welcome to {{ zoo }} - Lion's Den</h1>
 		<button type="button" class="btn btn-outline-dark disabled mb-5" style="float: right">Commit to ZooVerse</button>
 		<br>
 		<a href="{% url 'species_list' zoo.id %}" style="text-decoration:none">
