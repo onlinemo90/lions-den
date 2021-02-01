@@ -3,22 +3,21 @@
 	<div class="container">
 		{% for zoo in zoos %}
 			<a href="{{ zoo.id }}" style="text-decoration:none">
-					<div class="mx-3 my-3 content-section">
-						<div class="row">
-							 <div class="col-sm">
-								<img class="zoo-thumbnail vertical-center" src="{{ zoo.image.url }}"/>
-							 </div>
-							 <div class="col-sm">
-								 <h1>{{zoo.name}}</h1>
-							 </div>
+				<div class="mx-3 my-3 content-section">
+					<div class="row">
+						<div class="col-sm">
+							<img class="zoo-thumbnail vertical-center" src="{{ zoo.image.url }}"/>
+						</div>
+						<div class="col-sm">
+							<h1>{{ zoo.name }}</h1>
 						</div>
 					</div>
-				</a>
-
+				</div>
+			</a>
 			<br/>
 		{% empty %}
 			<div class="alert alert-danger">
-  				You have no zoos assigned yet. Please contact your administrators at
+				You have no zoos assigned yet. Please contact your administrators at
 				<a href="mailto:contact@zooverse.org" class="alert-link">contact@zooverse.org</a>.
 			</div>
 		{% endfor %}

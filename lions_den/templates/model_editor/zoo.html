@@ -3,19 +3,21 @@
 	<div class="container">
 		<h1>Welcome to {{ zoo }} - Lion's Den</h1>
 		<button type="button" class="btn btn-outline-dark disabled mb-5" style="float: right">Commit to ZooVerse</button>
-		<br>
+		<br/>
 		<a href="{% url 'species_list' zoo.id %}" style="text-decoration:none">
 			<button type="button" class="btn btn-outline-success btn-lg btn-block my-1">Edit Species</button>
-		</a><br>
+		</a>
+		<br/>
 		<a href="{% url 'individuals_list' zoo.id %}" style="text-decoration:none">
 			<button type="button" class="btn btn-outline-success btn-lg btn-block my-1">Edit Individuals</button>
-		</a><br>
+		</a>
+		<br/>
 		<a href="#" style="text-decoration:none">
 			<button type="button" class="btn btn-outline-success btn-lg btn-block my-1">Edit Groups</button>
-		</a><br>
+		</a>
+		<br/>
 		<a href="{% url 'attributes_list' zoo.id%}" style="text-decoration:none">
 			<button type="button" class="btn btn-outline-success btn-lg btn-block my-1">Edit Attributes</button>
 		</a>
 	</div>
-
 {% endblock %}
