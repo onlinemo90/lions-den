@@ -36,17 +36,17 @@ class SubjectsListView(ZooView):
 
 
 class SubjectPageView(ZooView):
+	template_name = 'model_editor/subject.html'
 	def get_subject(self, zoo_id, subject_id):
 		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
 	
 	def get_forms(self, subject, request=None):
-		requestPOST = request.POST if request else None
-		requestFILES = request.FILES if request else None
+		request_data = request.POST if request else None
+		request_files = request.FILES if request else None
 		
-		subject_form = get_subject_form(data=requestPOST, subject=subject, prefix='subject')
-		attributes_formset = get_attributes_formset(data=requestPOST, files=requestFILES, subject=subject,
-													prefix='attributes')
-		new_attribute_form = get_new_attribute_form(data=requestPOST, subject=subject, prefix='new_attribute')
+		subject_form = get_subject_form(data=request_data, subject=subject, prefix='subject')
+		attributes_formset = get_attributes_formset(data=request_data, files=request_files, subject=subject, prefix='attributes')
+		new_attribute_form = get_new_attribute_form(data=request_data, subject=subject, prefix='new_attribute')
 		return subject_form, attributes_formset, new_attribute_form
 	
 	def get(self, request, zoo_id, subject_id):
@@ -54,9 +54,9 @@ class SubjectPageView(ZooView):
 		subject_form, attributes_formset, new_attribute_form = self.get_forms(subject=subject)
 		return render(
 			request=request,
-			template_name='model_editor/subject.html',
+			template_name=self.template_name,
 			context={
-				'zoo': subject.zoo,
+				'zoo': self.get_zoo(zoo_id),
 				'subject': subject,
 				'subject_form': subject_form,
 				'attributes_formset': attributes_formset,
@@ -72,8 +72,7 @@ class SubjectPageView(ZooView):
 		if 'submit' in request.POST:
 			request_valid = subject_form.is_valid() and attributes_formset.is_valid()
 			if request_valid:
-				subject_field_deletions = [field.partition('_')[2] for field in request.POST if
-										   field.startswith('DELETE-FIELD_')]
+				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
 				subject_form.save(fields_to_delete=subject_field_deletions)
 				attributes_formset.save()
 				subject = self.get_subject(zoo_id, subject_id)  # reload subject
@@ -88,7 +87,7 @@ class SubjectPageView(ZooView):
 		
 		return render(
 			request=request,
-			template_name='model_editor/subject.html',
+			template_name=self.template_name,
 			context={
 				'zoo': subject.zoo,
 				'subject': subject,
