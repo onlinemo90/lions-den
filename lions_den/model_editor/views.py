@@ -1,103 +1,146 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
-from .decorators import login_and_zoo_access_required
 from .models import Species, Individual, AttributeCategory
 from .forms import get_subject_form, get_attributes_formset, get_new_attribute_form
 
+# Base Views---------------------------------------------------------
+class ZooView(LoginRequiredMixin, View):
+	def dispatch(self, request, *args, **kwargs):
+		""" Restrict access to view only to logged-in users with access to the specific zoo """
+		# Get request and zoo_id arguments
+		zoo_id = kwargs['zoo_id'] if 'zoo_id' in kwargs else args[0]
+		
+		# Check user permissions
+		if request.user.has_access(zoo_id=zoo_id):
+			return super().dispatch(request, *args, **kwargs)
+		else:
+			return redirect('home')
+	
+	def get_zoo(self, zoo_id):
+		return Zoo.objects.filter(id=zoo_id).get()
 
-@login_required
-def zoos_index(request):
-	if len(request.user.allowed_zoos) == 1:
-		return redirect(request.user.allowed_zoos[0].id + '/')
-	return render(
-		request=request,
-		template_name='model_editor/zoos_index.html',
-		context={'zoos' : request.user.allowed_zoos}
-	)
 
-@login_and_zoo_access_required
-def zoo_home(request, zoo_id):
-	return render(
-		request=request,
-		template_name='model_editor/zoo.html',
-		context={'zoo': Zoo.objects.filter(id=zoo_id).get()}
-	)
+class SubjectsListView(ZooView):
+	def get(self, request, zoo_id):
+		all_subjects = self.model.objects.using(zoo_id).order_by('name').all()
+		return render(
+			request=request,
+			template_name='model_editor/subjects_list.html',
+			context={'zoo': self.get_zoo(zoo_id), 'all_subjects' : all_subjects}
+		)
 
-@login_and_zoo_access_required
-def species_list(request, zoo_id):
-	all_species = Species.objects.using(zoo_id).order_by('name').all()
-	return render(
-		request=request,
-		template_name='model_editor/subjects_list.html',
-		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_subjects' : all_species}
-	)
 
-@login_and_zoo_access_required
-def individuals_list(request, zoo_id):
-	all_individuals = Individual.objects.using(zoo_id).order_by('name').all()
-	return render(
-		request=request,
-		template_name='model_editor/subjects_list.html',
-		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_subjects' : all_individuals}
-	)
-
-@login_and_zoo_access_required
-def species_page(request, zoo_id, species_id):
-	species = Species.objects.using(zoo_id).filter(id=species_id).get()
-	return subject_page(request, species)
-
-@login_and_zoo_access_required
-def individual_page(request, zoo_id, individual_id):
-	species = Individual.objects.using(zoo_id).filter(id=individual_id).get()
-	return subject_page(request, species)
-
-@login_and_zoo_access_required
-def attributes_list(request, zoo_id):
-	all_attributes = AttributeCategory.objects.using(zoo_id).all()
-	return render(
-		request=request,
-		template_name='model_editor/attributes_list.html',
-		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_attributes' : all_attributes}
-	)
-
-#-------------------------------------------------------------------------------------------------------
-
-def subject_page(request, subject):
-	request_valid = True
-	if request.method == 'POST':
+class SubjectPageView(ZooView):
+	def get_subject(self, zoo_id, subject_id):
+		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
+	
+	def get_forms(self, subject, request=None):
+		requestPOST = request.POST if request else None
+		requestFILES = request.FILES if request else None
+		
+		subject_form = get_subject_form(data=requestPOST, subject=subject, prefix='subject')
+		attributes_formset = get_attributes_formset(data=requestPOST, files=requestFILES, subject=subject,
+													prefix='attributes')
+		new_attribute_form = get_new_attribute_form(data=requestPOST, subject=subject, prefix='new_attribute')
+		return subject_form, attributes_formset, new_attribute_form
+	
+	def get(self, request, zoo_id, subject_id):
+		subject = self.get_subject(zoo_id, subject_id)
+		subject_form, attributes_formset, new_attribute_form = self.get_forms(subject=subject)
+		return render(
+			request=request,
+			template_name='model_editor/subject.html',
+			context={
+				'zoo': subject.zoo,
+				'subject': subject,
+				'subject_form': subject_form,
+				'attributes_formset': attributes_formset,
+				'new_attribute_form': new_attribute_form
+			}
+		)
+	
+	def post(self, request, zoo_id, subject_id):
+		subject = self.get_subject(zoo_id, subject_id)
+		subject_form, attributes_formset, new_attribute_form = self.get_forms(subject, request)
+		request_valid = False
+		
 		if 'submit' in request.POST:
-			subject_form = get_subject_form(subject, request.POST, request.FILES, prefix='subject')
-			attributes_formset = get_attributes_formset(subject, request.POST, prefix='attributes')
-			
 			request_valid = subject_form.is_valid() and attributes_formset.is_valid()
 			if request_valid:
-				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
+				subject_field_deletions = [field.partition('_')[2] for field in request.POST if
+										   field.startswith('DELETE-FIELD_')]
 				subject_form.save(fields_to_delete=subject_field_deletions)
 				attributes_formset.save()
-				subject = subject._meta.model.objects.using(subject.zoo.id).filter(id=subject.id).get()  # reload subject
+				subject = self.get_subject(zoo_id, subject_id)  # reload subject
+		
 		elif 'add_new_attribute' in request.POST:
-			new_attribute_form = get_new_attribute_form(subject, request.POST, prefix='new_attribute')
 			request_valid = new_attribute_form.is_valid()
 			if request_valid:
 				new_attribute_form.save()
-	
-	if request_valid:
-		subject_form = get_subject_form(subject=subject, prefix='subject')
-		attributes_formset = get_attributes_formset(subject=subject, prefix='attributes')
-		new_attribute_form = get_new_attribute_form(subject, prefix='new_attribute')
-	
-	return render(
-		request=request,
-		template_name='model_editor/subject.html',
-		context={
-			'zoo': subject.zoo,
-			'subject': subject,
-			'subject_form': subject_form,
-			'attributes_formset': attributes_formset,
-			'new_attribute_form' : new_attribute_form
-		}
-	)
+		
+		if request_valid:
+			subject_form, attributes_formset, new_attribute_form = self.get_forms(subject=subject)
+		
+		return render(
+			request=request,
+			template_name='model_editor/subject.html',
+			context={
+				'zoo': subject.zoo,
+				'subject': subject,
+				'subject_form': subject_form,
+				'attributes_formset': attributes_formset,
+				'new_attribute_form': new_attribute_form
+			}
+		)
+
+
+# Renderable Views---------------------------------------------------
+class ZoosIndexView(LoginRequiredMixin, View):
+	def get(self, request):
+		if len(request.user.allowed_zoos) == 1:
+			return redirect(request.user.allowed_zoos[0].id + '/')
+		return render(
+			request=request,
+			template_name = 'model_editor/zoos_index.html',
+			context={'zoos': request.user.allowed_zoos}
+		)
+
+
+class ZooHomeView(ZooView):
+	def get(self, request, zoo_id):
+		return render(
+			request=request,
+			template_name='model_editor/zoo.html',
+			context={'zoo': self.get_zoo(zoo_id)}
+		)
+
+
+class SpeciesListView(SubjectsListView):
+	model = Species
+
+
+class IndividualsListView(SubjectsListView):
+	model = Individual
+
+
+class SpeciesPageView(SubjectPageView):
+	model = Species
+
+
+class IndividualPageView(SubjectPageView):
+	model = Individual
+
+
+class AttributesListView(ZooView):
+	def get(self, request, zoo_id):
+		all_attributes = AttributeCategory.objects.using(zoo_id).all()
+		return render(
+			request=request,
+			template_name='model_editor/attributes_list.html',
+			context={'zoo': self.get_zoo(zoo_id), 'all_attributes': all_attributes}
+		)
