@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block script %}
+	$('#select_species').on('change', function(){
+		$.ajax({
+			type: 'GET',
+			url: '{{ request.path }}',
+			data: 'species_id=' + $(this).val(),
+			success: function (response) {
+				$('#subject-table').replaceWith(response);
+			}
+		});
+	});
+{% endblock script %}
+
+{% block content %}
+	<select name="species" id="select_species">
+		<option value=""></option>
+		{% for species in species_list %}
+			<option value="{{ species.id }}">{{ species.name }}</option>
+		{% endfor %}
+	</select>
+	{% include 'model_editor/subject_table.html' %}
+{% endblock content %}

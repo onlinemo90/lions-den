@@ -9,7 +9,7 @@ from .models import Species, Individual, AttributeCategory
 from .forms import get_subject_form, get_attributes_formset, get_new_attribute_form
 
 # Base Views---------------------------------------------------------
-class ZooView(LoginRequiredMixin, View):
+class BaseZooView(LoginRequiredMixin, View):
 	def dispatch(self, request, *args, **kwargs):
 		""" Restrict access to view only to logged-in users with access to the specific zoo """
 		# Get request and zoo_id arguments
@@ -25,18 +25,9 @@ class ZooView(LoginRequiredMixin, View):
 		return Zoo.objects.filter(id=zoo_id).get()
 
 
-class SubjectsListView(ZooView):
-	def get(self, request, zoo_id):
-		all_subjects = self.model.objects.using(zoo_id).order_by('name').all()
-		return render(
-			request=request,
-			template_name='model_editor/subjects_list.html',
-			context={'zoo': self.get_zoo(zoo_id), 'all_subjects' : all_subjects}
-		)
-
-
-class SubjectPageView(ZooView):
+class SubjectPageView(BaseZooView):
 	template_name = 'model_editor/subject.html'
+	
 	def get_subject(self, zoo_id, subject_id):
 		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
 	
@@ -110,7 +101,7 @@ class ZoosIndexView(LoginRequiredMixin, View):
 		)
 
 
-class ZooHomeView(ZooView):
+class ZooHomeView(BaseZooView):
 	def get(self, request, zoo_id):
 		return render(
 			request=request,
@@ -119,12 +110,45 @@ class ZooHomeView(ZooView):
 		)
 
 
-class SpeciesListView(SubjectsListView):
-	model = Species
+class SpeciesListView(BaseZooView):
+	def get(self, request, zoo_id):
+		return render(
+			request=request,
+			template_name='model_editor/species_list.html',
+			context={
+				'zoo': self.get_zoo(zoo_id),
+				'subjects': Species.objects.using(zoo_id).order_by('name').all()
+			}
+		)
 
 
-class IndividualsListView(SubjectsListView):
-	model = Individual
+class IndividualsListView(BaseZooView):
+	def get(self, request, zoo_id):
+		subjects_queryset = Individual.objects.using(zoo_id).order_by('name')
+		species_list = Species.objects.using(zoo_id).order_by('name').all()
+		
+		if request.is_ajax():
+			if request.GET.get('species_id'):
+				subjects_queryset = subjects_queryset.filter(species__id=request.GET['species_id'])
+			return render(
+				request=request,
+				template_name='model_editor/subject_table.html',
+				context={
+					'zoo': self.get_zoo(zoo_id),
+					'subjects': subjects_queryset.all(),
+					'species_list': species_list
+				}
+			)
+		else:
+			return render(
+				request=request,
+				template_name='model_editor/individuals_list.html',
+				context={
+					'zoo': self.get_zoo(zoo_id),
+					'all_subjects' : subjects_queryset.all(),
+					'species_list': species_list
+				}
+			)
 
 
 class SpeciesPageView(SubjectPageView):
@@ -135,7 +159,7 @@ class IndividualPageView(SubjectPageView):
 	model = Individual
 
 
-class AttributesListView(ZooView):
+class AttributesListViewBase(BaseZooView):
 	def get(self, request, zoo_id):
 		all_attributes = AttributeCategory.objects.using(zoo_id).all()
 		return render(
