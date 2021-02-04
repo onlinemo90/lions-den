@@ -16,10 +16,12 @@ class BaseZooView(LoginRequiredMixin, View):
 		zoo_id = kwargs['zoo_id'] if 'zoo_id' in kwargs else args[0]
 		
 		# Check user permissions
-		if request.user.has_access(zoo_id=zoo_id):
-			return super().dispatch(request, *args, **kwargs)
-		else:
-			return redirect('home')
+		try:
+			if request.user.has_access(zoo_id=zoo_id):
+				return super().dispatch(request, *args, **kwargs)
+		except:
+			pass
+		return redirect('home')
 	
 	def get_zoo(self, zoo_id):
 		return Zoo.objects.filter(id=zoo_id).get()
