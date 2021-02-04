@@ -1,7 +1,6 @@
 import datetime
 
 from django import forms
-from django.db import models
 
 from .models import Species, Individual, SpeciesAttribute, IndividualAttribute, AttributeCategory
 
@@ -17,17 +16,26 @@ class BaseModelForm(forms.ModelForm):
 		elif 'instance' in kwargs:
 			zoo_id = kwargs['instance'].zoo.id
 		else:
-			zoo_id=args[0]
+			raise Exception('zoo_id must be given to create zoo-related form')
 		
-		super().__init__(*args, **kwargs)
-		
-		fk_model_fields = [field for field in self._meta.model._meta.fields if isinstance(field, models.ForeignKey)]
-		for field in fk_model_fields:
-			if field.name in self.fields:
-				self.fields[field.name] = forms.ModelChoiceField(queryset=field.related_model.objects.using(zoo_id).all())
+		if 'instance' not in kwargs:
+			super().__init__(*args, **kwargs)
+			self.instance._state.db = zoo_id
+		else:
+			super().__init__(*args, **kwargs)
 
 
 class BaseSubjectForm(BaseModelForm):
+	def __init__(self, *args, **kwargs):
+		# Stabilising HTML element ID generation to allow Javascript ID matching on field HTML elements
+		kwargs['auto_id'] = 'id_subject_%s'
+		if 'prefix' in kwargs:
+			raise Exception("""
+				A prefix is not allowed for SubjectForms.
+				Unless you're trying to display multiple SubjectForms in one page, this shouldn't be needed.
+			""")
+		super().__init__(*args, **kwargs)
+	
 	def save(self, fields_to_delete=[]):
 		for field in fields_to_delete:
 			field_type = type(getattr(self.instance, field))
@@ -49,6 +57,7 @@ class SpeciesForm(BaseSubjectForm):
 
 
 class IndividualForm(BaseSubjectForm):
+	species = forms.ModelChoiceField(queryset=None) # added in __init__
 	image = forms.FileField()
 	weight = forms.CharField(required=False)
 	place_of_birth = forms.CharField(required=False)
@@ -63,20 +72,20 @@ class IndividualForm(BaseSubjectForm):
 	)
 	class Meta:
 		model = Individual
-		fields = ['name', 'image', 'gender', 'dob', 'place_of_birth', 'size', 'weight']
+		fields = ['species', 'name', 'image', 'gender', 'dob', 'place_of_birth', 'size', 'weight']
 		labels = {
+			'species': 'Species',
 			'name': 'Name',
 			'image': 'Image',
-			'gender' : 'Gender',
-			'weight' : 'Weight',
+			'gender': 'Gender',
+			'weight': 'Weight',
 			'place_of_birth': 'Place of Birth',
 			'size': 'Size'
 		}
-
-
-def get_subject_form(subject, *args, **kwargs):
-	SubjectForm = SpeciesForm if isinstance(subject, Species) else IndividualForm
-	return SubjectForm(instance=subject, *args, **kwargs)
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).order_by('name').all())
 
 
 def get_attributes_formset(subject, *args, **kwargs):

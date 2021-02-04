@@ -1,4 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+	<button type="button" data-toggle="modal" data-target="#modalForm">Add new species</button>
 	{% include 'model_editor/subject_table.html' %}
+	{% include 'model_editor/new_subject_modal_form.html' with form=new_subject_form title='New Species' submit_btn_name='new_species' %}
 {% endblock %}

@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from zoo_auth.models import Zoo
 
 from .models import Species, Individual, AttributeCategory
-from .forms import get_subject_form, get_attributes_formset, get_new_attribute_form
+from .forms import SpeciesForm, IndividualForm, get_attributes_formset, get_new_attribute_form
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -35,7 +35,8 @@ class SubjectPageView(BaseZooView):
 		request_data = request.POST if request else None
 		request_files = request.FILES if request else None
 		
-		subject_form = get_subject_form(data=request_data, subject=subject, prefix='subject')
+		subject_form_class = SpeciesForm if isinstance(subject, Species) else IndividualForm
+		subject_form = subject_form_class(data=request_data, instance=subject)
 		attributes_formset = get_attributes_formset(data=request_data, files=request_files, subject=subject, prefix='attributes')
 		new_attribute_form = get_new_attribute_form(data=request_data, subject=subject, prefix='new_attribute')
 		return subject_form, attributes_formset, new_attribute_form
@@ -61,11 +62,12 @@ class SubjectPageView(BaseZooView):
 		request_valid = False
 		
 		if 'submit' in request.POST:
-			request_valid = subject_form.is_valid() and attributes_formset.is_valid()
+			request_valid = subject_form.is_valid() and (attributes_formset is None or attributes_formset.is_valid())
 			if request_valid:
 				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
 				subject_form.save(fields_to_delete=subject_field_deletions)
-				attributes_formset.save()
+				if attributes_formset is not None:
+					attributes_formset.save()
 				subject = self.get_subject(zoo_id, subject_id)  # reload subject
 		
 		elif 'add_new_attribute' in request.POST:
@@ -111,44 +113,59 @@ class ZooHomeView(BaseZooView):
 
 
 class SpeciesListView(BaseZooView):
-	def get(self, request, zoo_id):
+	def render_default_page(self, request, zoo_id, new_species_form=None):
 		return render(
 			request=request,
 			template_name='model_editor/species_list.html',
 			context={
 				'zoo': self.get_zoo(zoo_id),
-				'subjects': Species.objects.using(zoo_id).order_by('name').all()
+				'subjects': Species.objects.using(zoo_id).order_by('name').all(),
+				'new_subject_form': new_species_form if new_species_form else SpeciesForm(zoo_id=zoo_id)
 			}
 		)
+	
+	def get(self, request, zoo_id):
+		return self.render_default_page(request, zoo_id)
+	
+	def post(self, request, zoo_id):
+		new_species_form = SpeciesForm(data=request.POST, files=request.FILES, zoo_id=zoo_id)
+		if new_species_form.is_valid():
+			new_species_form.save()
+			new_species_form = None
+		return self.render_default_page(request, zoo_id, new_species_form=new_species_form)
 
 
 class IndividualsListView(BaseZooView):
-	def get(self, request, zoo_id):
-		subjects_queryset = Individual.objects.using(zoo_id).order_by('name')
-		species_list = Species.objects.using(zoo_id).order_by('name').all()
+	def render_default_page(self, request, zoo_id, new_individual_form=None):
+		return render(
+			request=request,
+			template_name='model_editor/individuals_list.html',
+			context={
+				'zoo': self.get_zoo(zoo_id),
+				'subjects': Individual.objects.using(zoo_id).order_by('name'),
+				'species_list': Species.objects.using(zoo_id).order_by('name'),
+				'new_subject_form': new_individual_form if new_individual_form else IndividualForm(zoo_id=zoo_id)
+			}
+		)
 		
+	def get(self, request, zoo_id):
 		if request.is_ajax():
+			individuals_shown = Individual.objects.using(zoo_id).order_by('name')
 			if request.GET.get('species_id'):
-				subjects_queryset = subjects_queryset.filter(species__id=request.GET['species_id'])
+				individuals_shown = individuals_shown.filter(species__id=request.GET['species_id'])
 			return render(
 				request=request,
 				template_name='model_editor/subject_table.html',
-				context={
-					'zoo': self.get_zoo(zoo_id),
-					'subjects': subjects_queryset.all(),
-					'species_list': species_list
-				}
+				context={'subjects': individuals_shown}
 			)
-		else:
-			return render(
-				request=request,
-				template_name='model_editor/individuals_list.html',
-				context={
-					'zoo': self.get_zoo(zoo_id),
-					'all_subjects' : subjects_queryset.all(),
-					'species_list': species_list
-				}
-			)
+		return self.render_default_page(request, zoo_id)
+	
+	def post(self, request, zoo_id):
+		new_individual_form = IndividualForm(data=request.POST, files=request.FILES, zoo_id=zoo_id)
+		if new_individual_form.is_valid():
+			new_individual_form.save()
+			new_individual_form = None
+		return self.render_default_page(request, zoo_id, new_individual_form=new_individual_form)
 
 
 class SpeciesPageView(SubjectPageView):
