@@ -92,8 +92,8 @@ class Individual(AbstractBaseModel):
 
 
 class AttributeCategory(AbstractBaseModel):
-	name = models.TextField()
-	priority = models.TextField(unique=True)
+	name = DefaultCharField()
+	priority = models.PositiveIntegerField(unique=True)
 	
 	class Meta: db_table = 'ATTRIBUTE_CATEGORY'
 	

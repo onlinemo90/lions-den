@@ -6,8 +6,7 @@ from zoo_auth.models import Zoo
 
 from .decorators import login_and_zoo_access_required
 from .models import Species, Individual, AttributeCategory
-from .forms import get_subject_form, get_attributes_formset, get_new_attribute_form
-
+from .forms import get_subject_form, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
 
 @login_required
 def zoos_index(request):
@@ -56,12 +55,21 @@ def individual_page(request, zoo_id, individual_id):
 	return subject_page(request, species)
 
 @login_and_zoo_access_required
-def attributes_list(request, zoo_id):
-	all_attributes = AttributeCategory.objects.using(zoo_id).all()
+def attribute_category_list(request, zoo_id):
+	request_valid = True
+	if request.method == 'POST':
+		formset = get_attribute_categories_formset(zoo_id, request.POST)
+		request_valid = formset.is_valid()
+		if request_valid:
+			formset.save()
+	
+	if request_valid:
+		formset = get_attribute_categories_formset(zoo_id=zoo_id)
+	
 	return render(
 		request=request,
-		template_name='model_editor/attributes_list.html',
-		context={'zoo': Zoo.objects.filter(id=zoo_id).get(), 'all_attributes' : all_attributes}
+		template_name='model_editor/attribute_category_list.html',
+		context={'formset': formset}
 	)
 
 #-------------------------------------------------------------------------------------------------------
