@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.forms.models import modelformset_factory
 
 from .models import Species, Individual, SpeciesAttribute, IndividualAttribute, AttributeCategory
 
@@ -122,6 +123,44 @@ def get_attributes_formset(subject, *args, **kwargs):
 				
 		return SubjectAttributesFormSet(subject, *args, **kwargs)
 	return None
+
+
+def get_attribute_categories_formset(zoo_id, *args, **kwargs):
+	class AttributeCategoryForm(BaseModelForm):
+		class Meta:
+			model = AttributeCategory
+			fields = ('name',)
+	
+	BaseAttributeCategoriesFormset = modelformset_factory(
+		AttributeCategory,
+		form=AttributeCategoryForm,
+		extra=0,
+		can_delete=True,
+		can_order=True
+	)
+	
+	class AttributeCategoriesFormset(BaseAttributeCategoriesFormset):
+		def __init__(self, zoo_id, *args, **kwargs):
+			super().__init__(
+				queryset=AttributeCategory.objects.using(zoo_id).order_by('-priority').all(),
+				form_kwargs={'zoo_id': zoo_id},
+				*args, **kwargs
+			)
+		
+		def save(self, commit=True):
+			super().save(commit)
+			
+			def set_categories_priority(max_priority):
+				current_priority = max_priority
+				for form in self.ordered_forms:
+					form.instance.priority = current_priority
+					current_priority -= 1
+					form.instance.save()
+			
+			set_categories_priority(3 * len(self.forms))
+			set_categories_priority(len(self.forms))
+	
+	return AttributeCategoriesFormset(zoo_id, *args, **kwargs)
 
 
 def get_new_attribute_form(subject, *args, **kwargs):

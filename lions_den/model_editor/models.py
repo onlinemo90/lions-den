@@ -92,7 +92,7 @@ class Individual(AbstractBaseModel):
 
 
 class AttributeCategory(AbstractBaseModel):
-	name = models.TextField()
+	name = DefaultCharField()
 	priority = models.TextField(unique=True)
 	
 	class Meta: db_table = 'ATTRIBUTE_CATEGORY'

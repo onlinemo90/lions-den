@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from zoo_auth.models import Zoo
 
 from .models import Species, Individual, AttributeCategory
-from .forms import SpeciesForm, IndividualForm, get_attributes_formset, get_new_attribute_form
+from .forms import SpeciesForm, IndividualForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -16,11 +16,8 @@ class BaseZooView(LoginRequiredMixin, View):
 		zoo_id = kwargs['zoo_id'] if 'zoo_id' in kwargs else args[0]
 		
 		# Check user permissions
-		try:
-			if request.user.has_access(zoo_id=zoo_id):
-				return super().dispatch(request, *args, **kwargs)
-		except:
-			pass
+		if request.user.is_authenticated and request.user.has_access(zoo_id=zoo_id):
+			return super().dispatch(request, *args, **kwargs)
 		return redirect('home')
 	
 	def get_zoo(self, zoo_id):
@@ -185,4 +182,30 @@ class AttributesListViewBase(BaseZooView):
 			request=request,
 			template_name='model_editor/attributes_list.html',
 			context={'zoo': self.get_zoo(zoo_id), 'all_attributes': all_attributes}
+		)
+
+
+class AttributeCategoryListView(BaseZooView):
+	template_name = 'model_editor/attribute_category_list.html'
+	
+	def get_forms(self, zoo_id, request=None):
+		request_data = request.POST if request else None
+		return get_attribute_categories_formset(zoo_id=zoo_id, data=request_data)
+	
+	def get(self, request, zoo_id):
+		return render(
+			request=request,
+			template_name=self.template_name,
+			context={'zoo': self.get_zoo(zoo_id), 'formset': self.get_forms(zoo_id)}
+		)
+	
+	def post(self, request, zoo_id):
+		formset = self.get_forms(zoo_id, request.POST)
+		if formset.is_valid():
+			formset.save()
+			formset = self.get_forms(zoo_id)
+		return render(
+			request=request,
+			template_name=self.template_name,
+			context={'zoo': self.get_zoo(zoo_id), 'formset': formset}
 		)

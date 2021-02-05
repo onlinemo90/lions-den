@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ZoosIndexView, ZooHomeView, SpeciesPageView, IndividualPageView, SpeciesListView, IndividualsListView, AttributesListViewBase
+from .views import ZoosIndexView, ZooHomeView, SpeciesPageView, IndividualPageView, SpeciesListView, IndividualsListView, AttributeCategoryListView
 
 urlpatterns = [
 	path('', ZoosIndexView.as_view(), name='zoo_index'),
@@ -11,5 +11,5 @@ urlpatterns = [
 	path('<str:zoo_id>/individuals/', IndividualsListView.as_view(), name='individuals_list'),
 	path('<str:zoo_id>/individuals/<str:subject_id>', IndividualPageView.as_view()),
 	
-	path('<str:zoo_id>/attributes/', AttributesListViewBase.as_view(), name='attributes_list'),
+	path('<str:zoo_id>/attributes/', AttributeCategoryListView.as_view(), name='attributes_list'),
 ]
