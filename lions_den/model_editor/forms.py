@@ -59,7 +59,7 @@ class SpeciesForm(BaseSubjectForm):
 
 
 class IndividualForm(BaseSubjectForm):
-	species = forms.ModelChoiceField(queryset=None) # added in __init__
+	species = forms.ModelChoiceField(queryset=None) # set in __init__
 	image = forms.FileField()
 	weight = forms.CharField(required=False)
 	place_of_birth = forms.CharField(required=False)
