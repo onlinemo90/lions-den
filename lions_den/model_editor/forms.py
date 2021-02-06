@@ -96,6 +96,12 @@ class IndividualForm(BaseSubjectForm):
 			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).order_by('name').all())
 
 
+class AttributeCategoryForm(BaseModelForm):
+	class Meta:
+		model = AttributeCategory
+		fields = ('name',)
+
+
 def get_attributes_formset(subject, *args, **kwargs):
 	SubjectAttribute = SpeciesAttribute if isinstance(subject, Species) else IndividualAttribute
 	if len(subject.attributes.all()) > 0:
@@ -133,11 +139,6 @@ def get_attributes_formset(subject, *args, **kwargs):
 
 
 def get_attribute_categories_formset(zoo_id, *args, **kwargs):
-	class AttributeCategoryForm(BaseModelForm):
-		class Meta:
-			model = AttributeCategory
-			fields = ('name',)
-	
 	BaseAttributeCategoriesFormset = modelformset_factory(
 		AttributeCategory,
 		form=AttributeCategoryForm,
@@ -173,6 +174,7 @@ def get_attribute_categories_formset(zoo_id, *args, **kwargs):
 def get_new_attribute_form(subject, *args, **kwargs):
 	used_categories = [attribute.category.id for attribute in subject.attributes.all()]
 	category_queryset = AttributeCategory.objects.using(subject.zoo.id).exclude(id__in=used_categories)
+	
 	if len(category_queryset) > 0:
 		class NewSubjectAttributeForm(BaseModelForm):
 			class Meta:
