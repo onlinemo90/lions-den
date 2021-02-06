@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
-from .models import Species, Individual, AttributeCategory
+from .models import Species, Individual
 from .forms import SpeciesForm, IndividualForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
 
 # Base Views---------------------------------------------------------
@@ -35,7 +35,7 @@ class SubjectPageView(BaseZooView):
 		request_files = request.FILES if request else None
 		
 		subject_form_class = SpeciesForm if isinstance(subject, Species) else IndividualForm
-		subject_form = subject_form_class(data=request_data, instance=subject)
+		subject_form = subject_form_class(data=request_data, files=request_files, instance=subject)
 		attributes_formset = get_attributes_formset(data=request_data, files=request_files, subject=subject, prefix='attributes')
 		new_attribute_form = get_new_attribute_form(data=request_data, subject=subject, prefix='new_attribute')
 		return subject_form, attributes_formset, new_attribute_form

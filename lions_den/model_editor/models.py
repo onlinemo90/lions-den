@@ -19,8 +19,8 @@ class BlobField(models.BinaryField):
 	def from_db_value(self, value, expression, connection):
 		return io.BytesIO(value) if value is not None else None
 	
-	def get_prep_value(self, value):
-		return value.read() if value is not None else b''
+	def get_db_prep_value(self, value, connection, prepared=False):
+		return value.read() if value is not None else None
 
 
 class DefaultCharField(models.CharField):
