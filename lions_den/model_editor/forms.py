@@ -88,7 +88,12 @@ class IndividualForm(BaseSubjectForm):
 	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).order_by('name').all())
+		
+		# Allow form to be used both for editing existing individuals and for creating new ones
+		if 'instance' in kwargs:
+			del self.fields['species']
+		else:
+			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).order_by('name').all())
 
 
 def get_attributes_formset(subject, *args, **kwargs):
