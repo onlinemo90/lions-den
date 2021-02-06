@@ -1,0 +1,12 @@
+{# Note: Set id_prefix to allow for multiple modal forms in a single page #}
+{# Toggle modal on by having an input tage by setting data-toggle="modal" & data-target="#modalForm" in your input tag #}
+<div class="modal fade" id="{{ id_prefix }}modalForm" tabindex="-1" role="dialog" aria-labelledby="{{ id_prefix }}modalFormTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="{{ id_prefix }}modalFormTitle">{% block title %}{% endblock %}</h5>
+			</div>
+			{% block content %}{% endblock %}
+		</div>
+	</div>
+</div>

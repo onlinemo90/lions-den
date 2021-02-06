@@ -1,15 +1,15 @@
 from django.urls import path
-from .views import zoos_index, zoo_home, species_page, individual_page, species_list, individuals_list, attribute_category_list
+from .views import ZoosIndexView, ZooHomeView, SpeciesPageView, IndividualPageView, SpeciesListView, IndividualsListView, AttributeCategoryListView
 
 urlpatterns = [
-    path('', zoos_index, name='zoo_index'),
-    path('<str:zoo_id>/', zoo_home),
-    
-    path('<str:zoo_id>/species/', species_list, name='species_list'),
-    path('<str:zoo_id>/species/<str:species_id>', species_page),
-    
-    path('<str:zoo_id>/individuals/', individuals_list, name='individuals_list'),
-    path('<str:zoo_id>/individuals/<str:individual_id>', individual_page),
-    
-    path('<str:zoo_id>/attributes/', attribute_category_list, name='attributes_list'),
+	path('', ZoosIndexView.as_view(), name='zoo_index'),
+	path('<str:zoo_id>/', ZooHomeView.as_view()),
+	
+	path('<str:zoo_id>/species/', SpeciesListView.as_view(), name='species_list'),
+	path('<str:zoo_id>/species/<str:subject_id>', SpeciesPageView.as_view()),
+	
+	path('<str:zoo_id>/individuals/', IndividualsListView.as_view(), name='individuals_list'),
+	path('<str:zoo_id>/individuals/<str:subject_id>', IndividualPageView.as_view()),
+	
+	path('<str:zoo_id>/attributes/', AttributeCategoryListView.as_view(), name='attributes_list'),
 ]
