@@ -175,21 +175,10 @@ class IndividualPageView(SubjectPageView):
 	model = Individual
 
 
-class AttributesListViewBase(BaseZooView):
-	def get(self, request, zoo_id):
-		all_attributes = AttributeCategory.objects.using(zoo_id).all()
-		return render(
-			request=request,
-			template_name='model_editor/attributes_list.html',
-			context={'zoo': self.get_zoo(zoo_id), 'all_attributes': all_attributes}
-		)
-
-
 class AttributeCategoryListView(BaseZooView):
 	template_name = 'model_editor/attribute_category_list.html'
 	
-	def get_forms(self, zoo_id, request=None):
-		request_data = request.POST if request else None
+	def get_forms(self, zoo_id, request_data=None):
 		return get_attribute_categories_formset(zoo_id=zoo_id, data=request_data)
 	
 	def get(self, request, zoo_id):

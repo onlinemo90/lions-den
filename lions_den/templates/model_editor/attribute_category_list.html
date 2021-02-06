@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-
-<form class="form-horizontal" method="POST" action="">
-	{% csrf_token %}
-	{{ formset.management_form }}
-	{{ formset|crispy }}
-	<div class="row spacer">
-		<div class="col-4 offset-2">
-			<button type="submit" class="btn btn-block btn-primary">Save</button>
+	<form class="form-horizontal" method="POST" action="">
+		{% csrf_token %}
+		{{ formset.management_form }}
+		{{ formset|crispy }}
+		<div class="row spacer">
+			<div class="col-4 offset-2">
+				<button type="submit" class="btn btn-block btn-primary">Save</button>
+			</div>
 		</div>
-	</div>
-</form>
-
+	</form>
 {% endblock %}
