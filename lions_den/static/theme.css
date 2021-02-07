@@ -1,0 +1,13 @@
+.light-theme{
+	--colorPrimary: #68b733;
+	--colorPrimaryDark: #528F29;
+	--colorForeground: #808080;
+	--colorBackground: #FFFFFF;
+}
+
+.dark-theme{
+	--colorPrimary: #528F29;
+	--colorPrimaryDark: #3b661e;
+	--colorForeground: #808080;
+	--colorBackground: #262626;
+}
