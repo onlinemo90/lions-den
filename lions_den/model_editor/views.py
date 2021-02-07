@@ -1,6 +1,9 @@
+import base64
+
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
@@ -16,9 +19,22 @@ class BaseZooView(LoginRequiredMixin, View):
 		zoo_id = kwargs['zoo_id'] if 'zoo_id' in kwargs else args[0]
 		
 		# Check user permissions
-		if request.user.is_authenticated and request.user.has_access(zoo_id=zoo_id):
-			return super().dispatch(request, *args, **kwargs)
-		return redirect('home')
+		if not (request.user.is_authenticated and request.user.has_access(zoo_id=zoo_id)):
+			return redirect('home')
+		
+		# Dispatch as usual but if an AJAX request, then redirect to [http_method]_ajax
+		if request.method.lower() in self.http_method_names:
+			method_name = request.method.lower()
+			if request.is_ajax():
+				method_name += '_ajax'
+			handler = getattr(self, method_name, self.http_method_not_allowed)
+		else:
+			handler = self.http_method_not_allowed
+		return handler(request, *args, **kwargs)
+	
+	def get_normalised_image_str(self, image_file):
+		normalised_img = self.model.image.field.normalise_image(image_file)
+		return str(base64.b64encode(normalised_img.read()))[2:-2]
 	
 	def get_zoo(self, zoo_id):
 		return Zoo.objects.filter(id=zoo_id).get()
@@ -88,7 +104,14 @@ class SubjectPageView(BaseZooView):
 				'new_attribute_form': new_attribute_form
 			}
 		)
+	
+	def post_ajax(self, request, zoo_id, subject_id):
+		return JsonResponse({'image': f'data:image/png;base64,{self.get_normalised_image_str(request.FILES["image"])}'})
 
+
+class SubjectListView(BaseZooView):
+	def post_ajax(self, request, zoo_id):
+		return JsonResponse({'image': f'data:image/png;base64,{self.get_normalised_image_str(request.FILES["image"])}'})
 
 # Renderable Views---------------------------------------------------
 class ZoosIndexView(LoginRequiredMixin, View):
@@ -111,7 +134,9 @@ class ZooHomeView(BaseZooView):
 		)
 
 
-class SpeciesListView(BaseZooView):
+class SpeciesListView(SubjectListView):
+	model = Species
+	
 	def render_default_page(self, request, zoo_id, new_species_form=None):
 		return render(
 			request=request,
@@ -134,7 +159,9 @@ class SpeciesListView(BaseZooView):
 		return self.render_default_page(request, zoo_id, new_species_form=new_species_form)
 
 
-class IndividualsListView(BaseZooView):
+class IndividualsListView(SubjectListView):
+	model = Individual
+	
 	def render_default_page(self, request, zoo_id, new_individual_form=None):
 		return render(
 			request=request,
@@ -148,16 +175,17 @@ class IndividualsListView(BaseZooView):
 		)
 		
 	def get(self, request, zoo_id):
-		if request.is_ajax():
-			individuals_shown = Individual.objects.using(zoo_id).order_by('name')
-			if request.GET.get('species_id'):
-				individuals_shown = individuals_shown.filter(species__id=request.GET['species_id'])
-			return render(
-				request=request,
-				template_name='model_editor/subject_table.html',
-				context={'subjects': individuals_shown}
-			)
 		return self.render_default_page(request, zoo_id)
+	
+	def get_ajax(self, request, zoo_id):
+		individuals_shown = Individual.objects.using(zoo_id).order_by('name')
+		if request.GET.get('species_id'):
+			individuals_shown = individuals_shown.filter(species__id=request.GET['species_id'])
+		return render(
+			request=request,
+			template_name='model_editor/subject_table.html',
+			context={'subjects': individuals_shown}
+		)
 	
 	def post(self, request, zoo_id):
 		new_individual_form = IndividualForm(data=request.POST, files=request.FILES, zoo_id=zoo_id)
