@@ -1,39 +1,21 @@
 <table id="subject-table" class="subject-table">
 	{% for subject in subjects %}
-		{% if forloop.counter0|divisibleby:2 %}
-			<tr>
-				<th>
-					<a href="{{ subject.id }}" style="text-decoration:none">
-						<div class="mx-3 my-3 content-section">
-							<div class="row">
-								 <div class="col-sm">
-									<img class="rounded-circle subject-thumbnail vertical-center" src="data:image/png;base64,{{ subject.image_str}}"/>
-								 </div>
-								 <div class="col-sm">
-									 <br>
-									 <h1>{{subject.name}}</h1>
-								 </div>
-							</div>
-						</div>
-					</a>
-				</th>
-		{% else %}
-			<th>
-				<a href="{{ subject.id }}" style="text-decoration:none">
-					<div class="mx-3 my-3 content-section">
-						<div class="row">
-							<div class="col-sm">
-								<img class="rounded-circle subject-thumbnail vertical-center" src="data:image/png;base64,{{ subject.image_str}}"/>
-							</div>
-							<div class="col-sm">
-								<br>
-								<h1>{{subject.name}}</h1>
-							</div>
-						</div>
+		{% cycle '<tr>' '' %}
+		<th>
+			<a href="{{ subject.id }}" style="text-decoration:none">
+				<div class="mx-3 my-3 content-section">
+					<div class="row">
+						 <div class="col-sm">
+							<img class="rounded-circle subject-thumbnail vertical-center" src="data:image/png;base64,{{ subject.image_str}}"/>
+						 </div>
+						 <div class="col-sm">
+							 <br>
+							 <h1 class="title">{{ subject.name }}</h1>
+						 </div>
 					</div>
-				</a>
-			</th>
-			</tr>
-		{% endif %}
+				</div>
+			</a>
+		</th>
+		{% cycle '' '</tr>' %}
 	{% endfor %}
 </table>

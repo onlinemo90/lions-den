@@ -20,6 +20,6 @@
 		<button name="submit" type="submit">Submit</button>
 	</form>
 	{% if new_attribute_form %}
-		{% include 'utils/modal_form_simple.html' with form=new_attribute_form submit_btn_name='add_new_attribute' title='New Attribute' %}
+		{% include 'utils/modals/modal_form_simple.html' with form=new_attribute_form submit_btn_name='add_new_attribute' title='New Attribute' %}
 	{% endif %}
 {% endblock content %}

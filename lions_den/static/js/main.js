@@ -1,3 +1,7 @@
+// Load Bootstrap Toasts------------------------------------------------------------------------------------------------
+$('.toast').toast('show');
+//----------------------------------------------------------------------------------------------------------------------
+
 // Dynamic image & audio updating in subject forms----------------------------------------------------------------------
 function setDynamicBlobDisplay(displayID, widgetID, audioControlID) {
 	let reloadAudio = function(){ if (audioControlID){ $("#" + audioControlID)[0].load() } };
@@ -42,3 +46,4 @@ if (document.getElementById('select_species')){
 	});
 }
 //----------------------------------------------------------------------------------------------------------------------
+
