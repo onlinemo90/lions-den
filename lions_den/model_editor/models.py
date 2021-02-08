@@ -52,16 +52,33 @@ class AbstractBaseModel(models.Model):
 		return Zoo.objects.filter(id=self._state.db).first()
 
 
-class Species(AbstractBaseModel):
+class ZooSubject(AbstractBaseModel):
 	name = DefaultCharField()
 	image = BlobField(editable=True, null=True, blank=False)
+	
+	class Meta:
+		abstract = True
+	
+	def __str__(self):
+		return self.name
+	
+	@property
+	def qr_code(self):
+		return create_request_qrcode(
+			zoo=self.zoo,
+			request = {
+				'zoo': self.zoo.id,
+				'type': 'species' if isinstance(self, Species) else 'individual',
+				'id': self.id
+			}
+		)
+
+
+class Species(ZooSubject):
 	audio = BlobField(editable=True, null=True, blank=True)
 	
 	class Meta:
 		db_table = 'SPECIES'
-	
-	def __str__(self):
-		return self.name
 	
 	@property
 	def qrcode(self):
@@ -71,13 +88,11 @@ class Species(AbstractBaseModel):
 		)
 
 
-class Individual(AbstractBaseModel):
+class Individual(ZooSubject):
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
-	name = DefaultCharField()
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()
 	weight = DefaultCharField()
-	image = BlobField(editable=True, null=True, blank=False)
 	size = DefaultCharField()
 	gender = DefaultCharField(
 		choices=([(None, '')] + [(gender.value, gender.name.title()) for gender in Gender]),
@@ -86,9 +101,6 @@ class Individual(AbstractBaseModel):
 	
 	class Meta:
 		db_table = 'INDIVIDUAL'
-	
-	def __str__(self):
-		return self.name
 
 
 class AttributeCategory(AbstractBaseModel):
