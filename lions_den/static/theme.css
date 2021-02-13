@@ -3,6 +3,7 @@
 	--colorPrimaryDark: #528F29;
 	--colorForeground: #808080;
 	--colorBackground: #FFFFFF;
+	--colorContrast: #808080;
 }
 
 .dark-theme{
@@ -10,4 +11,5 @@
 	--colorPrimaryDark: #3b661e;
 	--colorForeground: #808080;
 	--colorBackground: #262626;
+	--colorContrast: #FFFFFF;
 }

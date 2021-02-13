@@ -1,26 +1,37 @@
+/*styling for tags*/
+
 body{
 	background-color: var(--colorBackground);
 }
 
-h1, h2, h3, h4, h5, h6, p, a, label, legend{
+h1, h2, h3, h4, h5, h6, p, a, legend {
 	color: var(--colorPrimary);
 }
 
-.no-vertical-padding{
-	padding-top: 0px;
-	padding-bottom: 0px;
+label {
+	color: var(--colorForeground);
 }
 
-.vertical-center {
-	position: absolute;
-	top: 50%;
-	-ms-transform: translateY(-50%);
-	transform: translateY(-50%);
+input[type=text], input[type=password] {
+   background-color: var(--colorBackground);
+   color: var(--colorContrast);
 }
 
-.bg-primary, .btn-primary{
+/*additional styling for crispy form classes*/
+
+.selectdatewidget, .select {
+	width: auto;
+	display: inline;
+   background-color: var(--colorBackground);
+   color: var(--colorContrast);
+}
+
+/*additional styling for bootstrap classes*/
+
+.bg-primary, .btn-primary {
 	background-color: var(--colorPrimary) !important;
 	border-color: var(--colorPrimary) !important;
+	color: var(--colorBackground) !important;
 }
 
 a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-primary:hover{
@@ -36,10 +47,45 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
 	color: var(--colorBackground) !important;
 }
 
+/* custom css classes*/
+
+.forms {
+	background-color: var(--colorBackground) !important;
+}
+
+.no-vertical-padding{
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+.vertical-center {
+	position: absolute;
+	top: 50%;
+	-ms-transform: translateY(-50%);
+	transform: translateY(-50%);
+}
+
+.button {
+  border: 1px solid;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.outline {
+  border-color: var(--colorPrimary);
+  color: var(--colorPrimary);
+}
+
+.outline:hover {
+  background-color: var(--colorPrimary);
+  color: var(--colorBackground);;
+}
+
 .content-section {
-    padding: 10px 20px;
-    border: 1px solid #dddddd;
-    border-radius: 3px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+    border: 1px solid var(--colorContrast);
+    border-radius: 10px;
     margin-bottom: 20px;
 }
 
@@ -48,6 +94,7 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
     height: 80px;
     width: 80px;
     margin-right: 20px;
+    margin-left: 20px;
     margin-bottom: 16px;
 }
 
