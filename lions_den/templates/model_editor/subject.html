@@ -8,16 +8,16 @@
 		{% include 'model_editor/subject_form_fields.html' with form=subject_form %}
 		
 		<br/>
-		<h2>Attributes</h2>
+		<legend>Attributes</legend>
 		{% if new_attribute_form %}
-			<button type="button" data-toggle="modal" data-target="#modalForm">Add new attribute</button>
+			<button class="button outline btn-lg" type="button" data-toggle="modal" data-target="#modalForm">Add new attribute</button>
 			<br/>
 		{% endif %}
 		<br/>
 			<table>
 				{{ attributes_formset|crispy }}
 			</table>
-		<button name="submit" type="submit">Submit</button>
+		<button class="button outline btn-lg" name="submit" type="submit">Submit</button>
 	</form>
 	{% if new_attribute_form %}
 		{% include 'utils/modals/modal_form_simple.html' with form=new_attribute_form submit_btn_name='add_new_attribute' title='New Attribute' %}
