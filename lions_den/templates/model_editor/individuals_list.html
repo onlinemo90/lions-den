@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<select name="species" id="select_species">
+		<option value=""></option>
+		{% for species in species_list %}
+			<option value="{{ species.id }}">{{ species.name }}</option>
+		{% endfor %}
+	</select>
+	
+	<button type="button" data-toggle="modal" data-target="#modalForm">Add new individual</button>
+	
+	{% include 'model_editor/subject_table.html' %}
+	
+	{% include 'model_editor/new_subject_modal_form.html' with form=new_subject_form title='New Individual' submit_btn_name='new_individual' %}
+{% endblock content %}

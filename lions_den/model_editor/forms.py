@@ -1,7 +1,7 @@
 import datetime
 
 from django import forms
-from django.db import models
+from django.forms.models import modelformset_factory
 
 from .models import Species, Individual, SpeciesAttribute, IndividualAttribute, AttributeCategory
 
@@ -17,17 +17,26 @@ class BaseModelForm(forms.ModelForm):
 		elif 'instance' in kwargs:
 			zoo_id = kwargs['instance'].zoo.id
 		else:
-			zoo_id=args[0]
+			raise Exception('zoo_id must be given to create zoo-related form')
 		
-		super().__init__(*args, **kwargs)
-		
-		fk_model_fields = [field for field in self._meta.model._meta.fields if isinstance(field, models.ForeignKey)]
-		for field in fk_model_fields:
-			if field.name in self.fields:
-				self.fields[field.name] = forms.ModelChoiceField(queryset=field.related_model.objects.using(zoo_id).all())
+		if 'instance' not in kwargs:
+			super().__init__(*args, **kwargs)
+			self.instance._state.db = zoo_id
+		else:
+			super().__init__(*args, **kwargs)
 
 
 class BaseSubjectForm(BaseModelForm):
+	def __init__(self, *args, **kwargs):
+		# Stabilising HTML element ID generation to allow Javascript ID matching on field HTML elements
+		kwargs['auto_id'] = 'id_subject_%s'
+		if 'prefix' in kwargs:
+			raise Exception("""
+				A prefix is not allowed for SubjectForms.
+				Unless you're trying to display multiple SubjectForms in one page, this shouldn't be needed.
+			""")
+		super().__init__(*args, **kwargs)
+	
 	def save(self, fields_to_delete=[]):
 		for field in fields_to_delete:
 			field_type = type(getattr(self.instance, field))
@@ -38,9 +47,10 @@ class BaseSubjectForm(BaseModelForm):
 class SpeciesForm(BaseSubjectForm):
 	image = forms.FileField()
 	audio = forms.FileField(required=False)
+	
 	class Meta:
 		model = Species
-		fields = ['name', 'image', 'audio']
+		fields = ('name', 'image', 'audio')
 		labels = {
 			'name': 'Name',
 			'image': 'Image',
@@ -49,6 +59,7 @@ class SpeciesForm(BaseSubjectForm):
 
 
 class IndividualForm(BaseSubjectForm):
+	species = forms.ModelChoiceField(queryset=None) # set in __init__
 	image = forms.FileField()
 	weight = forms.CharField(required=False)
 	place_of_birth = forms.CharField(required=False)
@@ -61,22 +72,28 @@ class IndividualForm(BaseSubjectForm):
 		required=False,
 		label='Date of Birth'
 	)
+	
 	class Meta:
 		model = Individual
-		fields = ['name', 'image', 'gender', 'dob', 'place_of_birth', 'size', 'weight']
+		fields = ['species', 'name', 'image', 'gender', 'dob', 'place_of_birth', 'size', 'weight']
 		labels = {
+			'species': 'Species',
 			'name': 'Name',
 			'image': 'Image',
-			'gender' : 'Gender',
-			'weight' : 'Weight',
+			'gender': 'Gender',
+			'weight': 'Weight',
 			'place_of_birth': 'Place of Birth',
 			'size': 'Size'
 		}
-
-
-def get_subject_form(subject, *args, **kwargs):
-	SubjectForm = SpeciesForm if isinstance(subject, Species) else IndividualForm
-	return SubjectForm(instance=subject, *args, **kwargs)
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		
+		# Allow form to be used both for editing existing individuals and for creating new ones
+		if 'instance' in kwargs:
+			del self.fields['species']
+		else:
+			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).order_by('name').all())
 
 
 def get_attributes_formset(subject, *args, **kwargs):
@@ -113,6 +130,44 @@ def get_attributes_formset(subject, *args, **kwargs):
 				
 		return SubjectAttributesFormSet(subject, *args, **kwargs)
 	return None
+
+
+def get_attribute_categories_formset(zoo_id, *args, **kwargs):
+	class AttributeCategoryForm(BaseModelForm):
+		class Meta:
+			model = AttributeCategory
+			fields = ('name',)
+	
+	BaseAttributeCategoriesFormset = modelformset_factory(
+		AttributeCategory,
+		form=AttributeCategoryForm,
+		extra=0,
+		can_delete=True,
+		can_order=True
+	)
+	
+	class AttributeCategoriesFormset(BaseAttributeCategoriesFormset):
+		def __init__(self, zoo_id, *args, **kwargs):
+			super().__init__(
+				queryset=AttributeCategory.objects.using(zoo_id).order_by('-priority').all(),
+				form_kwargs={'zoo_id': zoo_id},
+				*args, **kwargs
+			)
+		
+		def save(self, commit=True):
+			super().save(commit)
+			
+			def set_categories_priority(max_priority):
+				current_priority = max_priority
+				for form in self.ordered_forms:
+					form.instance.priority = current_priority
+					current_priority -= 1
+					form.instance.save()
+			
+			set_categories_priority(3 * len(self.forms))
+			set_categories_priority(len(self.forms))
+	
+	return AttributeCategoriesFormset(zoo_id, *args, **kwargs)
 
 
 def get_new_attribute_form(subject, *args, **kwargs):
