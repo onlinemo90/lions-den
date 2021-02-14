@@ -2,7 +2,7 @@
 
 {% block content %}
 	<select name="species" id="select_species">
-		<option value=""></option>
+		<option value="">All Species</option>
 		{% for species in species_list %}
 			<option value="{{ species.id }}">{{ species.name }}</option>
 		{% endfor %}
