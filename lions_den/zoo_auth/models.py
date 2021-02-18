@@ -1,5 +1,6 @@
 import datetime
 
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.mail import send_mail
@@ -78,7 +79,7 @@ class Zoo(models.Model):
 			send_mail(
 				subject=f'Request for commit - {self.name}',
 				message=f'Commit Request received:\n\tZoo name:\t{self.name}\n\tZoo ID:\t{self.id}\n\tUser:\t{user.email}',
-				from_email='contact@zooverse.org',
+				from_email=settings.EMAIL_HOST_USER,
 				recipient_list=['pedro.ferreira@zooverse.org', 'moritz.fritzsche@zooverse.org'],
 				fail_silently=False,
 			)
