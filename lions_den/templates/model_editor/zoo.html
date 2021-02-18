@@ -2,7 +2,16 @@
 {% block content %}
 	<div class="container">
 		<h1 class="title">Welcome to {{ zoo }} - Lion's Den</h1>
-		<button type="button" data-toggle="modal" data-target="#modalForm" class="btn btn-outline-dark disabled mb-5" style="float: right">Commit to ZooVerse</button>
+		<button type="button" class="btn btn-outline-dark disabled mb-5" style="float: right"
+			{% if zoo.can_commit %}
+				data-toggle="modal" data-target="#modalForm"
+			{% else %}
+				data-toggle="tooltip" data-placement="top" title="
+					Cannot commit to the Zooverse app.
+					Please wait another {{ zoo.days_until_commit_allowed }} day{{ zoo.days_until_commit_allowed|pluralize:'s' }}.
+				"
+			{% endif %}
+		>Commit to ZooVerse</button>
 		<br/>
 		<a href="{% url 'species_list' zoo.id %}" style="text-decoration:none">
 			<button type="button" class="btn btn-outline-success btn-lg btn-block my-1">Edit Species</button>
@@ -20,5 +29,7 @@
 			<button type="button" class="btn btn-outline-success btn-lg btn-block my-1">Edit Attributes</button>
 		</a>
 	</div>
-	{% include 'model_editor/zoo_commit_modal.html' %}
+	{% if zoo.can_commit %}
+		{% include 'model_editor/zoo_commit_modal.html' %}
+	{% endif %}
 {% endblock %}

@@ -63,8 +63,17 @@ class Zoo(models.Model):
 	def __str__(self):
 		return self.name
 	
+	def can_commit(self):
+		return self.days_until_commit_allowed() <= 0
+	
+	def days_until_commit_allowed(self):
+		if self.last_commit_date:
+			return (self.last_commit_date + datetime.timedelta(days=30) - datetime.date.today()).days
+		else:
+			return 0
+	
 	def commit_to_zooverse(self, user):
-		if self.last_commit_date is None or (self.last_commit_date + datetime.timedelta(days=30) < datetime.date.today()):
+		if self.can_commit():
 			# Send notification email
 			send_mail(
 				subject=f'Request for commit - {self.name}',
