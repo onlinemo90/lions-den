@@ -120,17 +120,26 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 
+# Media
 MEDIA_ROOT = BASE_DIR / 'media/'
 MEDIA_URL = 'media/'
 
+# Crispy
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+# Authentication
 AUTH_USER_MODEL = 'zoo_auth.ZooUser'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/zoos'
+
+# Email
+EMAIL_USE_SSL = True
+EMAIL_PORT = 465
+EMAIL_HOST = 'mail.zooverse.org'
+EMAIL_HOST_USER = 'contact@zooverse.org'
+EMAIL_HOST_PASSWORD =  'ZSL@ldn2020'

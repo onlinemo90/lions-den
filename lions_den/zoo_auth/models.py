@@ -1,5 +1,8 @@
+import datetime
+
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
+from django.core.mail import send_mail
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 
@@ -53,8 +56,24 @@ class Zoo(models.Model):
 	encryption_key = models.CharField(unique=True, max_length=35)
 	image = models.ImageField()
 	date_joined = models.DateField(auto_now_add=True)
+	last_commit_date = models.DateField(blank=True)
 	
 	users = models.ManyToManyField(ZooUser, related_name='zoos')
 	
 	def __str__(self):
 		return self.name
+	
+	def commit_to_zooverse(self, user):
+		if self.last_commit_date is None or (self.last_commit_date + datetime.timedelta(days=30) < datetime.date.today()):
+			# Send notification email
+			send_mail(
+				subject=f'Request for commit - {self.name}',
+				message=f'Commit Request received:\n\tZoo name:\t{self.name}\n\tZoo ID:\t{self.id}\n\tUser:\t{user.email}',
+				from_email='contact@zooverse.org',
+				recipient_list=['pedro.ferreira@zooverse.org', 'moritz.fritzsche@zooverse.org'],
+				fail_silently=False,
+			)
+			self.last_commit_date = datetime.date.today()
+			self.save()
+		else:
+			raise Exception('You cannot make any commits within 30 days of each other.\nLast commit: ' + str(self.last_commit_date))

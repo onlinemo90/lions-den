@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -103,12 +104,21 @@ class ZoosIndexView(LoginRequiredMixin, View):
 
 
 class ZooHomeView(BaseZooView):
+	template_name = 'model_editor/zoo.html'
 	def get(self, request, zoo_id):
 		return render(
 			request=request,
-			template_name='model_editor/zoo.html',
+			template_name=self.template_name,
 			context={'zoo': self.get_zoo(zoo_id)}
 		)
+	
+	def post(self, request, zoo_id):
+		try:
+			self.get_zoo(zoo_id).commit_to_zooverse(request.user)
+			messages.add_message(request, messages.INFO, 'Your commit request has been received and will be processed within 30 days')
+		except Exception as e:
+			messages.add_message(request, messages.ERROR, str(e))
+		return self.get(request, zoo_id)
 
 
 class SpeciesListView(BaseZooView):
