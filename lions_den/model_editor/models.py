@@ -109,6 +109,18 @@ class Group(ZooSubject): # Added just for QR Code support
 	pass
 
 
+class Group(AbstractBaseModel):
+	name = DefaultCharField()
+	image = BlobField(editable=True, null=True, blank=False)
+	audio = BlobField(editable=True, null=True, blank=True)
+	
+	class Meta:
+		db_table = '_GROUP_'
+	
+	def __str__(self):
+		return self.name
+
+
 class AttributeCategory(AbstractBaseModel):
 	name = DefaultCharField()
 	position = models.PositiveIntegerField(unique=True)
@@ -146,3 +158,7 @@ class IndividualAttribute(AbstractAttribute):
 	class Meta: db_table = 'INDIVIDUALS_ATTRIBUTES'
 
 
+class GroupAttribute(AbstractAttribute):
+	subject = models.ForeignKey(Group, related_name='attributes', on_delete=models.CASCADE)
+	
+	class Meta: db_table = 'GROUPS_ATTRIBUTES'
