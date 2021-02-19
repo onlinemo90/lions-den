@@ -167,6 +167,18 @@ class Group(Subject):
 	
 
 
+class Group(AbstractBaseModel):
+	name = DefaultCharField()
+	image = BlobField(editable=True, null=True, blank=False)
+	audio = BlobField(editable=True, null=True, blank=True)
+	
+	class Meta:
+		db_table = '_GROUP_'
+	
+	def __str__(self):
+		return self.name
+
+
 class AttributeCategory(AbstractBaseModel):
 	name = DefaultCharField()
 	position = models.PositiveIntegerField(unique=True)
