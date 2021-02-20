@@ -52,7 +52,7 @@ class AbstractBaseModel(models.Model):
 		return Zoo.objects.filter(id=self._state.db).first()
 
 
-class ZooSubject(AbstractBaseModel):
+class Subject(AbstractBaseModel):
 	name = DefaultCharField()
 	image = BlobField(editable=True, null=True, blank=False)
 	
@@ -61,6 +61,32 @@ class ZooSubject(AbstractBaseModel):
 	
 	def __str__(self):
 		return self.name
+	
+	@property
+	def attribute_model(self):
+		raise NotImplementedError()
+	
+	@property
+	def form(self):
+		raise NotImplementedError()
+	
+
+class Species(Subject):
+	audio = BlobField(editable=True, null=True, blank=True)
+	weight = DefaultCharField()
+	size = DefaultCharField()
+	
+	class Meta:
+		db_table = 'SPECIES'
+	
+	@property
+	def attribute_model(self):
+		return SpeciesAttribute
+	
+	@property
+	def form(self):
+		from .forms import SpeciesForm
+		return SpeciesForm
 	
 	def qr_code(self):
 		if isinstance(self, Species):
@@ -82,16 +108,7 @@ class ZooSubject(AbstractBaseModel):
 		)
 
 
-class Species(ZooSubject):
-	audio = BlobField(editable=True, null=True, blank=True)
-	weight = DefaultCharField()
-	size = DefaultCharField()
-	
-	class Meta:
-		db_table = 'SPECIES'
-
-
-class Individual(ZooSubject):
+class Individual(Subject):
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()
@@ -103,22 +120,36 @@ class Individual(ZooSubject):
 	
 	class Meta:
 		db_table = 'INDIVIDUAL'
+	
+	@property
+	def attribute_model(self):
+		return IndividualAttribute
+	
+	@property
+	def form(self):
+		from .forms import IndividualForm
+		return IndividualForm
 
 
-class Group(ZooSubject): # Added just for QR Code support
-	pass
-
-
-class Group(AbstractBaseModel):
-	name = DefaultCharField()
-	image = BlobField(editable=True, null=True, blank=False)
+class Group(Subject):
 	audio = BlobField(editable=True, null=True, blank=True)
+	species = models.ManyToManyField(Species, related_name='groups', related_query_name='group', db_table='GROUPS_SPECIES')
+	individuals = models.ManyToManyField(Individual, related_name='groups', related_query_name='group', db_table='GROUPS_INDIVIDUALS')
 	
 	class Meta:
 		db_table = '_GROUP_'
 	
 	def __str__(self):
 		return self.name
+	
+	@property
+	def attribute_model(self):
+		return GroupAttribute
+	
+	@property
+	def form(self):
+		from .forms import GroupForm
+		return GroupForm
 
 
 class AttributeCategory(AbstractBaseModel):

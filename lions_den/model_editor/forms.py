@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from django.forms.models import modelformset_factory
 
-from .models import Species, Individual, SpeciesAttribute, IndividualAttribute, AttributeCategory
+from .models import Species, Individual, Group, AttributeCategory, SpeciesAttribute, IndividualAttribute, AttributeCategory
 
 
 class BaseModelForm(forms.ModelForm):
@@ -96,6 +96,20 @@ class IndividualForm(BaseSubjectForm):
 			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).order_by('name').all())
 
 
+class GroupForm(BaseSubjectForm):
+	image = forms.FileField()
+	audio = forms.FileField(required=False)
+	
+	class Meta:
+		model = Group
+		fields = ('name', 'image', 'audio')
+		labels = {
+			'name': 'Name',
+			'image': 'Image',
+			'audio': 'Audio'
+		}
+
+
 class AttributeCategoryForm(BaseModelForm):
 	class Meta:
 		model = AttributeCategory
@@ -103,12 +117,11 @@ class AttributeCategoryForm(BaseModelForm):
 
 
 def get_attributes_formset(subject, *args, **kwargs):
-	SubjectAttribute = SpeciesAttribute if isinstance(subject, Species) else IndividualAttribute
 	if len(subject.attributes.all()) > 0:
 		# Define form for displaying/editing each attribute
 		class SubjectAttributeForm(BaseModelForm):
 			class Meta:
-				model = SubjectAttribute
+				model = subject.attribute_model
 				fields = ('attribute',)
 			
 			def __init__(self, *args, **kwargs):
@@ -118,7 +131,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		
 		# Define formset for multiple attributes
 		BaseSubjectAttributesFormSet = forms.modelformset_factory(
-			SubjectAttribute,
+			subject.attribute_model,
 			form=SubjectAttributeForm,
 			extra=0,
 			can_delete=True,
@@ -129,7 +142,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
 			def __init__(self, subject, *args, **kwargs):
 				super().__init__(
-					queryset=SubjectAttribute.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
+					queryset=subject.attribute_model.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('-category__priority').all(),
 					form_kwargs={'zoo_id': subject.zoo.id},
 					*args, **kwargs
 				)
@@ -178,7 +191,7 @@ def get_new_attribute_form(subject, *args, **kwargs):
 	if len(category_queryset) > 0:
 		class NewSubjectAttributeForm(BaseModelForm):
 			class Meta:
-				model = SpeciesAttribute if isinstance(subject, Species) else IndividualAttribute
+				model = subject.attribute_model
 				fields = ('category', 'attribute')
 				labels = {'category': 'Header', 'attribute': 'Text'}
 			
