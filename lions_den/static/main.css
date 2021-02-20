@@ -17,6 +17,32 @@ input[type=text], input[type=password] {
    color: var(--colorContrast);
 }
 
+textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus,
+input[type="file"]:focus,
+audio:focus,
+select:focus,
+.uneditable-input:focus {
+  border-color: var(--colorPrimary) !important;
+  box-shadow: var(--colorPrimary) !important;
+  outline: 0 none;
+  background-color: var(--colorBackground) !important;
+  color: var(--colorContrast);
+}
+
 /*additional styling for crispy form classes*/
 
 .selectdatewidget, .select {
@@ -26,11 +52,16 @@ input[type=text], input[type=password] {
    color: var(--colorContrast);
 }
 
+.modal-content, .dropdown-menu, .dropdown-item {
+	background-color: var(--colorBackground) !important;
+	color: var(--colorContrast) !important;
+}
+
 /*additional styling for bootstrap classes*/
 
 .bg-primary, .btn-primary {
 	background-color: var(--colorPrimary) !important;
-	border-color: var(--colorPrimary) !important;
+	border-color: transparent !important;
 	color: var(--colorBackground) !important;
 }
 

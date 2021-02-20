@@ -5,8 +5,8 @@
 {% if subject.species %}
 	<table>
 		<tr>
-			<td><legend>Species:</legend></td>
-			<td><h1 class="mx-2">{{ subject.species.name }}</h1></td>
+			<td><label>Species:</label></td>
+			<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
 		</tr>
 	</table>
 {% elif form.species %}
@@ -15,7 +15,8 @@
 
 <hr>
 
-<legend>{{ form.image.label }}</legend>
+<label>{{ form.image.label }}</label>
+<br/>
 <img id="id_subject_image_display" style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
 <br/><br/>
 {{ form.image }}
@@ -23,7 +24,8 @@
 <hr>
 
 {% if 'audio' in form.fields %}
-	<legend>{{ form.audio.label }}</legend>
+	<label>{{ form.audio.label }}</label>
+	<br/>
 	<audio id="id_audio_control" controls><source id="id_subject_audio_display" src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
 	<br/><br/>
 	{{ form.audio }}
