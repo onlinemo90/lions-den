@@ -119,7 +119,6 @@ class Individual(Subject):
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()
-	image = BlobField(editable=True, null=True, blank=False)
 	gender = DefaultCharField(
 		choices=([(None, '')] + [(gender.value, gender.name.title()) for gender in Gender]),
 		blank=True, null=True
@@ -146,9 +145,6 @@ class Group(Subject):
 	class Meta:
 		db_table = '_GROUP_'
 	
-	def __str__(self):
-		return self.name
-	
 	@property
 	def attribute_model(self):
 		return GroupAttribute
@@ -167,16 +163,22 @@ class Group(Subject):
 	
 
 
-class Group(AbstractBaseModel):
-	name = DefaultCharField()
-	image = BlobField(editable=True, null=True, blank=False)
+class Group(Subject):
 	audio = BlobField(editable=True, null=True, blank=True)
+	species = models.ManyToManyField(Species, related_name='groups', related_query_name='group', db_table='GROUPS_SPECIES')
+	individuals = models.ManyToManyField(Individual, related_name='groups', related_query_name='group', db_table='GROUPS_INDIVIDUALS')
 	
 	class Meta:
 		db_table = '_GROUP_'
 	
-	def __str__(self):
-		return self.name
+	@property
+	def attribute_model(self):
+		return GroupAttribute
+	
+	@property
+	def form(self):
+		from .forms import GroupForm
+		return GroupForm
 
 
 class AttributeCategory(AbstractBaseModel):

@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from django.forms.models import modelformset_factory
 
-from .models import Species, Individual, Group, AttributeCategory, SpeciesAttribute, IndividualAttribute, AttributeCategory
+from .models import Species, Individual, Group, AttributeCategory
 
 
 class BaseModelForm(forms.ModelForm):
