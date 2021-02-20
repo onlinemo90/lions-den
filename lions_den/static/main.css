@@ -12,9 +12,9 @@ label {
 	color: var(--colorForeground);
 }
 
-input[type=text], input[type=password] {
-   background-color: var(--colorBackground);
-   color: var(--colorContrast);
+input[type=text], input[type=password], textarea {
+   background-color: var(--colorBackground) !important;
+   color: var(--colorContrast) !important;
 }
 
 textarea:focus,
