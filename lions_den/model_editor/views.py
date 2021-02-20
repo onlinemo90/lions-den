@@ -6,8 +6,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
-from .models import Species, Individual
-from .forms import SpeciesForm, IndividualForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
+from .models import Species, Individual, Group
+from .forms import SpeciesForm, IndividualForm, GroupForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -35,8 +35,7 @@ class SubjectPageView(BaseZooView):
 		request_data = request.POST if request else None
 		request_files = request.FILES if request else None
 		
-		subject_form_class = SpeciesForm if isinstance(subject, Species) else IndividualForm
-		subject_form = subject_form_class(data=request_data, files=request_files, instance=subject)
+		subject_form = subject.form(data=request_data, files=request_files, instance=subject)
 		attributes_formset = get_attributes_formset(data=request_data, files=request_files, subject=subject, prefix='attributes')
 		new_attribute_form = get_new_attribute_form(data=request_data, subject=subject, prefix='new_attribute')
 		return subject_form, attributes_formset, new_attribute_form
@@ -177,12 +176,39 @@ class IndividualsListView(BaseZooView):
 		return self.render_default_page(request, zoo_id, new_individual_form=new_individual_form)
 
 
+class GroupsListView(BaseZooView):
+	def render_default_page(self, request, zoo_id, new_group_form=None):
+		return render(
+			request=request,
+			template_name='model_editor/groups_list.html',
+			context={
+				'zoo': self.get_zoo(zoo_id),
+				'subjects': Group.objects.using(zoo_id).order_by('name'),
+				'new_subject_form': new_group_form if new_group_form else GroupForm(zoo_id=zoo_id)
+			}
+		)
+	
+	def get(self, request, zoo_id):
+		return self.render_default_page(request, zoo_id)
+	
+	def post(self, request, zoo_id):
+		new_group_form = GroupForm(data=request.POST, files=request.FILES, zoo_id=zoo_id)
+		if new_group_form.is_valid():
+			new_group_form.save()
+			new_group_form = None
+		return self.render_default_page(request, zoo_id, new_group_form=new_group_form)
+
+
 class SpeciesPageView(SubjectPageView):
 	model = Species
 
 
 class IndividualPageView(SubjectPageView):
 	model = Individual
+
+
+class GroupPageView(SubjectPageView):
+	model = Group
 
 
 class AttributeCategoryListView(BaseZooView):
