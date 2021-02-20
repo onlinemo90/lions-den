@@ -3,14 +3,16 @@
 {{ form.name|as_crispy_field }}
 
 {% if subject.species %}
-	<table>
-		<tr>
-			<td><legend>Species:</legend></td>
-			<td>{{ subject.species.name }}</td>
-		</tr>
-	</table>
-{% elif form.species %}
-	{{ form.species|as_crispy_field }}
+	{% if form.species %}
+		{{ form.species|as_crispy_field }}
+	{% else %}
+		<table>
+			<tr>
+				<td><legend>Species:</legend></td>
+				<td>{{ subject.species.name }}</td>
+			</tr>
+		</table>
+	{% endif %}
 {% endif %}
 
 <hr>
