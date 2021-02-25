@@ -33,6 +33,7 @@
 				</a>
 
 				<div class="navbar-nav">
+					{% block extra_navbar_items %}{% endblock %}
 					<a class="nav-link mx-2 no-vertical-padding" onclick="cycleTheme()">
 						<img id="theme-icon" style="height:48" src=""/>
 					</a>

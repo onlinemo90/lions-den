@@ -62,13 +62,21 @@ class ZooSubject(AbstractBaseModel):
 	def __str__(self):
 		return self.name
 	
-	@property
 	def qr_code(self):
+		if isinstance(self, Species):
+			type_str = 'species'
+		elif isinstance(self, Individual):
+			type_str = 'individual'
+		elif isinstance(self, Group):
+			type_str = 'group'
+		else:
+			return None
+		
 		return create_request_qrcode(
 			zoo=self.zoo,
 			request = {
 				'zoo': self.zoo.id,
-				'type': 'species' if isinstance(self, Species) else 'individual',
+				'type': type_str,
 				'id': self.id
 			}
 		)
@@ -79,13 +87,6 @@ class Species(ZooSubject):
 	
 	class Meta:
 		db_table = 'SPECIES'
-	
-	@property
-	def qrcode(self):
-		return create_request_qrcode(
-			zoo=self.zoo,
-			request='I|' + str(self.id)
-		)
 
 
 class Individual(ZooSubject):
@@ -101,6 +102,10 @@ class Individual(ZooSubject):
 	
 	class Meta:
 		db_table = 'INDIVIDUAL'
+
+
+class Group(ZooSubject): # Added just for QR Code support
+	pass
 
 
 class AttributeCategory(AbstractBaseModel):

@@ -1,0 +1,14 @@
+{% extends 'utils/modals/modal.html'%}
+
+{% block title %}QR Code{% endblock %}
+
+{% block content %}
+	<div class="modal-body">
+		<img src="data:image/png;base64,{{ qr_code }}">
+	</div>
+	<div class="modal-footer">
+		<a download="{{ filename }}" href="data:image/png;base64,{{ qr_code }}">
+			<button class="btn btn-primary">Download</button>
+		</a>
+	</div>
+{% endblock content %}
