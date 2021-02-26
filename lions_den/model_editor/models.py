@@ -52,9 +52,16 @@ class AbstractBaseModel(models.Model):
 		return Zoo.objects.filter(id=self._state.db).first()
 
 
+class SubjectManager(models.Manager):
+	def get_queryset(self):
+		return super().get_queryset().order_by('name')
+
+
 class Subject(AbstractBaseModel):
 	name = DefaultCharField()
 	image = BlobField(editable=True, null=True, blank=False)
+	
+	objects = SubjectManager()
 	
 	class Meta:
 		abstract = True
@@ -150,6 +157,14 @@ class Group(Subject):
 	def form(self):
 		from .forms import GroupForm
 		return GroupForm
+	
+	@property
+	def non_member_species(self):
+		return Species.objects.using(self.zoo.id).exclude(id__in=self.species.values_list('id', flat=True))
+	
+	def non_member_individuals(self):
+		return Individual.objects.using(self.zoo.id).exclude(id__in=self.individuals.values_list('id', flat=True))
+	
 
 
 class AttributeCategory(AbstractBaseModel):

@@ -2,25 +2,24 @@
 
 {{ form.name|as_crispy_field }}
 
-{% if subject.species %}
+{% if subject.species and subject.individuals %} {# Groups #}
+	<hr>
+	
+	<div class="row">
+		<div id="group_members_species" class="col">
+			{% include 'model_editor/group_members.html' with title='Species' members_type='species' members=subject.species.all non_members=subject.non_member_species %}
+		</div>
+		<div id="group_members_individuals" class="col">
+			{% include 'model_editor/group_members.html' with title='Individuals' members_type='individuals' members=subject.individuals.all non_members=subject.non_member_individuals %}
+		</div>
+	</div>
+{% elif subject.species %} {# Individuals #}
 	<table>
 		<tr>
-			<td><label>Species:</label></td>
-			<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
+			<td><legend>Species:</legend></td>
+			<td>{{ subject.species.name }}</td>
 		</tr>
 	</table>
-{% elif form.species %}
-	{{ form.species|as_crispy_field }}
-	{% if form.species %}
-		{{ form.species|as_crispy_field }}
-	{% else %}
-		<table>
-			<tr>
-				<td><legend>Species:</legend></td>
-				<td>{{ subject.species.name }}</td>
-			</tr>
-		</table>
-	{% endif %}
 {% endif %}
 
 <hr>
