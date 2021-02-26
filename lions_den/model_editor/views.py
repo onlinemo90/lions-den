@@ -209,6 +209,48 @@ class IndividualPageView(SubjectPageView):
 
 class GroupPageView(SubjectPageView):
 	model = Group
+	
+	def get(self, request, zoo_id, subject_id):
+		if request.is_ajax():
+			return self.get_ajax(request, zoo_id, subject_id)
+		else:
+			response = super().get(request, zoo_id, subject_id)
+			return response
+	
+	def get_ajax(self, request, zoo_id, subject_id):
+		group = self.get_subject(zoo_id, subject_id)
+		members_type_str = request.GET.get('members_type')
+		
+		members = getattr(group, members_type_str).all()
+		non_members = getattr(group, 'non_member_' + members_type_str)
+		return render(
+			request=request,
+			template_name='model_editor/group_members.html',
+			context={
+				'title': 'Species' if members_type_str == 'species' else 'Individuals',
+				'members_type' : members_type_str,
+				'members': members,
+				'non_members': non_members
+			}
+		)
+	
+	def post(self,  request, zoo_id, subject_id):
+		if request.is_ajax():
+			return self.post_ajax(request, zoo_id, subject_id)
+		else:
+			return super().post(request, zoo_id, subject_id)
+	
+	def post_ajax(self, request, zoo_id, subject_id):
+		group = self.get_subject(zoo_id, subject_id)
+		if request.POST.get('action') == 'add':
+			getattr(group, request.POST.get('members_type')).add(request.POST['id'])
+			group.save()
+		elif request.POST.get('action') == 'delete':
+			getattr(group, request.POST.get('members_type')).remove(request.POST.get('id'))
+			group.save()
+		
+		request.GET = request.POST # so self.get_ajax has easy access to request parameters
+		return self.get_ajax(request, zoo_id, subject_id)
 
 
 class AttributeCategoryListView(BaseZooView):
