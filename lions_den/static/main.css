@@ -5,6 +5,7 @@ body{
 }
 
 h1, h2, h3, h4, h5, h6, p, a, legend {
+	margin: 0px;
 	color: var(--colorPrimary);
 }
 
@@ -113,20 +114,23 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
 }
 
 .content-section {
-	padding-top: 15px;
-	padding-bottom: 15px;
+	padding: 10px;
     border: 1px solid var(--colorContrast);
     border-radius: 10px;
-    margin-bottom: 20px;
+
 }
 
 .subject-thumbnail {
     object-fit: cover;
-    height: 80px;
-    width: 80px;
-    margin-right: 20px;
-    margin-left: 20px;
-    margin-bottom: 16px;
+    height: 83px;
+    width: 83px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.subject-label, .zoo-label {
+	padding-top: 25px;
+	padding-bottom: 25px;
 }
 
 .subject-table {
@@ -135,8 +139,10 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
 }
 
 .zoo-thumbnail {
-    padding: 10px;
+	float: center;
     object-fit: cover;
     height: 90px;
-    margin-bottom: 16px;
+    display: block;
+  	margin-left: auto;
+  	margin-right: auto;
 }
