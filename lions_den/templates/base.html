@@ -25,26 +25,35 @@
 	</head>
 	<body>
 		{% block navbar %}
-			<nav class="navbar navbar-dark bg-primary no-vertical-padding">
-
+			<nav class="navbar navbar-expand-lg navbar-dark bg-primary no-vertical-padding">
+				
 				<a class="navbar-brand no-vertical-padding" href="{% url 'zoo_index' %}">
 					<img src="{% static 'images/logo.png' %}" style="height:64; padding-top:5px; padding-bottom:5px" alt="Zooverse"/>
 					Lion's Den
 				</a>
-
-				<div class="navbar-nav">
-					<a class="nav-link mx-2 no-vertical-padding" onclick="cycleTheme()">
-						<img id="theme-icon" style="height:48" src=""/>
-					</a>
-					{% if request.user.is_authenticated %}
-						{% if not disable_navbar_change_password %}
-							<a class="nav-link mx-2" href="{% url 'change_password' %}">Change password</a>
-						{% endif %}
-						<a class="nav-link mx-2" href="{% url 'logout' %}">Logout</a>
-					{% elif not disable_navbar_login %}
-						<a class="nav-link" href="{% url 'login' %}">Login</a>
-					{% endif %}
-				</div>
+				
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item dropdown">
+						<div id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<svg id="i-menu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="butt" stroke-linejoin="round" stroke-width="2">
+								<path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24" />
+							</svg>
+						</div>
+						<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+							<a class="dropdown-item" href="#" onclick="cycleTheme()">Toggle Theme</a>
+							{% if request.user.is_authenticated %}
+								{% if not disable_navbar_change_password %}
+							<div class="dropdown-divider"></div>
+									<a class="dropdown-item" href="{% url 'change_password' %}">Change password</a>
+									<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+								{% endif %}
+							{% elif not disable_navbar_login %}
+								<a class="dropdown-item" href="{% url 'login' %}">Login</a>
+							{% endif %}
+						</div>
+					</li>
+				</ul>
+				
 			</nav>
 		{% endblock %}
 		<main style="padding:16px 32px 32px 32px">

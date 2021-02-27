@@ -3,14 +3,13 @@
 		{% cycle '<tr>' '' %}
 		<th>
 			<a href="{{ subject.id }}" style="text-decoration:none">
-				<div class="mx-3 my-3 content-section">
+				<div class="mx-3 my-3 content-section shadow">
 					<div class="row">
 						 <div class="col-sm">
-							<img class="rounded-circle subject-thumbnail vertical-center" src="data:image/png;base64,{{ subject.image_str}}"/>
+							<img class="rounded-circle subject-thumbnail" src="data:image/png;base64,{{ subject.image_str}}"/>
 						 </div>
-						 <div class="col-sm">
-							 <br>
-							 <h1 class="title">{{ subject.name }}</h1>
+						 <div class="col-sm subject-label">
+							 <h3>{{ subject.name }}</h3>
 						 </div>
 					</div>
 				</div>
