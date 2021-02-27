@@ -98,6 +98,13 @@ class AttributeCategory(AbstractBaseModel):
 	class Meta: db_table = 'ATTRIBUTE_CATEGORY'
 	
 	def __str__(self): return self.name
+	
+	def save(self):
+		# If adding a new category, set the priority to above current highest
+		if self._state.adding:
+			highest_priority = AttributeCategory.objects.using(self.zoo.id).all().aggregate(highest=models.Max('priority'))['highest']
+			self.priority = highest_priority + 1 if highest_priority else 1
+		super().save()
 
 
 class AbstractAttribute(AbstractBaseModel):

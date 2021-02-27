@@ -66,3 +66,22 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
     height: 90px;
     margin-bottom: 16px;
 }
+
+.multiField {
+  display: table;
+  width: 100%;
+  padding: 10px;
+}
+
+.multiField > .form-group {
+  display: inline-block;
+  padding: 10px;
+}
+
+.multiField > .form-group > div > .textinput {
+  width: 100%;
+}
+
+.multiField > .form-group > div > .numberinput {
+	width: 40%;
+}
