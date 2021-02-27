@@ -47,23 +47,25 @@ class BaseSubjectForm(BaseModelForm):
 class SpeciesForm(BaseSubjectForm):
 	image = forms.FileField()
 	audio = forms.FileField(required=False)
+	weight = forms.CharField(required=False)
+	size = forms.CharField(required=False)
 	
 	class Meta:
 		model = Species
-		fields = ('name', 'image', 'audio')
+		fields = ('name', 'image', 'audio', 'size', 'weight')
 		labels = {
 			'name': 'Name',
 			'image': 'Image',
-			'audio': 'Audio'
+			'audio': 'Audio',
+			'size': 'Size',
+			'weight': 'Weight'
 		}
 
 
 class IndividualForm(BaseSubjectForm):
 	species = forms.ModelChoiceField(queryset=None) # set in __init__
 	image = forms.FileField()
-	weight = forms.CharField(required=False)
 	place_of_birth = forms.CharField(required=False)
-	size = forms.CharField(required=False)
 	dob = forms.DateField(
 		widget=forms.widgets.SelectDateWidget(
 			years=list(range(datetime.date.today().year, datetime.date.today().year - 101, -1)),
@@ -75,15 +77,13 @@ class IndividualForm(BaseSubjectForm):
 	
 	class Meta:
 		model = Individual
-		fields = ['species', 'name', 'image', 'gender', 'dob', 'place_of_birth', 'size', 'weight']
+		fields = ('species', 'name', 'image', 'gender', 'dob', 'place_of_birth')
 		labels = {
 			'species': 'Species',
 			'name': 'Name',
 			'image': 'Image',
 			'gender': 'Gender',
-			'weight': 'Weight',
-			'place_of_birth': 'Place of Birth',
-			'size': 'Size'
+			# 'place_of_birth': 'Place of Birth'
 		}
 	
 	def __init__(self, *args, **kwargs):

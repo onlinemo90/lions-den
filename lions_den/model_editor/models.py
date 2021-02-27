@@ -56,6 +56,8 @@ class Species(AbstractBaseModel):
 	name = DefaultCharField()
 	image = BlobField(editable=True, null=True, blank=False)
 	audio = BlobField(editable=True, null=True, blank=True)
+	weight = DefaultCharField()
+	size = DefaultCharField()
 	
 	class Meta:
 		db_table = 'SPECIES'
@@ -76,9 +78,7 @@ class Individual(AbstractBaseModel):
 	name = DefaultCharField()
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()
-	weight = DefaultCharField()
 	image = BlobField(editable=True, null=True, blank=False)
-	size = DefaultCharField()
 	gender = DefaultCharField(
 		choices=([(None, '')] + [(gender.value, gender.name.title()) for gender in Gender]),
 		blank=True, null=True
