@@ -10,6 +10,7 @@ from zoo_auth.models import Zoo
 
 from .models import Species, Individual
 from .forms import SpeciesForm, IndividualForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
+from .utils.image_normalisation import normalised_html_image_str
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -106,12 +107,12 @@ class SubjectPageView(BaseZooView):
 		)
 	
 	def post_ajax(self, request, zoo_id, subject_id):
-		return JsonResponse({'image': f'data:image/png;base64,{self.get_normalised_image_str(request.FILES["image"])}'})
+		return JsonResponse({'image': normalised_html_image_str(model=self.model, img_file=request.FILES["image"])})
 
 
 class SubjectListView(BaseZooView):
 	def post_ajax(self, request, zoo_id):
-		return JsonResponse({'image': f'data:image/png;base64,{self.get_normalised_image_str(request.FILES["image"])}'})
+		return JsonResponse({'image': normalised_html_image_str(model=self.model, img_file=request.FILES["image"])})
 
 # Renderable Views---------------------------------------------------
 class ZoosIndexView(LoginRequiredMixin, View):

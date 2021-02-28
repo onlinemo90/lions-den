@@ -1,7 +1,6 @@
 import io
 import base64
 import enum
-from PIL import Image
 
 from django.db import models
 
@@ -26,39 +25,9 @@ class BlobField(models.BinaryField):
 
 class ImageBlobField(BlobField):
 	def __init__(self, size, format='PNG', *args, **kwargs):
+		super().__init__(*args, **kwargs)
 		self.size = size
 		self.format = format
-		super().__init__(*args, **kwargs)
-	
-	def get_db_prep_value(self, value, connection, prepared=False):
-		value = self.normalise_image(value)
-		return value.read() if value is not None else None
-	
-	def normalise_image(self, img):
-		img = Image.open(img)
-		width, height = img.size
-		x_min, x_max, y_min, y_max = 0, width, 0, height
-		aspect_ratio = self.size[0] / self.size[1]
-		
-		# Crop
-		if width / height < aspect_ratio:  # image too tall
-			new_width, new_height = width, round(width / aspect_ratio)
-			y_min = round((height - new_height) // 2)
-			y_max = y_min + new_height
-		elif width / height > aspect_ratio:  # image too wide
-			new_width, new_height = height * aspect_ratio, height
-			x_min = round((width - new_width) // 2)
-			x_max = x_min + new_width
-		img = img.crop((x_min, y_min, x_max, y_max))
-		
-		# Scale
-		img = img.resize(self.size, Image.ANTIALIAS)
-		
-		# Output
-		output = io.BytesIO()
-		img.save(output, format=self.format)
-		output.seek(0)
-		return output
 		
 
 class DefaultCharField(models.CharField):
