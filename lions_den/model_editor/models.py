@@ -52,30 +52,47 @@ class AbstractBaseModel(models.Model):
 		return Zoo.objects.filter(id=self._state.db).first()
 
 
-class Species(AbstractBaseModel):
+class ZooSubject(AbstractBaseModel):
 	name = DefaultCharField()
 	image = BlobField(editable=True, null=True, blank=False)
+	
+	class Meta:
+		abstract = True
+	
+	def __str__(self):
+		return self.name
+	
+	def qr_code(self):
+		if isinstance(self, Species):
+			type_str = 'species'
+		elif isinstance(self, Individual):
+			type_str = 'individual'
+		elif isinstance(self, Group):
+			type_str = 'group'
+		else:
+			return None
+		
+		return create_request_qrcode(
+			zoo=self.zoo,
+			request = {
+				'zoo': self.zoo.id,
+				'type': type_str,
+				'id': self.id
+			}
+		)
+
+
+class Species(ZooSubject):
 	audio = BlobField(editable=True, null=True, blank=True)
 	weight = DefaultCharField()
 	size = DefaultCharField()
 	
 	class Meta:
 		db_table = 'SPECIES'
-	
-	def __str__(self):
-		return self.name
-	
-	@property
-	def qrcode(self):
-		return create_request_qrcode(
-			zoo=self.zoo,
-			request='I|' + str(self.id)
-		)
 
 
-class Individual(AbstractBaseModel):
+class Individual(ZooSubject):
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
-	name = DefaultCharField()
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()
 	image = BlobField(editable=True, null=True, blank=False)
@@ -86,9 +103,10 @@ class Individual(AbstractBaseModel):
 	
 	class Meta:
 		db_table = 'INDIVIDUAL'
-	
-	def __str__(self):
-		return self.name
+
+
+class Group(ZooSubject): # Added just for QR Code support
+	pass
 
 
 class AttributeCategory(AbstractBaseModel):
