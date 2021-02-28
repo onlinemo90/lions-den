@@ -11,7 +11,7 @@ label {
 	color: var(--colorForeground);
 }
 
-input[type=text], input[type=password], textarea {
+input[type=text], input[type=password], input[type=number], textarea {
    background-color: var(--colorBackground) !important;
    color: var(--colorContrast) !important;
 }
