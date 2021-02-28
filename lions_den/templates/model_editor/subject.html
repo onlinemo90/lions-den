@@ -22,6 +22,8 @@
 	</form>
 	{% if new_attribute_form %}
 		{% include 'utils/modals/modal_form_simple.html' with form=new_attribute_form submit_btn_name='add_new_attribute' title='New Attribute' %}
+	{% endif %}
+	{% if subject.qr_code %}
 		{% include 'model_editor/qrcode_modal.html' with qr_code=subject.qr_code filename='QR Code - '|add:subject.name id_prefix="qrcode_" %}
 	{% endif %}
 {% endblock content %}
