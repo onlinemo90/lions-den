@@ -13,7 +13,6 @@
 			{% if zoo.can_commit %}
 				data-toggle="modal" data-target="#modalForm"
 			{% else %}
-				disabled
 				data-toggle="tooltip" data-placement="top" title="
 					Cannot commit to the Zooverse app.
 					Please wait another {{ zoo.days_until_commit_allowed }} day{{ zoo.days_until_commit_allowed|pluralize:'s' }}.
