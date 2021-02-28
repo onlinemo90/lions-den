@@ -129,7 +129,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
 			def __init__(self, subject, *args, **kwargs):
 				super().__init__(
-					queryset=SubjectAttribute.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('-category__priority').all(),
+					queryset=SubjectAttribute.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
 					form_kwargs={'zoo_id': subject.zoo.id},
 					*args, **kwargs
 				)
@@ -150,7 +150,7 @@ def get_attribute_categories_formset(zoo_id, *args, **kwargs):
 	class AttributeCategoriesFormset(BaseAttributeCategoriesFormset):
 		def __init__(self, zoo_id, *args, **kwargs):
 			super().__init__(
-				queryset=AttributeCategory.objects.using(zoo_id).order_by('-priority').all(),
+				queryset=AttributeCategory.objects.using(zoo_id).order_by('position').all(),
 				form_kwargs={'zoo_id': zoo_id},
 				*args, **kwargs
 			)
@@ -158,15 +158,15 @@ def get_attribute_categories_formset(zoo_id, *args, **kwargs):
 		def save(self, commit=True):
 			super().save(commit)
 			
-			def set_categories_priority(max_priority):
-				current_priority = max_priority
+			def set_categories_position(max_position):
+				current_position = max_position
 				for form in self.ordered_forms:
-					form.instance.priority = current_priority
-					current_priority -= 1
+					form.instance.position = current_position
+					current_position -= 1
 					form.instance.save()
 			
-			set_categories_priority(3 * len(self.forms))
-			set_categories_priority(len(self.forms))
+			set_categories_position(3 * len(self.forms))
+			set_categories_position(len(self.forms))
 	
 	return AttributeCategoriesFormset(zoo_id, *args, **kwargs)
 

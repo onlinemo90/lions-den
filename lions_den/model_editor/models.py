@@ -111,7 +111,7 @@ class Group(ZooSubject): # Added just for QR Code support
 
 class AttributeCategory(AbstractBaseModel):
 	name = DefaultCharField()
-	priority = models.PositiveIntegerField(unique=True)
+	position = models.PositiveIntegerField(unique=True)
 	
 	class Meta: db_table = 'ATTRIBUTE_CATEGORY'
 	
@@ -120,8 +120,8 @@ class AttributeCategory(AbstractBaseModel):
 	def save(self):
 		# If adding a new category, set the priority to above current highest
 		if self._state.adding:
-			highest_priority = AttributeCategory.objects.using(self.zoo.id).all().aggregate(highest=models.Max('priority'))['highest']
-			self.priority = highest_priority + 1 if highest_priority else 1
+			highest_position = AttributeCategory.objects.using(self.zoo.id).all().aggregate(highest=models.Max('position'))['highest']
+			self.priority = highest_position + 1 if highest_position else 1
 		super().save()
 
 
