@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-	<button class="btn-primary btn-lg" type="button" data-toggle="modal" data-target="#modalForm">Add new species</button>
+	<h2 class="title" style="display:inline-block; padding-right:12px">Species</h2>
+	{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new species' %}
 	{% include 'model_editor/subject_table.html' %}
 	{% include 'model_editor/new_subject_modal_form.html' with form=new_subject_form title='New Species' submit_btn_name='new_species' %}
 {% endblock %}

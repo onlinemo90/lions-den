@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-	<button type="button" data-toggle="modal" data-target="#modalForm">Add new category</button>
+	<h2 class="title" style="display:inline-block; padding-right:12px">Attribute Categories</h2>
+	{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new attribute category' %}
+	
+	<br/>
+	<br/>
+	
 	<form class="form-horizontal" method="POST" action="">
 		{% csrf_token %}
 		{{ formset.management_form }}
 		{{ formset|crispy }}
-		<div class="row spacer">
-			<div class="col-4">
-				<button name='submit' type="submit" class="btn btn-block btn-primary">Save</button>
-			</div>
-		</div>
+		<button class="btn btn-primary" type="submit">Save</button>
 	</form>
 	{% include 'utils/modals/modal_form_simple.html' with form=new_attribute_category_form submit_btn_name='add_new_attribute_category' title='New Attribute Category' %}
 {% endblock %}

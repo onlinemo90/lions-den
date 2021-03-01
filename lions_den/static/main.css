@@ -1,19 +1,38 @@
+.light-theme{
+	--colorPrimary: #68b733;
+	--colorPrimaryDark: #528F29;
+	--colorForeground: #808080;
+	--colorBackground: #FFFFFF;
+	--colorContrast: #808080;
+	--colorAccent: #CED4DA;
+}
+
+.dark-theme{
+	--colorPrimary: #528F29;
+	--colorPrimaryDark: #3b661e;
+	--colorForeground: #808080;
+	--colorBackground: #262626;
+	--colorContrast: #d0d0d0;
+	--colorAccent: #454545;
+}
+
 body{
 	background-color: var(--colorBackground);
 }
 
-h1, h2, h3, h4, h5, h6, p, a, legend {
+h1, h2, h3, h4, h5, h6, a, legend {
 	margin: 0px;
 	color: var(--colorPrimary);
 }
 
-label {
+p, label {
 	color: var(--colorForeground);
 }
 
-input[type=text], input[type=password], input[type=number], textarea {
-   background-color: var(--colorBackground) !important;
-   color: var(--colorContrast) !important;
+input[type=text], input[type=password], input[type=number], textarea, .selectdatewidget, .select {
+	background-color: var(--colorBackground) !important;
+	color: var(--colorContrast) !important;
+	border: 1px solid var(--colorAccent) !important;
 }
 
 textarea:focus,
@@ -35,20 +54,19 @@ input[type="file"]:focus,
 audio:focus,
 select:focus,
 .uneditable-input:focus {
-  border-color: var(--colorPrimary) !important;
-  box-shadow: var(--colorPrimary) !important;
-  outline: 0 none;
-  background-color: var(--colorBackground) !important;
-  color: var(--colorContrast);
+	border-color: var(--colorPrimary) !important;
+	box-shadow: var(--colorPrimary) !important;
+	outline: 0 none;
+	background-color: var(--colorBackground) !important;
+	color: var(--colorContrast);
 }
+
 
 /* Crispy Form classes */
 
 .selectdatewidget, .select {
 	width: auto;
 	display: inline;
-   background-color: var(--colorBackground);
-   color: var(--colorContrast);
 }
 
 .modal-content, .dropdown-menu, .dropdown-item {
@@ -64,7 +82,7 @@ select:focus,
 	color: var(--colorBackground) !important;
 }
 
-a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-primary:hover{
+a.bg-primary:focus, a.bg-primary:hover, button.btn-primary:focus, button.btn-primary:hover, input[type="button"].btn-primary:focus, input[type="button"].btn-primary:hover{
 	background-color: var(--colorPrimaryDark) !important;
 }
 
@@ -78,6 +96,11 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
 }
 
 /* Custom classes */
+
+.tile {
+	border: 1px solid var(--colorAccent) !important;
+	overflow: hidden;
+}
 
 .forms {
 	background-color: var(--colorBackground) !important;
@@ -96,19 +119,19 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
 }
 
 .button {
-  border: 1px solid;
-  background-color: transparent;
-  cursor: pointer;
+	border: 1px solid;
+	background-color: transparent;
+	cursor: pointer;
 }
 
 .outline {
-  border-color: var(--colorPrimary);
-  color: var(--colorPrimary);
+	border-color: var(--colorPrimary);
+	color: var(--colorPrimary);
 }
 
 .outline:hover {
-  background-color: var(--colorPrimary);
-  color: var(--colorBackground);;
+	background-color: var(--colorPrimary);
+	color: var(--colorBackground);;
 }
 
 .content-section {
@@ -126,7 +149,7 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
     margin-bottom: auto;
 }
 
-.subject-label, .zoo-label {
+.tile-label {
 	padding-top: 25px;
 	padding-bottom: 25px;
 }
@@ -143,4 +166,9 @@ a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-prima
     display: block;
   	margin-left: auto;
   	margin-right: auto;
+}
+
+a.add-button:focus, a.add-button:hover {
+	color: var(--colorPrimaryDark);
+	display: inline;
 }

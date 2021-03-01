@@ -17,7 +17,7 @@ class Gender(enum.Enum):
 
 class BlobField(models.BinaryField):
 	def from_db_value(self, value, expression, connection):
-		return io.BytesIO(value) if value is not None else None
+		return io.BytesIO(value) if value is not None else io.BytesIO()
 	
 	def get_db_prep_value(self, value, connection, prepared=False):
 		return value.read() if value is not None else None
@@ -36,16 +36,6 @@ class AbstractBaseModel(models.Model):
 	class Meta:
 		abstract = True
 	
-	def __getattribute__(self, name):
-		try:
-			return super().__getattribute__(name)
-		except AttributeError:
-			try:
-				blob_field = name.removesuffix('_str')
-				return base64.b64encode(super().__getattribute__(blob_field).read()).decode()
-			except:
-				return super().__getattribute__(name)  # raise original exception
-	
 	@property
 	def zoo(self):
 		assert self._state.db is not None, f'{self} does not belong to any zoo'
@@ -58,6 +48,16 @@ class ZooSubject(AbstractBaseModel):
 	
 	class Meta:
 		abstract = True
+	
+	def __getattribute__(self, name):
+		try:
+			return super().__getattribute__(name)
+		except AttributeError:
+			try:
+				blob_field = name.removesuffix('_str')
+				return base64.b64encode(super().__getattribute__(blob_field).read()).decode()
+			except:
+				return super().__getattribute__(name)  # raise original exception
 	
 	def __str__(self):
 		return self.name

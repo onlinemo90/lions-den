@@ -83,7 +83,7 @@ class IndividualForm(BaseSubjectForm):
 			'name': 'Name',
 			'image': 'Image',
 			'gender': 'Gender',
-			# 'place_of_birth': 'Place of Birth'
+			'place_of_birth': 'Place of Birth'
 		}
 	
 	def __init__(self, *args, **kwargs):
