@@ -95,6 +95,14 @@ a.bg-primary:focus, a.bg-primary:hover, button.btn-primary:focus, button.btn-pri
 	color: var(--colorBackground) !important;
 }
 
+.dropdown-menu{
+	border: 1px solid var(--colorAccent) !important;
+}
+
+.dropdown-divider{
+	border-top: 1px solid var(--colorAccent) !important;
+}
+
 /* Custom classes */
 
 .tile {
