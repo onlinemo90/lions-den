@@ -103,6 +103,14 @@ a.bg-primary:focus, a.bg-primary:hover, button.btn-primary:focus, button.btn-pri
 	border-top: 1px solid var(--colorAccent) !important;
 }
 
+.modal-header{
+	border-bottom: 1px solid var(--colorAccent) !important;
+}
+
+.modal-footer{
+	border-top: 1px solid var(--colorAccent) !important;
+}
+
 /* Custom classes */
 
 .tile {
