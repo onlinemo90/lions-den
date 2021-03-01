@@ -113,6 +113,15 @@ a.bg-primary:focus, a.bg-primary:hover, button.btn-primary:focus, button.btn-pri
 
 /* Custom classes */
 
+div.form-section{
+	padding-top: 16px;
+	padding-bottom: 16px;
+}
+
+div.form-section + div.form-section{
+	border-top: 1px solid var(--colorAccent);
+}
+
 .tile {
 	border: 1px solid var(--colorAccent) !important;
 	overflow: hidden;

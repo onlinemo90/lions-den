@@ -1,62 +1,68 @@
 {% load crispy_forms_tags %}
 
-{{ form.name|as_crispy_field }}
+<div class="form-section">
+	{{ form.name|as_crispy_field }}
+	
+	{% if subject.species %}
+			<table>
+				<tr>
+					<td><label>Species:</label></td>
+					<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
+				</tr>
+			</table>
+	{% elif form.species %}
+			{{ form.species|as_crispy_field }}
+	{% endif %}
+</div>
 
-{% if subject.species %}
-	<table>
-		<tr>
-			<td><label>Species:</label></td>
-			<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
-		</tr>
-	</table>
-{% elif form.species %}
-	{{ form.species|as_crispy_field }}
-{% endif %}
-
-<hr>
-
-<label>{{ form.image.label }}</label>
-<br/>
-<img id="id_subject_image_display" style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
-<br/><br/>
-{{ form.image }}
-
-<hr>
+<div class="form-section">
+	<label>{{ form.image.label }}</label>
+	<br/>
+	<img id="id_subject_image_display" style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
+	<br/><br/>
+	{{ form.image }}
+</div>
 
 {% if 'audio' in form.fields %}
-	<label>{{ form.audio.label }}</label>
-	<br/>
-	<audio id="id_audio_control" controls><source id="id_subject_audio_display" src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
-	<br/><br/>
-	{{ form.audio }}
-	{% if subject.audio %}
-		<input type="checkbox" id="DELETE-FIELD_audio" name="DELETE-FIELD_audio">
-		<label for="DELETE-FIELD_audio" class="form-check-label">Delete</label>
-	{% endif %}
-	<hr>
+	<div class="form-section">
+		<label>{{ form.audio.label }}</label>
+		<br/>
+		<audio id="id_audio_control" controls><source id="id_subject_audio_display" src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
+		<br/><br/>
+		{{ form.audio }}
+		{% if subject.audio %}
+			<input type="checkbox" id="DELETE-FIELD_audio" name="DELETE-FIELD_audio">
+			<label for="DELETE-FIELD_audio" class="form-check-label">Delete</label>
+		{% endif %}
+	</div>
 {% endif %}
 
 {% if 'gender' in form.fields %}
-	{{ form.gender|as_crispy_field }}
-	<hr>
+	<div class="form-section">
+		{{ form.gender|as_crispy_field }}
+	</div>
 {% endif %}
 
 {% if 'dob' in form.fields %}
-	{{ form.dob|as_crispy_field }}
-	<hr>
+	<div class="form-section">
+		{{ form.dob|as_crispy_field }}
+	</div>
 {% endif %}
 
 {% if 'place_of_birth' in form.fields %}
-	{{ form.place_of_birth|as_crispy_field }}
-	<hr>
+	<div class="form-section">
+		{{ form.place_of_birth|as_crispy_field }}
+	</div>>
 {% endif %}
 
 {% if 'weight' in form.fields %}
-	{{ form.weight|as_crispy_field }}
-	<hr>
+	<div class="form-section">
+		{{ form.weight|as_crispy_field }}
+	</div>
 {% endif %}
 
 {% if 'size' in form.fields %}
-	{{ form.size|as_crispy_field }}
-	<hr>
+	<div class="form-section">
+		{{ form.size|as_crispy_field }}
+	</div>
 {% endif %}

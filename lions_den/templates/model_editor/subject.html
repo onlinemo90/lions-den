@@ -7,16 +7,17 @@
 		
 		{% include 'model_editor/subject_form_fields.html' with form=subject_form %}
 		
-		<br/>
-		<h3 style="display: inline-block; padding-right:16px">Attributes</h3>
-		{% if new_attribute_form %}
-			{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new attribute' %}
+		<div class="form-section">
+			<h3 style="display: inline-block; padding-right:16px">Attributes</h3>
+			{% if new_attribute_form %}
+				{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new attribute' %}
+			{% endif %}
 			<br/>
-		{% endif %}
-		<br/>
-			<table>
-				{{ attributes_formset|crispy }}
-			</table>
+			<br/>
+				<table>
+					{{ attributes_formset|crispy }}
+				</table>
+		</div>
 		<button class="btn btn-primary" name="submit" type="submit">Submit</button>
 	</form>
 	{% if new_attribute_form %}
