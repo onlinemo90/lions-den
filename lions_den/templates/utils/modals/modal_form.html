@@ -1,17 +1,19 @@
 {% extends 'utils/modals/modal.html'%}
+{% load crispy_forms_tags %}
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block content %}
-	<form method="POST" enctype="multipart/form-data">
-		<div class="modal-body">
-			{% csrf_token %}
-			{% block form_content %}{% endblock %}
-		</div>
-		<div class="modal-footer">
-			<button type="submit" class="btn btn-primary" name="{{ submit_btn_name }}">Save</button>
-			<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-		</div>
+{% block body %}
+	<form method="POST" enctype="multipart/form-data" id="modalForm">
+		{% csrf_token %}
+		{% block form_fields %}
+			{{ form|crispy }}
+		{% endblock %}
+		<button type="submit" style="display:none" id="modalFormSubmitBtn" name="{{ submit_btn_name }}">Submit</button>
 	</form>
-{% endblock content %}
+{% endblock body %}
 
+{% block footer %}
+	<button type="button" class="btn btn-primary" onclick="$('#modalFormSubmitBtn').click()">Submit</button>
+	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+{% endblock footer %}

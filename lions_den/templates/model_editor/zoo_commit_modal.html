@@ -2,17 +2,16 @@
 
 {% block title %}Commit to Zooverse{% endblock %}
 
-{% block content %}
-	<div class="modal-body">
-		<p>You are about to commit your changes to the Zooverse app.</p>
-		<p>You may not be able to revert this action.</p>
-		<p>Are you sure you want to commit?</p>
-	</div>
-	<div class="modal-footer">
-		<form method="POST">
-			{% csrf_token %}
-			<button type="submit" class="btn btn-primary" name="commit">Commit</button>
-		</form>
-		<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-	</div>
+{% block body %}
+	<p>You are about to commit your changes to the Zooverse app.</p>
+	<p>You may not be able to revert this action.</p>
+	<p>Are you sure you want to commit?</p>
+{% endblock %}
+
+{% block footer %}
+	<form method="POST">
+		{% csrf_token %}
+		<button type="submit" class="btn btn-primary" name="commit">Commit</button>
+	</form>
+	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 {% endblock %}

@@ -2,13 +2,12 @@
 
 {% block title %}QR Code{% endblock %}
 
-{% block content %}
-	<div class="modal-body">
-		<img src="data:image/png;base64,{{ qr_code }}">
-	</div>
-	<div class="modal-footer">
-		<a download="{{ filename }}" href="data:image/png;base64,{{ qr_code }}">
-			<button class="btn btn-primary">Download</button>
-		</a>
-	</div>
-{% endblock content %}
+{% block body %}
+	<img src="data:image/png;base64,{{ subject.qr_code }}">
+{% endblock %}
+
+{% block footer %}
+	<a download="QR-{{ subject.name }}" href="data:image/png;base64,{{ subject.qr_code }}">
+		<button class="btn btn-primary">Download</button>
+	</a>
+{% endblock %}

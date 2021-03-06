@@ -83,7 +83,7 @@ class IndividualForm(BaseSubjectForm):
 			'name': 'Name',
 			'image': 'Image',
 			'gender': 'Gender',
-			# 'place_of_birth': 'Place of Birth'
+			'place_of_birth': 'Place of Birth'
 		}
 	
 	def __init__(self, *args, **kwargs):
@@ -162,7 +162,7 @@ def get_attribute_categories_formset(zoo_id, *args, **kwargs):
 				current_position = max_position
 				for form in self.ordered_forms:
 					form.instance.position = current_position
-					current_position -= 1
+					current_position += 1
 					form.instance.save()
 			
 			set_categories_position(3 * len(self.forms))

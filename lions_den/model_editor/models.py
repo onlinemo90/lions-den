@@ -121,7 +121,7 @@ class AttributeCategory(AbstractBaseModel):
 		# If adding a new category, set the priority to above current highest
 		if self._state.adding:
 			highest_position = AttributeCategory.objects.using(self.zoo.id).all().aggregate(highest=models.Max('position'))['highest']
-			self.priority = highest_position + 1 if highest_position else 1
+			self.position = highest_position + 1 if highest_position else 1
 		super().save()
 
 
