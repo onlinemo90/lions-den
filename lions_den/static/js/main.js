@@ -140,7 +140,7 @@ function addMemberToGroup(membersType){
 		$('#group_list_' + membersType + ' li[value=' + memberId + ']').attr('style', 'display:block'); // show in members list
 		$('#group_select_' + membersType + ' option[value=' + memberId + ']').attr('style', 'display:none'); // hide from non-members select
 
-		$('#group_' + membersType + '_select').prop('selectedIndex', 0); // reset selection
+		$('#group_select_' + membersType).prop('selectedIndex', 0); // reset selection
 	}
 }
 
@@ -188,7 +188,10 @@ function initGroupMembersDisplay(membersType){
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-	initGroupMembersDisplay('species');
-	initGroupMembersDisplay('individuals');
+	['species', 'individuals'].forEach(function(membersType){
+		if (document.getElementById('id_subject_' + membersType)){
+			initGroupMembersDisplay(membersType);
+		}
+	});
 });
 //----------------------------------------------------------------------------------------------------------------------
