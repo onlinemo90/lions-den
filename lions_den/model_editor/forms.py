@@ -142,7 +142,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
 			def __init__(self, subject, *args, **kwargs):
 				super().__init__(
-					queryset=subject.attribute_model.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('-category__priority').all(),
+					queryset=subject.attribute_model.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
 					form_kwargs={'zoo_id': subject.zoo.id},
 					*args, **kwargs
 				)
@@ -171,15 +171,15 @@ def get_attribute_categories_formset(zoo_id, *args, **kwargs):
 		def save(self, commit=True):
 			super().save(commit)
 			
-			def set_categories_position(max_position):
-				current_position = max_position
+			def set_categories_position(start_position):
+				current_position = start_position
 				for form in self.ordered_forms:
 					form.instance.position = current_position
 					current_position += 1
 					form.instance.save()
 			
-			set_categories_position(3 * len(self.forms))
-			set_categories_position(len(self.forms))
+			set_categories_position(len(self.forms) + 1)
+			set_categories_position(1)
 	
 	return AttributeCategoriesFormset(zoo_id, *args, **kwargs)
 

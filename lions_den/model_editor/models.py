@@ -160,34 +160,17 @@ class Group(Subject):
 	
 	def non_member_individuals(self):
 		return Individual.objects.using(self.zoo.id).exclude(id__in=self.individuals.values_list('id', flat=True))
-	
-
-
-class Group(Subject):
-	audio = BlobField(editable=True, null=True, blank=True)
-	species = models.ManyToManyField(Species, related_name='groups', related_query_name='group', db_table='GROUPS_SPECIES')
-	individuals = models.ManyToManyField(Individual, related_name='groups', related_query_name='group', db_table='GROUPS_INDIVIDUALS')
-	
-	class Meta:
-		db_table = '_GROUP_'
-	
-	@property
-	def attribute_model(self):
-		return GroupAttribute
-	
-	@property
-	def form(self):
-		from .forms import GroupForm
-		return GroupForm
 
 
 class AttributeCategory(AbstractBaseModel):
 	name = DefaultCharField()
 	position = models.PositiveIntegerField(unique=True)
 	
-	class Meta: db_table = 'ATTRIBUTE_CATEGORY'
+	class Meta:
+		db_table = 'ATTRIBUTE_CATEGORY'
 	
-	def __str__(self): return self.name
+	def __str__(self):
+		return self.name
 	
 	def save(self):
 		# If adding a new category, set the priority to above current highest
@@ -201,7 +184,8 @@ class AbstractAttribute(AbstractBaseModel):
 	category = models.ForeignKey(AttributeCategory, on_delete=models.CASCADE)
 	attribute = models.TextField()
 	
-	class Meta: abstract = True
+	class Meta:
+		abstract = True
 	
 	def __str__(self): return f'{self.category} -> {self.attribute}'
 
@@ -209,16 +193,19 @@ class AbstractAttribute(AbstractBaseModel):
 class SpeciesAttribute(AbstractAttribute):
 	subject = models.ForeignKey(Species, related_name='attributes', on_delete=models.CASCADE)
 	
-	class Meta: db_table = 'SPECIES_ATTRIBUTES'
+	class Meta:
+		db_table = 'SPECIES_ATTRIBUTES'
 
 
 class IndividualAttribute(AbstractAttribute):
 	subject = models.ForeignKey(Individual, related_name='attributes', on_delete=models.CASCADE)
 	
-	class Meta: db_table = 'INDIVIDUALS_ATTRIBUTES'
+	class Meta:
+		db_table = 'INDIVIDUALS_ATTRIBUTES'
 
 
 class GroupAttribute(AbstractAttribute):
 	subject = models.ForeignKey(Group, related_name='attributes', on_delete=models.CASCADE)
 	
-	class Meta: db_table = 'GROUPS_ATTRIBUTES'
+	class Meta:
+		db_table = 'GROUPS_ATTRIBUTES'
