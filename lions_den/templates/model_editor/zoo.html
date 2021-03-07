@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 	<div class="container">
-		<table style="width:100%">
+		<table style="width:100%; margin-bottom: 54px">
 			<tr>
 				<td style="width:33.33%">
 					<img class="zoo-thumbnail" style="float:left" src="{{ zoo.image.url }}"/>
@@ -24,30 +24,14 @@
 			</tr>
 		</table>
 		
-		<br/>
-		<br/>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'species_list' zoo.id %}'">Edit Species</button>
 		
-		<a href="{% url 'species_list' zoo.id %}" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Species</button>
-		</a>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'individuals_list' zoo.id %}'">Edit Individuals</button>
 		
-		<br/>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='#'">Edit Groups</button>
 		
-		<a href="{% url 'individuals_list' zoo.id %}" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Individuals</button>
-		</a>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'attributes_list' zoo.id%}'">Edit Attributes</button>
 		
-		<br/>
-		
-		<a href="#" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Groups</button>
-		</a>
-		
-		<br/>
-		
-		<a href="{% url 'attributes_list' zoo.id%}" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Attributes</button>
-		</a>
 	</div>
 	{% if zoo.can_commit %}
 		{% include 'model_editor/zoo_commit_modal.html' %}

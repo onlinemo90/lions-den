@@ -22,9 +22,9 @@
 	<body>
 		<script src="{% static 'js/theme.js' %}"></script>
 		{% block navbar %}
-			<nav class="navbar navbar-expand-lg navbar-dark bg-primary no-vertical-padding">
+			<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 				
-				<a class="navbar-brand no-vertical-padding" href="{% url 'zoo_index' %}">
+				<a class="navbar-brand navbar-image" href="{% url 'zoo_index' %}">
 					<img src="{% static 'images/logo.png' %}" style="height:64; padding-top:5px; padding-bottom:5px" alt="Zooverse"/>
 					Lion's Den
 				</a>

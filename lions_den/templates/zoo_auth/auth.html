@@ -3,11 +3,11 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-	<div class="container shadow rounded bg-light p-0 tile" style="max-width: 480px; margin: 50px auto">
+	<div class="container shadow-lg rounded p-0 tile" style="max-width: 480px; margin: 50px auto">
 		<header class="bg-primary text-center p-2">
 			<span class="mx-auto">Lion's Den</span>
 		</header>
-		<div class="container p-4 forms">
+		<div class="container p-4">
 			<form method="POST">
 				{% csrf_token %}
 				<fieldset class="form-group">

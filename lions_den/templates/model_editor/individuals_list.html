@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div>
+	<div class="page-header">
 		<h2 class="title" style="display:inline-block; padding-right:12px">Individuals</h2>
 		{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new individual' %}
 	</div>
-	
-	<br/>
 	
 	<select class="select form-control" name="species" id="select_species">
 		<option value="">All Species</option>

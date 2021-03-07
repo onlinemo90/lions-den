@@ -43,26 +43,26 @@
 	</div>
 {% endif %}
 
-{% if 'dob' in form.fields %}
+{% if 'dob' in form.fields or 'place_of_birth' in form.fields %}
 	<div class="form-section">
-		{{ form.dob|as_crispy_field }}
+		{% if 'dob' in form.fields %}
+			{{ form.dob|as_crispy_field }}
+		{% endif %}
+		
+		{% if 'place_of_birth' in form.fields %}
+			{{ form.place_of_birth|as_crispy_field }}
+		{% endif %}
 	</div>
 {% endif %}
 
-{% if 'place_of_birth' in form.fields %}
+{% if 'weight' in form.fields or 'size' in form.fields %}
 	<div class="form-section">
-		{{ form.place_of_birth|as_crispy_field }}
-	</div>>
-{% endif %}
-
-{% if 'weight' in form.fields %}
-	<div class="form-section">
-		{{ form.weight|as_crispy_field }}
-	</div>
-{% endif %}
-
-{% if 'size' in form.fields %}
-	<div class="form-section">
-		{{ form.size|as_crispy_field }}
+		{% if 'weight' in form.fields %}
+			{{ form.weight|as_crispy_field }}
+		{% endif %}
+		
+		{% if 'size' in form.fields %}
+			{{ form.size|as_crispy_field }}
+		{% endif %}
 	</div>
 {% endif %}

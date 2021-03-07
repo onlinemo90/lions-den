@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-	<h2 class="title" style="display:inline-block; padding-right:12px">Attribute Categories</h2>
-	{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new attribute category' %}
+	<div class="page-header">
+		<h2 class="title" style="display:inline-block; padding-right:12px">Attribute Categories</h2>
+		{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new attribute category' %}
+	</div>
 	
-	<br/>
-	<br/>
 	
 	<form class="form-horizontal" method="POST" action="">
 		{% csrf_token %}
