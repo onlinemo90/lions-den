@@ -1,18 +1,13 @@
 <legend>{{ title }}</legend>
 
-<select style="min-width:12em" class="select" id="group_{{ members_type }}_select">
-	<option value selected></option>
-	{% for non_member in non_members %}
-		<option value="{{ non_member.id }}">{{ non_member.name }}</option>
-	{% endfor %}
-</select>
-<button onclick="addMemberToGroup('{{ members_type }}')">Add</button>
+{{ form_field }} {# Form field is hidden so alternate controls can be used #}
 
-<ul class="list-group">
-	{% for member in members %}
-		<li class="list-group-item">
-			<a style="color:red; text-decoration: none" href="" onclick="deleteMemberFromGroup('{{ members_type }}', {{ member.id }})">X</a>
-			{{ member.name }}
-		</li>
-	{% endfor %}
+<select style="min-width:12em" class="select" id="group_select_{{ members_type }}">
+	<option selected></option>
+	{# Options will be retrieved via Javascript from the form field #}
+</select>
+<button type="button" onclick="addMemberToGroup('{{ members_type }}')">Add</button>
+
+<ul id="group_list_{{ members_type }}" class="list-group">
+	{# Options will be retrieved via Javascript from the form field #}
 </ul>

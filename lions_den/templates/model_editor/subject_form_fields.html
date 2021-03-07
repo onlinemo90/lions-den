@@ -4,13 +4,12 @@
 
 {% if subject.species and subject.individuals %} {# Groups #}
 	<hr>
-	
 	<div class="row">
-		<div id="group_members_species" class="col">
-			{% include 'model_editor/group_members.html' with title='Species' members_type='species' members=subject.species.all non_members=subject.non_member_species %}
+		<div class="col">
+			{% include 'model_editor/group_members.html' with form_field=form.species title='Species' members_type='species' %}
 		</div>
-		<div id="group_members_individuals" class="col">
-			{% include 'model_editor/group_members.html' with title='Individuals' members_type='individuals' members=subject.individuals.all non_members=subject.non_member_individuals %}
+		<div class="col">
+			{% include 'model_editor/group_members.html' with form_field=form.individuals title='Individuals' members_type='individuals' %}
 		</div>
 	</div>
 {% elif subject.species %} {# Individuals #}

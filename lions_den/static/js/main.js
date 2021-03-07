@@ -133,42 +133,62 @@ document.addEventListener("DOMContentLoaded", function(){
 //----------------------------------------------------------------------------------------------------------------------
 
 // Group Page - Show and Edit Members-----------------------------------------------------------------------------------
-function queryGroupMembers(membersType, id, isDelete){
-	let httpMethod, requestData;
-	if (id){
-		let action = 'add';
-		if (isDelete){
-			action = 'delete';
-		}
-		httpMethod = 'POST';
-		requestData = {
-			'members_type': membersType,
-			'id': id,
-			'action': action
-		}
-	} else {
-		httpMethod = 'GET';
-		requestData = 'members_type=' + membersType;
-	}
-
-	$.ajax({
-		type: httpMethod,
-		url: document.URL,
-		data: requestData,
-		success: function (response) {
-			document.getElementById('group_members_' + membersType).innerHTML = response;
-		}
-	});
-}
-
 function addMemberToGroup(membersType){
-	memberId = document.getElementById('group_' + membersType + '_select').value;
+	memberId = document.getElementById('group_select_' + membersType).value;
 	if (memberId){
-		return queryGroupMembers(membersType, memberId, false);
+		$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', true); // select in hidden form field
+		$('#group_list_' + membersType + ' li[value=' + memberId + ']').attr('style', 'display:block'); // show in members list
+		$('#group_select_' + membersType + ' option[value=' + memberId + ']').attr('style', 'display:none'); // hide from non-members select
+
+		$('#group_' + membersType + '_select').prop('selectedIndex', 0); // reset selection
 	}
 }
 
-function deleteMemberFromGroup(membersType, memberId){
-	return queryGroupMembers(membersType, memberId, true);
+function removeMemberFromGroup(membersType, memberId){
+	$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', false); // unselect in hidden form field
+	$('#group_list_' + membersType + ' li[value=' + memberId + ']').css('display', 'none'); // hide from members list
+	$('#group_select_' + membersType + ' option[value=' + memberId + ']').css('display', 'block'); // show in non-members select
 }
+
+function createGroupListItem(membersType, text, value){
+	memberListItem = document.createElement('li');
+	memberListItem.value = value;
+	memberListItem.className = 'list-group-item';
+
+	let deleteButtonHTML = '<button type="button" class="close" style="color:var(--danger)" onclick="removeMemberFromGroup(' +
+		"'" + membersType + "', " + value + ')">' +
+		'<svg id="i-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="padding:4 4 0 0">' +
+			'<path d="M2 30 L30 2 M30 30 L2 2"></path>' +
+		'</svg></button>';
+
+	memberListItem.innerHTML = deleteButtonHTML + text;
+	return memberListItem;
+}
+
+function initGroupMembersDisplay(membersType){
+	for (let option of document.getElementById('id_subject_' + membersType).options){
+		// Non-members select
+		let selectOption = document.createElement('option');
+		selectOption.text = option.innerHTML;
+		selectOption.value = option.value;
+
+		// Members list
+		let memberListItem = createGroupListItem(membersType, option.innerHTML, option.value);
+
+		if (option.selected){
+			selectOption.style = 'display:none;' + selectOption.style; // Hide from select
+		} else {
+			memberListItem.style = 'display:none;' + memberListItem.style; // Hide from list
+		}
+
+		// Add elements
+		document.getElementById('group_select_' + membersType).add(selectOption);
+		document.getElementById('group_list_' + membersType).appendChild(memberListItem);
+	}
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+	initGroupMembersDisplay('species');
+	initGroupMembersDisplay('individuals');
+});
 //----------------------------------------------------------------------------------------------------------------------

@@ -150,13 +150,7 @@ class Group(Subject):
 	def form(cls, *args, **kwargs):
 		from .forms import GroupForm
 		return GroupForm(*args, **kwargs)
-	
-	@property
-	def non_member_species(self):
-		return Species.objects.using(self.zoo.id).exclude(id__in=self.species.values_list('id', flat=True))
-	
-	def non_member_individuals(self):
-		return Individual.objects.using(self.zoo.id).exclude(id__in=self.individuals.values_list('id', flat=True))
+
 
 
 class AttributeCategory(AbstractBaseModel):

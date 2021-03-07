@@ -13,15 +13,15 @@ class BaseModelForm(forms.ModelForm):
 	"""
 	def __init__(self, *args, **kwargs):
 		if 'zoo_id' in kwargs:
-			zoo_id = kwargs.pop('zoo_id')
+			self.zoo_id = kwargs.pop('zoo_id')
 		elif 'instance' in kwargs:
-			zoo_id = kwargs['instance'].zoo.id
+			self.zoo_id = kwargs['instance'].zoo.id
 		else:
 			raise Exception('zoo_id must be given to create zoo-related form')
 		
 		if 'instance' not in kwargs:
 			super().__init__(*args, **kwargs)
-			self.instance._state.db = zoo_id
+			self.instance._state.db = self.zoo_id
 		else:
 			super().__init__(*args, **kwargs)
 
@@ -93,7 +93,7 @@ class IndividualForm(BaseSubjectForm):
 		if 'instance' in kwargs:
 			del self.fields['species']
 		else:
-			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).order_by('name').all())
+			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).all())
 
 
 class GroupForm(BaseSubjectForm):
@@ -102,12 +102,22 @@ class GroupForm(BaseSubjectForm):
 	
 	class Meta:
 		model = Group
-		fields = ('name', 'image', 'audio')
+		fields = ('name', 'image', 'audio', 'species', 'individuals')
 		labels = {
 			'name': 'Name',
 			'image': 'Image',
 			'audio': 'Audio'
 		}
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		
+		self.fields['species'] = forms.ModelMultipleChoiceField(queryset=Species.objects.using(self.zoo_id).all(), required=False)
+		self.fields['individuals'] = forms.ModelMultipleChoiceField(queryset=Individual.objects.using(self.zoo_id).all(), required=False)
+		
+		# Hide foreign key fields (front-end handled by Javascript)
+		self.fields['species'].widget.attrs.update({'style': 'display:none'})
+		self.fields['individuals'].widget.attrs.update({'style': 'display:none'})
 
 
 class AttributeCategoryForm(BaseModelForm):
