@@ -121,7 +121,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		# Define form for displaying/editing each attribute
 		class SubjectAttributeForm(BaseModelForm):
 			class Meta:
-				model = subject.attribute_model
+				model = subject.__class__.get_attribute_model()
 				fields = ('attribute',)
 			
 			def __init__(self, *args, **kwargs):
@@ -131,7 +131,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		
 		# Define formset for multiple attributes
 		BaseSubjectAttributesFormSet = forms.modelformset_factory(
-			subject.attribute_model,
+			subject.__class__.get_attribute_model(),
 			form=SubjectAttributeForm,
 			extra=0,
 			can_delete=True,
@@ -142,7 +142,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 		class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
 			def __init__(self, subject, *args, **kwargs):
 				super().__init__(
-					queryset=subject.attribute_model.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
+					queryset=subject.__class__.get_attribute_model().objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
 					form_kwargs={'zoo_id': subject.zoo.id},
 					*args, **kwargs
 				)
@@ -191,7 +191,7 @@ def get_new_attribute_form(subject, *args, **kwargs):
 	if len(category_queryset) > 0:
 		class NewSubjectAttributeForm(BaseModelForm):
 			class Meta:
-				model = subject.attribute_model
+				model = subject.__class__.get_attribute_model()
 				fields = ('category', 'attribute')
 				labels = {'category': 'Header', 'attribute': 'Text'}
 			

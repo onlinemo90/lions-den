@@ -2,6 +2,8 @@ import io
 import base64
 import enum
 
+from abc import abstractmethod
+
 from django.db import models
 
 # noinspection PyUnresolvedReferences
@@ -69,13 +71,17 @@ class Subject(AbstractBaseModel):
 	def __str__(self):
 		return self.name
 	
-	@property
-	def attribute_model(self):
-		raise NotImplementedError()
+	@classmethod
+	def get_type_str(cls):
+		return cls.__name__.lower()
+	
+	@classmethod
+	@abstractmethod
+	def get_attribute_model(cls): pass
 	
 	@property
-	def form(self):
-		raise NotImplementedError()
+	@abstractmethod
+	def form(self, *args, **kwargs): pass
 	
 
 class Species(Subject):
@@ -86,30 +92,21 @@ class Species(Subject):
 	class Meta:
 		db_table = 'SPECIES'
 	
-	@property
-	def attribute_model(self):
+	@classmethod
+	def get_attribute_model(cls):
 		return SpeciesAttribute
 	
-	@property
-	def form(self):
+	@classmethod
+	def form(cls, *args, **kwargs):
 		from .forms import SpeciesForm
-		return SpeciesForm
+		return SpeciesForm(*args, **kwargs)
 	
 	def qr_code(self):
-		if isinstance(self, Species):
-			type_str = 'species'
-		elif isinstance(self, Individual):
-			type_str = 'individual'
-		elif isinstance(self, Group):
-			type_str = 'group'
-		else:
-			return None
-		
 		return create_request_qrcode(
 			zoo=self.zoo,
 			request = {
 				'zoo': self.zoo.id,
-				'type': type_str,
+				'type': self.__class__.get_type_str(),
 				'id': self.id
 			}
 		)
@@ -127,14 +124,14 @@ class Individual(Subject):
 	class Meta:
 		db_table = 'INDIVIDUAL'
 	
-	@property
-	def attribute_model(self):
+	@classmethod
+	def get_attribute_model(cls):
 		return IndividualAttribute
 	
-	@property
-	def form(self):
+	@classmethod
+	def form(cls, *args, **kwargs):
 		from .forms import IndividualForm
-		return IndividualForm
+		return IndividualForm(*args, **kwargs)
 
 
 class Group(Subject):
@@ -145,14 +142,14 @@ class Group(Subject):
 	class Meta:
 		db_table = '_GROUP_'
 	
-	@property
-	def attribute_model(self):
+	@classmethod
+	def get_attribute_model(cls):
 		return GroupAttribute
 	
-	@property
-	def form(self):
+	@classmethod
+	def form(cls, *args, **kwargs):
 		from .forms import GroupForm
-		return GroupForm
+		return GroupForm(*args, **kwargs)
 	
 	@property
 	def non_member_species(self):

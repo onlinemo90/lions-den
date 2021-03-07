@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from zoo_auth.models import Zoo
 
 from .models import Species, Individual, Group
-from .forms import SpeciesForm, IndividualForm, GroupForm, AttributeCategoryForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
+from .forms import AttributeCategoryForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -44,7 +44,7 @@ class SubjectPageView(BaseZooView):
 		request_data = request.POST if request else None
 		request_files = request.FILES if request else None
 		
-		subject_form = subject.form(data=request_data, files=request_files, instance=subject)
+		subject_form = self.model.form(data=request_data, files=request_files, instance=subject)
 		attributes_formset = get_attributes_formset(data=request_data, files=request_files, subject=subject, prefix='attributes')
 		return subject_form, attributes_formset
 	
@@ -100,6 +100,42 @@ class SubjectPageView(BaseZooView):
 		return self.get(request, zoo_id, subject_id)
 
 
+class SubjectsListView(BaseZooView):
+	def get(self, request, zoo_id):
+		return render(
+			request=request,
+			template_name=self.template_name,
+			context={
+				'zoo': self.get_zoo(zoo_id),
+				'subjects': self.model.objects.using(zoo_id).all()
+			}
+		)
+	
+	def get_ajax(self, request, zoo_id):
+		if 'modal_new_subject' in request.GET:
+			return render(
+				request=request,
+				template_name='model_editor/new_subject_modal_form.html',
+				context={
+					'title': f'New {self.model.get_type_str().capitalize()}',
+					'form': self.model.form(zoo_id=zoo_id),
+					'submit_btn_name': 'submit_new_subject'
+				}
+			)
+		else:
+			return self.get_ajax_extra(request, zoo_id)
+	
+	def get_ajax_extra(self, request, zoo_id):
+		return None
+	
+	def post(self, request, zoo_id):
+		if 'submit_new_subject' in request.POST:
+			new_subject_form = self.model.form(data=request.POST, files=request.FILES, zoo_id=zoo_id)
+			if new_subject_form.is_valid():
+				new_subject_form.save()
+		return self.get(request, zoo_id)
+
+
 # Renderable Views---------------------------------------------------
 class ZoosIndexView(LoginRequiredMixin, View):
 	def get(self, request):
@@ -125,58 +161,35 @@ class ZooHomeView(BaseZooView):
 	def post(self, request, zoo_id):
 		try:
 			self.get_zoo(zoo_id).commit_to_zooverse(request.user)
-			messages.add_message(request, messages.INFO, 'Your commit request has been received and will be processed within 30 days')
+			messages.info(request, 'Your commit request has been received and will be processed within 30 days')
 		except Exception as e:
-			messages.add_message(request, messages.ERROR, str(e))
+			messages.error(request, str(e))
 		return self.get(request, zoo_id)
 
 
-class SpeciesListView(BaseZooView):
+class SpeciesListView(SubjectsListView):
+	model = Species
+	template_name = 'model_editor/species_list.html'
+
+
+class IndividualsListView(SubjectsListView):
+	model = Individual
+	template_name = 'model_editor/individuals_list.html'
+	
 	def get(self, request, zoo_id):
 		return render(
 			request=request,
-			template_name='model_editor/species_list.html',
+			template_name=self.template_name,
 			context={
 				'zoo': self.get_zoo(zoo_id),
-				'subjects': Species.objects.using(zoo_id).order_by('name').all()
+				'subjects': Individual.objects.using(zoo_id),
+				'species_list': Species.objects.using(zoo_id)
 			}
 		)
 	
-	def get_ajax(self, request, zoo_id):
-		if 'modal_new_subject' in request.GET:
-			return render(
-				request=request,
-				template_name='model_editor/new_subject_modal_form.html',
-				context={
-					'title': 'New Species',
-					'form': SpeciesForm(zoo_id=zoo_id),
-					'submit_btn_name': 'submit_new_subject'
-				}
-			)
-	
-	def post(self, request, zoo_id):
-		if 'submit_new_subject' in request.POST:
-			new_species_form = SpeciesForm(data=request.POST, files=request.FILES, zoo_id=zoo_id)
-			if new_species_form.is_valid():
-				new_species_form.save()
-		return self.get(request, zoo_id)
-
-
-class IndividualsListView(BaseZooView):
-	def get(self, request, zoo_id):
-		return render(
-			request=request,
-			template_name='model_editor/individuals_list.html',
-			context={
-				'zoo': self.get_zoo(zoo_id),
-				'subjects': Individual.objects.using(zoo_id).order_by('name'),
-				'species_list': Species.objects.using(zoo_id).order_by('name')
-			}
-		)
-	
-	def get_ajax(self, request, zoo_id):
+	def get_ajax_extra(self, request, zoo_id):
 		if 'species_filter' in request.GET:
-			individuals_shown = Individual.objects.using(zoo_id).order_by('name')
+			individuals_shown = Individual.objects.using(zoo_id)
 			if request.GET.get('species_id'):
 				individuals_shown = individuals_shown.filter(species__id=request.GET['species_id'])
 			return render(
@@ -184,46 +197,21 @@ class IndividualsListView(BaseZooView):
 				template_name='model_editor/subject_table.html',
 				context={'subjects': individuals_shown}
 			)
-		elif 'modal_new_subject' in request.GET:
-			return render(
-				request=request,
-				template_name='model_editor/new_subject_modal_form.html',
-				context={
-					'title': 'New Individual',
-					'form': IndividualForm(zoo_id=zoo_id),
-					'submit_btn_name': 'submit_new_subject'
-				}
-			)
-	
-	def post(self, request, zoo_id):
-		if 'submit_new_subject' in request.POST:
-			new_individual_form = IndividualForm(data=request.POST, files=request.FILES, zoo_id=zoo_id)
-			if new_individual_form.is_valid():
-				new_individual_form.save()
-		return self.get(request, zoo_id)
 
 
-class GroupsListView(BaseZooView):
-	def render_default_page(self, request, zoo_id, new_group_form=None):
-		return render(
-			request=request,
-			template_name='model_editor/groups_list.html',
-			context={
-				'zoo': self.get_zoo(zoo_id),
-				'subjects': Group.objects.using(zoo_id).order_by('name'),
-				'new_subject_form': new_group_form if new_group_form else GroupForm(zoo_id=zoo_id)
-			}
-		)
+class GroupsListView(SubjectsListView):
+	model = Group
+	template_name = 'model_editor/groups_list.html'
 	
 	def get(self, request, zoo_id):
-		return self.render_default_page(request, zoo_id)
-	
-	def post(self, request, zoo_id):
-		new_group_form = GroupForm(data=request.POST, files=request.FILES, zoo_id=zoo_id)
-		if new_group_form.is_valid():
-			new_group_form.save()
-			new_group_form = None
-		return self.render_default_page(request, zoo_id, new_group_form=new_group_form)
+		return render(
+			request=request,
+			template_name=self.template_name,
+			context={
+				'zoo': self.get_zoo(zoo_id),
+				'subjects': Group.objects.using(zoo_id)
+			}
+		)
 
 
 class SpeciesPageView(SubjectPageView):
@@ -237,14 +225,7 @@ class IndividualPageView(SubjectPageView):
 class GroupPageView(SubjectPageView):
 	model = Group
 	
-	def get(self, request, zoo_id, subject_id):
-		if request.is_ajax():
-			return self.get_ajax(request, zoo_id, subject_id)
-		else:
-			response = super().get(request, zoo_id, subject_id)
-			return response
-	
-	def get_ajax(self, request, zoo_id, subject_id):
+	def get_ajax_extra(self, request, zoo_id, subject_id):
 		group = self.get_subject(zoo_id, subject_id)
 		members_type_str = request.GET.get('members_type')
 		
@@ -260,12 +241,6 @@ class GroupPageView(SubjectPageView):
 				'non_members': non_members
 			}
 		)
-	
-	def post(self,  request, zoo_id, subject_id):
-		if request.is_ajax():
-			return self.post_ajax(request, zoo_id, subject_id)
-		else:
-			return super().post(request, zoo_id, subject_id)
 	
 	def post_ajax(self, request, zoo_id, subject_id):
 		group = self.get_subject(zoo_id, subject_id)
