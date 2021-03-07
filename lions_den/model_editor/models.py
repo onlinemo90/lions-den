@@ -8,7 +8,7 @@ from django.db import models
 from zoo_auth.models import Zoo
 
 from .utils.qrcode_creator import create_request_qrcode
-
+from .utils.image_normalisation import normalised_html_image_str
 
 class Gender(enum.Enum):
 	MALE = 'M'
@@ -43,20 +43,22 @@ class AbstractBaseModel(models.Model):
 	class Meta:
 		abstract = True
 	
-	def __getattribute__(self, name):
-		try:
-			return super().__getattribute__(name)
-		except AttributeError:
-			try:
-				blob_field = name.removesuffix('_str')
-				return base64.b64encode(super().__getattribute__(blob_field).read()).decode()
-			except:
-				return super().__getattribute__(name)  # raise original exception
-	
 	@property
 	def zoo(self):
 		assert self._state.db is not None, f'{self} does not belong to any zoo'
 		return Zoo.objects.filter(id=self._state.db).first()
+	
+	@property
+	def audio_html_src(self):
+		audio_str = self.audio.read().decode() if self.audio.read() else ''
+		return f'data:audio/mp3;base64,{audio_str}'
+	
+	@property
+	def image_html_src(self):
+		if self.image:
+			return normalised_html_image_str(self.image, self.__class__)
+		else:
+			return ''
 
 
 class Species(AbstractBaseModel):
