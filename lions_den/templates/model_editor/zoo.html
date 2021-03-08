@@ -12,7 +12,7 @@
 				<td style="width:33.33%">
 					<button type="button" class="btn btn-warning" style="float:right"
 							{% if zoo.can_commit %}
-								data-toggle="modal" data-target="#modal"
+								onclick="getModal('modal_zoo_commit')"
 							{% else %}
 								data-toggle="tooltip" data-placement="top" title="
 									Cannot commit to the Zooverse app.
@@ -33,7 +33,4 @@
 		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'attributes_list' zoo.id%}'">Edit Attributes</button>
 		
 	</div>
-	{% if zoo.can_commit %}
-		{% include 'model_editor/zoo_commit_modal.html' %}
-	{% endif %}
 {% endblock %}

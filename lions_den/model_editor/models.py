@@ -62,6 +62,9 @@ class ZooSubject(AbstractBaseModel):
 	def __str__(self):
 		return self.name
 	
+	def has_max_attributes(self):
+		return len(self.attributes.all()) == len(AttributeCategory.objects.using(self.zoo.id).all())
+	
 	def qr_code(self):
 		if isinstance(self, Species):
 			type_str = 'species'

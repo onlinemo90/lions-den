@@ -3,10 +3,8 @@
 {% block content %}
 	<div class="page-header">
 		<h2 class="title" style="display:inline-block; padding-right:12px">Attribute Categories</h2>
-		{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new attribute category' %}
-		<button type="button" onclick="getModal('modal_new_category')">Add new category</button>
+		{% include 'utils/buttons/add.html' with onclick="getModal('modal_new_category')" tooltip_text='Add a new attribute category' %}
 	</div>
-	
 	
 	<form class="form-horizontal" method="POST" action="">
 		{% csrf_token %}
@@ -14,5 +12,4 @@
 		{{ formset|crispy }}
 		<button type="submit" name="submit_categories" class="btn btn-primary">Save</button>
 	</form>
-	{% include 'utils/modals/modal_form.html' with form=new_attribute_category_form submit_btn_name='add_new_attribute_category' title='New Attribute Category' %}
 {% endblock %}

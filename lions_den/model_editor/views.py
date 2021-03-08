@@ -77,7 +77,7 @@ class SubjectPageView(BaseZooView):
 		elif 'modal_qr_code' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/qrcode_modal.html',
+				template_name='model_editor/modals/qrcode_modal.html',
 				context={
 					'subject': self.get_subject(zoo_id, subject_id)
 				}
@@ -123,6 +123,13 @@ class ZooHomeView(BaseZooView):
 			context={'zoo': self.get_zoo(zoo_id)}
 		)
 	
+	def get_ajax(self, request, zoo_id):
+		if 'modal_zoo_commit' in request.GET:
+			return render(
+				request=request,
+				template_name='model_editor/modals/zoo_commit_modal.html'
+			)
+	
 	def post(self, request, zoo_id):
 		try:
 			self.get_zoo(zoo_id).commit_to_zooverse(request.user)
@@ -147,7 +154,7 @@ class SpeciesListView(BaseZooView):
 		if 'modal_new_subject' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/new_subject_modal_form.html',
+				template_name='model_editor/modals/new_subject_modal_form.html',
 				context={
 					'title': 'New Species',
 					'form': SpeciesForm(zoo_id=zoo_id),
@@ -188,7 +195,7 @@ class IndividualsListView(BaseZooView):
 		elif 'modal_new_subject' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/new_subject_modal_form.html',
+				template_name='model_editor/modals/new_subject_modal_form.html',
 				context={
 					'title': 'New Individual',
 					'form': IndividualForm(zoo_id=zoo_id),
