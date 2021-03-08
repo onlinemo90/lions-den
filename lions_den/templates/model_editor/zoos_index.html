@@ -1,25 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-	<div class="container">
-		{% for zoo in zoos %}
-			<a href="{{ zoo.id }}" style="text-decoration:none">
-				<div class="mx-3 my-3 content-section shadow">
-					<div class="row">
-						<div class="col-sm">
-							<img class="zoo-thumbnail" src="{{ zoo.image.url }}"/>
-						</div>
-						<div class="col-sm">
-							<h2 class="zoo-label">{{zoo.name}}</h2>
-						</div>
-					</div>
-				</div>
-			</a>
-			<br/>
-		{% empty %}
-			<div class="alert alert-danger">
-				You have no zoos assigned yet. Please contact your administrators at
-				<a href="mailto:contact@zooverse.org" class="alert-link">contact@zooverse.org</a>.
-			</div>
-		{% endfor %}
-	</div>
+	{% for zoo in zoos %}
+		<div class="mt-4">
+			{% include 'utils/tile.html' with tile_href=zoo.id img_class='zoo-thumbnail' img_src=zoo.image.url label=zoo.name %}
+		</div>
+	{% empty %}
+		<div class="alert alert-danger">
+			You have no zoos assigned yet. Please contact your administrators at
+			<a href="mailto:contact@zooverse.org" class="alert-link">contact@zooverse.org</a>.
+		</div>
+	{% endfor %}
 {% endblock %}

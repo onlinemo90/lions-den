@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-	<button class="btn-primary btn-lg" type="button" onclick="getModal('modal_new_subject')">Add new species</button>
+	<div class="page-header">
+		<h2 class="title" style="display:inline-block; padding-right:12px">Species</h2>
+		{% include 'utils/add_button.html' with target_modal_id='modalForm' tooltip_text='Add a new species' %}
+		<button class="btn-primary btn-lg" type="button" onclick="getModal('modal_new_subject')">Add new species (REMOVE ME)</button>
+	</div>
 	{% include 'model_editor/subject_table.html' %}
 {% endblock %}

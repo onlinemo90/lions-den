@@ -1,20 +1,9 @@
-<table id="subject-table" class="subject-table">
+<table  style="table-layout:fixed; width:100%">
 	{% for subject in subjects %}
 		{% cycle '<tr>' '' %}
-		<th>
-			<a href="{{ subject.id }}" style="text-decoration:none">
-				<div class="mx-3 my-3 content-section shadow">
-					<div class="row">
-						 <div class="col-sm">
-							<img class="rounded-circle subject-thumbnail" src="data:image/png;base64,{{ subject.image_str}}"/>
-						 </div>
-						 <div class="col-sm subject-label">
-							 <h3>{{ subject.name }}</h3>
-						 </div>
-					</div>
-				</div>
-			</a>
-		</th>
+		<td>
+			{% include 'utils/tile.html' with tile_href=subject.id img_class='rounded-circle subject-thumbnail' img_src='data:image/png;base64,'|add:subject.image_str label=subject.name %}
+		</td>
 		{% cycle '' '</tr>' %}
 	{% endfor %}
 </table>

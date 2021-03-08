@@ -1,22 +1,43 @@
-body{
+.light-theme {
+	--colorPrimary: #68b733;
+	--colorPrimaryDark: #528F29;
+	--colorForeground: #808080;
+	--colorBackground: #FFFFFF;
+	--colorContrast: #808080;
+	--colorAccent: #CED4DA;
+}
+
+.dark-theme {
+	--colorPrimary: #528F29;
+	--colorPrimaryDark: #3b661e;
+	--colorForeground: #808080;
+	--colorBackground: #262626;
+	--colorContrast: #d0d0d0;
+	--colorAccent: #3d3d3d;
+}
+
+
+/* Default tags-------------------------------------------------------------------------------------------------------*/
+body {
 	background-color: var(--colorBackground);
 }
 
-h1, h2, h3, h4, h5, h6, p, a, legend {
-	margin: 0px;
+h1, h2, h3, h4, h5, h6, a, legend {
 	color: var(--colorPrimary);
 }
 
-label {
+p, label {
 	color: var(--colorForeground);
 }
 
-input[type=text], input[type=password], input[type=number], textarea {
-   background-color: var(--colorBackground) !important;
-   color: var(--colorContrast) !important;
+input[type=text], input[type=password], input[type=number], textarea, .selectdatewidget, .select {
+	background-color: var(--colorBackground) !important;
+	color: var(--colorContrast) !important;
+	border: 1px solid var(--colorAccent) !important;
 }
 
 textarea:focus,
+input[type="checkbox"],
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="datetime"]:focus,
@@ -35,28 +56,50 @@ input[type="file"]:focus,
 audio:focus,
 select:focus,
 .uneditable-input:focus {
-  border-color: var(--colorPrimary) !important;
-  box-shadow: var(--colorPrimary) !important;
-  outline: 0 none;
-  background-color: var(--colorBackground) !important;
-  color: var(--colorContrast);
+	box-shadow: var(--colorPrimary) !important;
+	outline: 0 none;
+	background-color: var(--colorBackground) !important;
+	color: var(--colorContrast);
 }
 
-/* Crispy Form classes */
+a.bg-primary:focus,
+a.bg-primary:active,
+a.bg-primary:hover,
+button.btn-primary:focus,
+button.btn-primary:hover,
+button.btn-primary:active,
+input[type="button"].btn-primary:focus,
+input[type="button"].btn-primary:hover,
+input[type="button"].btn-primary:active {
+	background-color: var(--colorPrimaryDark) !important;
+	box-shadow: var(--colorPrimary) !important;
+}
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+	-webkit-text-fill-color: var(--colorContrast) !important;
+	-webkit-box-shadow: 0 0 0 30px var(--colorBackground) inset !important;
+}
+
+
+/* Crispy Forms-------------------------------------------------------------------------------------------------------*/
 .selectdatewidget, .select {
 	width: auto;
 	display: inline;
-   background-color: var(--colorBackground);
-   color: var(--colorContrast);
 }
 
-.modal-content, .dropdown-menu, .dropdown-item {
-	background-color: var(--colorBackground) !important;
-	color: var(--colorContrast) !important;
-}
 
-/* Bootstrap classes */
+/* Bootstrap----------------------------------------------------------------------------------------------------------*/
+.text-primary {
+	color: var(--colorPrimary) !important;
+}
 
 .bg-primary, .btn-primary {
 	background-color: var(--colorPrimary) !important;
@@ -64,83 +107,104 @@ select:focus,
 	color: var(--colorBackground) !important;
 }
 
-a.bg-primary:focus, a.bg-primary:hover, button.bg-primary:focus, button.bg-primary:hover{
-	background-color: var(--colorPrimaryDark) !important;
-}
-
-.navbar-nav{
+.navbar-nav {
 	-ms-flex-direction: row !important;
 	flex-direction: row !important;
 }
 
-.navbar-brand{
+.navbar-brand {
 	color: var(--colorBackground) !important;
 }
 
-/* Custom classes */
+.dropdown-menu {
+	border: 1px solid var(--colorAccent) !important;
+}
 
-.forms {
+.dropdown-divider {
+	border-top: 1px solid var(--colorAccent) !important;
+}
+
+.modal-content, .dropdown-menu, .dropdown-item {
 	background-color: var(--colorBackground) !important;
+	color: var(--colorContrast) !important;
 }
 
-.no-vertical-padding{
-	padding-top: 0px;
-	padding-bottom: 0px;
+.modal-header {
+	border-bottom: 1px solid var(--colorAccent) !important;
 }
 
-.vertical-center {
-	position: absolute;
-	top: 50%;
-	-ms-transform: translateY(-50%);
-	transform: translateY(-50%);
+.modal-footer {
+	border-top: 1px solid var(--colorAccent) !important;
 }
 
-.button {
-  border: 1px solid;
-  background-color: transparent;
-  cursor: pointer;
+
+/* Custom-------------------------------------------------------------------------------------------------------------*/
+.page-header{
+	margin-bottom: 12px;
 }
 
-.outline {
-  border-color: var(--colorPrimary);
-  color: var(--colorPrimary);
+.zoo-page-btn {
+	border: 1px solid;
+	background-color: transparent;
+	border-color: var(--colorPrimary);
+	color: var(--colorPrimary);
 }
 
-.outline:hover {
-  background-color: var(--colorPrimary);
-  color: var(--colorBackground);;
+.zoo-page-btn:hover {
+	background-color: var(--colorPrimary);
+	color: var(--colorBackground);;
 }
 
-.content-section {
+.zoo-page-btn + .zoo-page-btn {
+	margin-top: 32px !important;
+}
+
+div.form-section {
+	padding-top: 16px;
+	padding-bottom: 16px;
+}
+
+div.form-section + div.form-section {
+	border-top: 1px solid var(--colorAccent);
+}
+
+nav, .navbar-image {
+	padding-top: 0px !important;
+	padding-bottom: 0px !important;
+}
+
+.tile {
+	border: 1px solid var(--colorAccent) !important;
+	overflow: hidden;
 	padding: 10px;
-    border: 1px solid var(--colorContrast);
-    border-radius: 10px;
+	border-radius: 10px;
+}
 
+.tile-label {
+	padding-top: 25px;
+	padding-bottom: 25px;
+	margin: 0px;
 }
 
 .subject-thumbnail {
-    object-fit: cover;
-    height: 83px;
-    width: 83px;
-    margin-top: auto;
-    margin-bottom: auto;
-}
-
-.subject-label, .zoo-label {
-	padding-top: 25px;
-	padding-bottom: 25px;
-}
-
-.subject-table {
-    table-layout: fixed;
-    width: 100%
+	object-fit: cover;
+	height: 83px;
+	width: 83px;
+	margin-top: auto;
+	margin-bottom: auto;
 }
 
 .zoo-thumbnail {
 	float: center;
-    object-fit: cover;
-    height: 90px;
-    display: block;
-  	margin-left: auto;
-  	margin-right: auto;
+	object-fit: cover;
+	height: 90px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+}
+
+a.add-button:focus, a.add-button:hover {
+	color: var(--colorPrimaryDark);
+	display: inline;
 }

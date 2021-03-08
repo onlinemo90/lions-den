@@ -1,40 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
 	<div class="container">
-		<div class="row">
-			<div class="col-md-auto">
-				<img class="zoo-thumbnail" src="{{ zoo.image.url }}"/>
-			</div>
-			<div class="col">
-				<h1 class="title">Welcome to {{ zoo }} - Lion's Den</h1>
-			</div>
-		</div>
-		<button type="button" class="btn btn-primary mb-5" style="float: right"
-			{% if zoo.can_commit %}
-				data-toggle="modal" data-target="#modal"
-			{% else %}
-				data-toggle="tooltip" data-placement="top" title="
-					Cannot commit to the Zooverse app.
-					Please wait another {{ zoo.days_until_commit_allowed }} day{{ zoo.days_until_commit_allowed|pluralize:'s' }}.
-				"
-			{% endif %}
-		>Commit to ZooVerse</button>
-		<br/>
-		<a href="{% url 'species_list' zoo.id %}" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Species</button>
-		</a>
-		<br/>
-		<a href="{% url 'individuals_list' zoo.id %}" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Individuals</button>
-		</a>
-		<br/>
-		<a href="#" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Groups</button>
-		</a>
-		<br/>
-		<a href="{% url 'attributes_list' zoo.id%}" style="text-decoration:none">
-			<button type="button" class="button outline btn-lg btn-block my-1">Edit Attributes</button>
-		</a>
+		<table style="width:100%; margin-bottom: 54px">
+			<tr>
+				<td style="width:33.33%">
+					<img class="zoo-thumbnail" style="float:left" src="{{ zoo.image.url }}"/>
+				</td>
+				<td style="width:33.33%; text-align:center">
+					<h1 class="title">{{ zoo.name }}</h1>
+				</td>
+				<td style="width:33.33%">
+					<button type="button" class="btn btn-warning" style="float:right"
+							{% if zoo.can_commit %}
+								data-toggle="modal" data-target="#modal"
+							{% else %}
+								data-toggle="tooltip" data-placement="top" title="
+									Cannot commit to the Zooverse app.
+									Please wait another {{ zoo.days_until_commit_allowed }} day{{ zoo.days_until_commit_allowed|pluralize:'s' }}.
+								"
+							{% endif %}
+					>Commit to ZooVerse</button>
+				</td>
+			</tr>
+		</table>
+		
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'species_list' zoo.id %}'">Edit Species</button>
+		
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'individuals_list' zoo.id %}'">Edit Individuals</button>
+		
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='#'">Edit Groups</button>
+		
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'attributes_list' zoo.id%}'">Edit Attributes</button>
+		
 	</div>
 	{% if zoo.can_commit %}
 		{% include 'model_editor/zoo_commit_modal.html' %}

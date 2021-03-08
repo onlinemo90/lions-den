@@ -15,19 +15,16 @@
 		<link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
 		<script src="{% static 'js/main.js'%}"></script>
 		
-		<!-- Theme -->
-		<link rel="stylesheet" type="text/css" href="{% static 'theme.css' %}">
-		<script src="{% static 'js/theme.js' %}"></script>
-		
 		<!-- Title and Favicon -->
 		<title>Lion's Den</title>
 		<link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
 	</head>
 	<body>
+		<script src="{% static 'js/theme.js' %}"></script>
 		{% block navbar %}
-			<nav class="navbar navbar-expand-lg navbar-dark bg-primary no-vertical-padding">
+			<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 				
-				<a class="navbar-brand no-vertical-padding" href="{% url 'zoo_index' %}">
+				<a class="navbar-brand navbar-image" href="{% url 'zoo_index' %}">
 					<img src="{% static 'images/logo.png' %}" style="height:64; padding-top:5px; padding-bottom:5px" alt="Zooverse"/>
 					Lion's Den
 				</a>

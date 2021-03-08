@@ -4,8 +4,7 @@ const THEMES = ["light-theme", "dark-theme"];
 
 function setTheme(themeName){
 	// Set theme
-	document.body.classList = [];
-	document.body.classList.add(themeName);
+	document.body.className = themeName;
 
 	// Save to local storage
 	localStorage.setItem('theme', themeName);
@@ -17,11 +16,9 @@ function cycleTheme(){
 	setTheme(THEMES[(themeIndex + 1) % THEMES.length]);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-	let storedTheme = localStorage.getItem('theme');
-	if (THEMES.includes(storedTheme)) {
-		setTheme(localStorage.getItem('theme'));
-	} else {
-		setTheme(THEMES[0]);
-	}
-}, false);
+let storedTheme = localStorage.getItem('theme');
+if (THEMES.includes(storedTheme)) {
+	setTheme(localStorage.getItem('theme'));
+} else {
+	setTheme(THEMES[0]);
+}
