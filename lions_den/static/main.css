@@ -61,18 +61,6 @@ select:focus,
 	background-color: var(--colorBackground) !important;
 	color: var(--colorContrast);
 }
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus,
-select:-webkit-autofill,
-select:-webkit-autofill:hover,
-select:-webkit-autofill:focus {
-	-webkit-text-fill-color: var(--colorContrast) !important;
-	-webkit-box-shadow: 0 0 0 30px var(--colorBackground) inset !important;
-	}
 
 a.bg-primary:focus,
 a.bg-primary:active,
@@ -85,6 +73,19 @@ input[type="button"].btn-primary:hover,
 input[type="button"].btn-primary:active {
 	background-color: var(--colorPrimaryDark) !important;
 	box-shadow: var(--colorPrimary) !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+	-webkit-text-fill-color: var(--colorContrast) !important;
+	-webkit-box-shadow: 0 0 0 30px var(--colorBackground) inset !important;
 }
 
 
