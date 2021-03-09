@@ -116,8 +116,8 @@ class GroupForm(BaseSubjectForm):
 		self.fields['individuals'] = forms.ModelMultipleChoiceField(queryset=Individual.objects.using(self.zoo_id).all(), required=False)
 		
 		# Hide foreign key fields (front-end handled by Javascript)
-		self.fields['species'].widget.attrs.update({'style': 'display:none'})
-		self.fields['individuals'].widget.attrs.update({'style': 'display:none'})
+		self.fields['species'].widget.attrs.update({'hidden': True})
+		self.fields['individuals'].widget.attrs.update({'hidden': True})
 
 
 class AttributeCategoryForm(BaseModelForm):

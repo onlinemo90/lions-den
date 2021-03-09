@@ -137,8 +137,8 @@ function addMemberToGroup(membersType){
 	memberId = document.getElementById('group_select_' + membersType).value;
 	if (memberId){
 		$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', true); // select in hidden form field
-		$('#group_list_' + membersType + ' li[value=' + memberId + ']').attr('style', 'display:block'); // show in members list
-		$('#group_select_' + membersType + ' option[value=' + memberId + ']').attr('style', 'display:none'); // hide from non-members select
+		$('#group_list_' + membersType + ' li[value=' + memberId + ']').prop('hidden', false); // show in members list
+		$('#group_select_' + membersType + ' option[value=' + memberId + ']').prop('hidden', true); // hide from non-members select
 
 		$('#group_select_' + membersType).prop('selectedIndex', 0); // reset selection
 	}
@@ -146,22 +146,15 @@ function addMemberToGroup(membersType){
 
 function removeMemberFromGroup(membersType, memberId){
 	$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', false); // unselect in hidden form field
-	$('#group_list_' + membersType + ' li[value=' + memberId + ']').css('display', 'none'); // hide from members list
-	$('#group_select_' + membersType + ' option[value=' + memberId + ']').css('display', 'block'); // show in non-members select
+	$('#group_list_' + membersType + ' li[value=' + memberId + ']').prop('hidden', true); // hide from members list
+	$('#group_select_' + membersType + ' option[value=' + memberId + ']').prop('hidden', false); // show in non-members select
 }
 
 function createGroupListItem(membersType, text, value){
-	memberListItem = document.createElement('li');
+	let memberListItem = document.getElementById('GROUP_LIST_ITEM_TEMPLATE_' + membersType).cloneNode(true);
+	memberListItem.removeAttribute('id');
 	memberListItem.value = value;
-	memberListItem.className = 'list-group-item';
-
-	let deleteButtonHTML = '<button type="button" class="close" style="color:var(--danger)" onclick="removeMemberFromGroup(' +
-		"'" + membersType + "', " + value + ')">' +
-		'<svg id="i-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="padding:4 4 0 0">' +
-			'<path d="M2 30 L30 2 M30 30 L2 2"></path>' +
-		'</svg></button>';
-
-	memberListItem.innerHTML = deleteButtonHTML + text;
+	memberListItem.innerHTML = memberListItem.innerHTML.replaceAll('[VALUE]', value).replaceAll('[MEMBER_NAME]', text);
 	return memberListItem;
 }
 
@@ -176,9 +169,8 @@ function initGroupMembersDisplay(membersType){
 		let memberListItem = createGroupListItem(membersType, option.innerHTML, option.value);
 
 		if (option.selected){
-			selectOption.style = 'display:none;' + selectOption.style; // Hide from select
-		} else {
-			memberListItem.style = 'display:none;' + memberListItem.style; // Hide from list
+			memberListItem.removeAttribute('hidden'); // un-hide from list
+			selectOption.setAttributeNode(document.createAttribute('hidden')); // hide from select
 		}
 
 		// Add elements
