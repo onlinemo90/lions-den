@@ -2,11 +2,11 @@
 
 {% block content %}
 	<div class="page-header">
-		<h2 class="title" style="display:inline-block; padding-right:12px">Individuals</h2>
+		<h2 class="title pr-2" style="display:inline-block">Individuals</h2>
 		{% include 'utils/buttons/add.html' with onclick="getModal('modal_new_subject')" tooltip_text='Add a new individual' %}
 	</div>
 	
-	<select class="select form-control" name="species" id="select_species" style="margin-bottom:16px">
+	<select class="select form-control mb-3" name="species" id="select_species">
 		<option value="">All Species</option>
 		{% for species in species_list %}
 			<option value="{{ species.id }}">{{ species.name }}</option>
