@@ -40,9 +40,9 @@ class SubjectPageView(BaseZooView):
 	def get_subject(self, zoo_id, subject_id):
 		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
 	
-	def get_forms(self, subject, request=None):
-		request_data = request.POST if request else None
-		request_files = request.FILES if request else None
+	def get_forms(self, request, subject):
+		request_data = request.POST if request.POST else None
+		request_files = request.FILES if request.FILES else None
 		
 		subject_form_class = SpeciesForm if isinstance(subject, Species) else IndividualForm
 		subject_form = subject_form_class(data=request_data, files=request_files, instance=subject)
@@ -51,7 +51,7 @@ class SubjectPageView(BaseZooView):
 	
 	def get(self, request, zoo_id, subject_id):
 		subject = self.get_subject(zoo_id, subject_id)
-		subject_form, attributes_formset = self.get_forms(subject=subject)
+		subject_form, attributes_formset = self.get_forms(request=request, subject=subject)
 		return render(
 			request=request,
 			template_name=self.template_name,
@@ -86,7 +86,7 @@ class SubjectPageView(BaseZooView):
 	def post(self, request, zoo_id, subject_id):
 		subject = self.get_subject(zoo_id, subject_id)
 		if 'submit_subject' in request.POST:
-			subject_form, attributes_formset = self.get_forms(subject, request)
+			subject_form, attributes_formset = self.get_forms(request=request, subject=subject)
 			if subject_form.is_valid() and (attributes_formset is None or attributes_formset.is_valid()):
 				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
 				subject_form.save(fields_to_delete=subject_field_deletions)
@@ -228,30 +228,15 @@ class AttributeCategoryListView(BaseZooView):
 			template_name=self.template_name,
 			context={
 				'zoo': self.get_zoo(zoo_id),
-				'formset': get_attribute_categories_formset(zoo_id=zoo_id)
+				'formset': get_attribute_categories_formset(zoo_id=zoo_id, data=(request.POST if request.POST else None))
 			}
 		)
-	
-	def get_ajax(self, request, zoo_id):
-		if 'modal_new_category' in request.GET:
-			return render(
-				request=request,
-				template_name='utils/modals/modal_form.html',
-				context={
-					'title': 'New Attribute Category',
-					'form': AttributeCategoryForm(zoo_id=zoo_id),
-					'submit_btn_name': 'submit_new_category'
-				}
-			)
 	
 	def post(self, request, zoo_id):
 		if 'submit_categories' in request.POST:
 			categories_formset = get_attribute_categories_formset(zoo_id=zoo_id, data=request.POST)
 			if categories_formset.is_valid():
 				categories_formset.save()
-		elif 'submit_new_category' in request.POST:
-			new_category_form = AttributeCategoryForm(zoo_id=zoo_id, data=request.POST)
-			if new_category_form.is_valid():
-				new_category_form.save()
+				request.POST = None # avoid GET using form data
 		
 		return self.get(request, zoo_id)

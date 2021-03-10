@@ -158,15 +158,15 @@ def get_attribute_categories_formset(zoo_id, *args, **kwargs):
 		def save(self, commit=True):
 			super().save(commit)
 			
-			def set_categories_position(max_position):
-				current_position = max_position
+			def set_categories_position(min_position):
+				current_position = min_position
 				for form in self.ordered_forms:
 					form.instance.position = current_position
 					current_position += 1
 					form.instance.save()
 			
-			set_categories_position(3 * len(self.forms))
-			set_categories_position(len(self.forms))
+			set_categories_position(2* len(self.forms))
+			set_categories_position(1)
 	
 	return AttributeCategoriesFormset(zoo_id, *args, **kwargs)
 
