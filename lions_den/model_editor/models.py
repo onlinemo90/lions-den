@@ -1,5 +1,3 @@
-import io
-import base64
 import enum
 
 from django.db import models
@@ -7,34 +5,13 @@ from django.db import models
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
+from .model_fields import DefaultCharField, ImageBlobField, AudioBlobField
 from .utils.qrcode_creator import create_request_qrcode
-from .utils.image_normalisation import normalised_html_image_str
+
 
 class Gender(enum.Enum):
 	MALE = 'M'
 	FEMALE = 'F'
-
-
-class BlobField(models.BinaryField):
-	def from_db_value(self, value, expression, connection):
-		return io.BytesIO(value) if value is not None else None
-	
-	def get_db_prep_value(self, value, connection, prepared=False):
-		return value.read() if value is not None else None
-
-
-class ImageBlobField(BlobField):
-	def __init__(self, size, format='PNG', *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.size = size
-		self.format = format
-		
-
-class DefaultCharField(models.CharField):
-	def __init__(self, *args, **kwargs):
-		if 'max_length' not in kwargs:
-			kwargs['max_length'] = 16
-		super().__init__(*args, **kwargs)
 
 
 class AbstractBaseModel(models.Model):
@@ -47,24 +24,12 @@ class AbstractBaseModel(models.Model):
 	def zoo(self):
 		assert self._state.db is not None, f'{self} does not belong to any zoo'
 		return Zoo.objects.filter(id=self._state.db).first()
-	
-	@property
-	def audio_html_src(self):
-		audio_str = self.audio.read().decode() if self.audio.read() else ''
-		return f'data:audio/mp3;base64,{audio_str}'
-	
-	@property
-	def image_html_src(self):
-		if self.image:
-			return normalised_html_image_str(self.image, self.__class__)
-		else:
-			return ''
 
 
 class Species(AbstractBaseModel):
 	name = DefaultCharField()
 	image = ImageBlobField(size=(256, 192), editable=True, null=True, blank=False)
-	audio = BlobField(editable=True, null=True, blank=True)
+	audio = AudioBlobField(editable=True, null=True, blank=True)
 	
 	class Meta:
 		db_table = 'SPECIES'

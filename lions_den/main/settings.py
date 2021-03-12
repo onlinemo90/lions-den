@@ -32,6 +32,7 @@ INSTALLED_APPS = [
 	'zoo_auth.apps.ZooAuthConfig',
 	'model_editor.apps.ModelEditorConfig',
 	'crispy_forms',
+	'django.forms',
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
@@ -134,3 +135,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 AUTH_USER_MODEL = 'zoo_auth.ZooUser'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/zoos'
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'

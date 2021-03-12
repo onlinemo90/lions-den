@@ -60,7 +60,7 @@ function setDynamicImageDisplay(displayID, widgetID, audioControlID){
 					data: formdata,
 					processData: false,
 					contentType: false,
-					success: function(data){ document.getElementById(displayID).src = data['image'] },
+					success: function(data){ document.getElementById(displayID).src = data['image_src'] },
 					error: function() {}
 				});
 			}
@@ -78,11 +78,11 @@ function setDynamicAudioDisplay(displayID, widgetID, audioControlID){
 }
 
 if (document.getElementById("id_subject_image")){
-	setDynamicImageDisplay("id_subject_image_display", "id_subject_image");
+	setDynamicImageDisplay("id_subject_image-display", "id_subject_image");
 }
 
 if (document.getElementById("id_subject_audio")){
-	setDynamicAudioDisplay("id_subject_audio_display", "id_subject_audio", "id_audio_control");
+	setDynamicAudioDisplay("id_subject_audio-display", "id_subject_audio", "id_subject_audio-display_controls");
 }
 //----------------------------------------------------------------------------------------------------------------------
 

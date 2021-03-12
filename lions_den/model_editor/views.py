@@ -10,7 +10,6 @@ from zoo_auth.models import Zoo
 
 from .models import Species, Individual
 from .forms import SpeciesForm, IndividualForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
-from .utils.image_normalisation import normalised_html_image_str
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -32,10 +31,6 @@ class BaseZooView(LoginRequiredMixin, View):
 		else:
 			handler = self.http_method_not_allowed
 		return handler(request, *args, **kwargs)
-	
-	def get_normalised_image_str(self, image_file):
-		normalised_img = self.model.image.field.normalise_image(image_file)
-		return str(base64.b64encode(normalised_img.read()))[2:-2]
 	
 	def get_zoo(self, zoo_id):
 		return Zoo.objects.filter(id=zoo_id).get()
@@ -78,10 +73,8 @@ class SubjectPageView(BaseZooView):
 		request_valid = False
 		
 		if 'submit' in request.POST:
-			request_valid = subject_form.is_valid() and (attributes_formset is None or attributes_formset.is_valid())
-			if request_valid:
-				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
-				subject_form.save(fields_to_delete=subject_field_deletions)
+			if subject_form.is_valid() and attributes_formset.is_valid():
+				subject_form.save()
 				if attributes_formset is not None:
 					attributes_formset.save()
 				subject = self.get_subject(zoo_id, subject_id)  # reload subject
@@ -107,12 +100,12 @@ class SubjectPageView(BaseZooView):
 		)
 	
 	def post_ajax(self, request, zoo_id, subject_id):
-		return JsonResponse({'image': normalised_html_image_str(model=self.model, img_file=request.FILES["image"])})
+		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
 
 class SubjectListView(BaseZooView):
 	def post_ajax(self, request, zoo_id):
-		return JsonResponse({'image': normalised_html_image_str(model=self.model, img_file=request.FILES["image"])})
+		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
 # Renderable Views---------------------------------------------------
 class ZoosIndexView(LoginRequiredMixin, View):
