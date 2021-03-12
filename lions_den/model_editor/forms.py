@@ -4,6 +4,7 @@ from django import forms
 from django.forms.models import modelformset_factory
 
 from .models import Species, Individual, SpeciesAttribute, IndividualAttribute, AttributeCategory
+from .form_fields import ImageBlobField, AudioBlobField
 
 
 class BaseModelForm(forms.ModelForm):
@@ -36,17 +37,11 @@ class BaseSubjectForm(BaseModelForm):
 				Unless you're trying to display multiple SubjectForms in one page, this shouldn't be needed.
 			""")
 		super().__init__(*args, **kwargs)
-	
-	def save(self, fields_to_delete=[]):
-		for field in fields_to_delete:
-			field_type = type(getattr(self.instance, field))
-			setattr(self.instance, field, field_type())
-		super().save()
 
 
 class SpeciesForm(BaseSubjectForm):
-	image = forms.FileField()
-	audio = forms.FileField(required=False)
+	image = ImageBlobField()
+	audio = AudioBlobField(required=False)
 	weight = forms.CharField(required=False)
 	size = forms.CharField(required=False)
 	
@@ -64,7 +59,7 @@ class SpeciesForm(BaseSubjectForm):
 
 class IndividualForm(BaseSubjectForm):
 	species = forms.ModelChoiceField(queryset=None) # set in __init__
-	image = forms.FileField()
+	image = ImageBlobField()
 	place_of_birth = forms.CharField(required=False)
 	dob = forms.DateField(
 		widget=forms.widgets.SelectDateWidget(

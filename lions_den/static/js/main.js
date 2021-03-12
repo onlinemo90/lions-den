@@ -78,7 +78,7 @@ function submitModalForm(updateTargetID){
 //----------------------------------------------------------------------------------------------------------------------
 
 // Dynamic image & audio updating in subject forms----------------------------------------------------------------------
-function setDynamicBlobDisplay(displayID, widgetID, audioControlID) {
+function setDynamicBlobDisplay(displayID, widgetID, audioControlID, updateFunction) {
 	let reloadAudio = function(){ if (audioControlID){ $("#" + audioControlID)[0].load() } };
 	var initialValue = document.getElementById(displayID).src;
 	document.querySelector('#' + widgetID).addEventListener('change', function() {
@@ -86,25 +86,52 @@ function setDynamicBlobDisplay(displayID, widgetID, audioControlID) {
 		var displayElement = document.getElementById(displayID);
 		if (file){
 			var reader  = new FileReader();
-			reader.onload = function(e) {
-				displayElement.src = e.target.result;
-				reloadAudio();
-			};
+			reader.onload = updateFunction;
 			reader.readAsDataURL(file);
 		} else {
 			displayElement.src = initialValue;
 			reloadAudio();
 		}
 	});
-};
+}
+
+function setDynamicImageDisplay(displayID, widgetID, audioControlID){
+	return setDynamicBlobDisplay(displayID, widgetID, null,
+		function(e){
+			var file = document.getElementById(widgetID).files[0];
+			let formdata = new FormData();
+			if (formdata) {
+				formdata.append("image", file);
+				$.ajax({
+					url: document.URL,
+					type: "POST",
+					data: formdata,
+					processData: false,
+					contentType: false,
+					success: function(data){ document.getElementById(displayID).src = data['image_src'] },
+					error: function() {}
+				});
+			}
+		}
+	)
+}
+
+function setDynamicAudioDisplay(displayID, widgetID, audioControlID){
+	return setDynamicBlobDisplay(displayID, widgetID, null,
+		function(e){
+			$("#" + audioControlID)[0].load();
+			document.getElementById(displayID).src = e.target.result;
+		}
+	)
+}
 
 function initDynamicBlobFieldDisplay(){
 	if (document.getElementById("id_subject_image")){
-		setDynamicBlobDisplay("id_subject_image_display", "id_subject_image");
+		setDynamicImageDisplay("id_subject_image-display", "id_subject_image");
 	}
 
 	if (document.getElementById("id_subject_audio")){
-		setDynamicBlobDisplay("id_subject_audio_display", "id_subject_audio", "id_audio_control");
+		setDynamicAudioDisplay("id_subject_audio-display", "id_subject_audio", "id_subject_audio-display_controls");
 	}
 }
 

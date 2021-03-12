@@ -1,5 +1,3 @@
-import io
-import base64
 import enum
 
 from django.db import models
@@ -7,27 +5,13 @@ from django.db import models
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
+from .model_fields import DefaultCharField, ImageBlobField, AudioBlobField
 from .utils.qrcode_creator import create_request_qrcode
 
 
 class Gender(enum.Enum):
 	MALE = 'M'
 	FEMALE = 'F'
-
-
-class BlobField(models.BinaryField):
-	def from_db_value(self, value, expression, connection):
-		return io.BytesIO(value) if value is not None else io.BytesIO()
-	
-	def get_db_prep_value(self, value, connection, prepared=False):
-		return value.read() if value is not None else None
-
-
-class DefaultCharField(models.CharField):
-	def __init__(self, *args, **kwargs):
-		if 'max_length' not in kwargs:
-			kwargs['max_length'] = 16
-		super().__init__(*args, **kwargs)
 
 
 class AbstractBaseModel(models.Model):
@@ -48,16 +32,6 @@ class ZooSubject(AbstractBaseModel):
 	
 	class Meta:
 		abstract = True
-	
-	def __getattribute__(self, name):
-		try:
-			return super().__getattribute__(name)
-		except AttributeError:
-			try:
-				blob_field = name.removesuffix('_str')
-				return base64.b64encode(super().__getattribute__(blob_field).read()).decode()
-			except:
-				return super().__getattribute__(name)  # raise original exception
 	
 	def __str__(self):
 		return self.name
@@ -86,7 +60,7 @@ class ZooSubject(AbstractBaseModel):
 
 
 class Species(ZooSubject):
-	audio = BlobField(editable=True, null=True, blank=True)
+	audio = AudioBlobField(editable=True, null=True, blank=True)
 	weight = DefaultCharField()
 	size = DefaultCharField()
 	
@@ -98,7 +72,6 @@ class Individual(ZooSubject):
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()
-	image = BlobField(editable=True, null=True, blank=False)
 	gender = DefaultCharField(
 		choices=([(None, '')] + [(gender.value, gender.name.title()) for gender in Gender]),
 		blank=True, null=True

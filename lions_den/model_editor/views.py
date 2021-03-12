@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
@@ -87,11 +88,10 @@ class SubjectPageView(BaseZooView):
 		subject = self.get_subject(zoo_id, subject_id)
 		if 'submit_subject' in request.POST:
 			subject_form, attributes_formset = self.get_forms(subject, request)
-			if subject_form.is_valid() and (attributes_formset is None or attributes_formset.is_valid()):
-				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
-				subject_form.save(fields_to_delete=subject_field_deletions)
-				if attributes_formset is not None:
-					attributes_formset.save()
+			if subject_form.is_valid() and attributes_formset.is_valid():
+				subject_form.save()
+				attributes_formset.save()
+				request.POST = None
 		
 		elif 'submit_new_attribute' in request.POST:
 			new_attribute_form = get_new_attribute_form(subject=self.get_subject(zoo_id, subject_id), data=request.POST, prefix='new_attribute')
@@ -99,7 +99,14 @@ class SubjectPageView(BaseZooView):
 				new_attribute_form.save()
 		
 		return self.get(request, zoo_id, subject_id)
+	
+	def post_ajax(self, request, zoo_id, subject_id):
+		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
+
+class SubjectListView(BaseZooView):
+	def post_ajax(self, request, zoo_id):
+		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
 # Renderable Views---------------------------------------------------
 class ZoosIndexView(LoginRequiredMixin, View):
@@ -139,7 +146,9 @@ class ZooHomeView(BaseZooView):
 		return self.get(request, zoo_id)
 
 
-class SpeciesListView(BaseZooView):
+class SpeciesListView(SubjectListView):
+	model = Species
+	
 	def get(self, request, zoo_id):
 		return render(
 			request=request,
@@ -170,7 +179,9 @@ class SpeciesListView(BaseZooView):
 		return self.get(request, zoo_id)
 
 
-class IndividualsListView(BaseZooView):
+class IndividualsListView(SubjectListView):
+	model = Individual
+	
 	def get(self, request, zoo_id):
 		return render(
 			request=request,
