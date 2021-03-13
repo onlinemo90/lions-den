@@ -32,6 +32,7 @@ INSTALLED_APPS = [
 	'zoo_auth.apps.ZooAuthConfig',
 	'model_editor.apps.ModelEditorConfig',
 	'crispy_forms',
+	'django.forms',
 	'django.contrib.admin',
 	'django.contrib.auth',
 	'django.contrib.contenttypes',
@@ -120,6 +121,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static"
@@ -143,3 +145,6 @@ EMAIL_PORT = 465
 EMAIL_HOST = 'mail.zooverse.org'
 EMAIL_HOST_USER = 'contact@zooverse.org'
 EMAIL_HOST_PASSWORD =  'ZSL@ldn2020'
+
+# Allow additional template definitions
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'

@@ -4,6 +4,7 @@ from django import forms
 from django.forms.models import modelformset_factory
 
 from .models import Species, Individual, Group, AttributeCategory
+from .form_fields import ImageBlobField, AudioBlobField
 
 
 class BaseModelForm(forms.ModelForm):
@@ -36,17 +37,11 @@ class BaseSubjectForm(BaseModelForm):
 				Unless you're trying to display multiple SubjectForms in one page, this shouldn't be needed.
 			""")
 		super().__init__(*args, **kwargs)
-	
-	def save(self, fields_to_delete=[]):
-		for field in fields_to_delete:
-			field_type = type(getattr(self.instance, field))
-			setattr(self.instance, field, field_type())
-		super().save()
 
 
 class SpeciesForm(BaseSubjectForm):
-	image = forms.FileField()
-	audio = forms.FileField(required=False)
+	image = ImageBlobField()
+	audio = AudioBlobField(required=False)
 	weight = forms.CharField(required=False)
 	size = forms.CharField(required=False)
 	
@@ -64,7 +59,7 @@ class SpeciesForm(BaseSubjectForm):
 
 class IndividualForm(BaseSubjectForm):
 	species = forms.ModelChoiceField(queryset=None) # set in __init__
-	image = forms.FileField()
+	image = ImageBlobField()
 	place_of_birth = forms.CharField(required=False)
 	dob = forms.DateField(
 		widget=forms.widgets.SelectDateWidget(
@@ -127,38 +122,36 @@ class AttributeCategoryForm(BaseModelForm):
 
 
 def get_attributes_formset(subject, *args, **kwargs):
-	if len(subject.attributes.all()) > 0:
-		# Define form for displaying/editing each attribute
-		class SubjectAttributeForm(BaseModelForm):
-			class Meta:
-				model = subject.__class__.get_attribute_model()
-				fields = ('attribute',)
-			
-			def __init__(self, *args, **kwargs):
-				super().__init__(*args, **kwargs)
-				self.fields['attribute'].label = self.instance.category.name
+	# Define form for displaying/editing each attribute
+	class SubjectAttributeForm(BaseModelForm):
+		class Meta:
+			model = subject.__class__.get_attribute_model()
+			fields = ('attribute',)
 		
-		
-		# Define formset for multiple attributes
-		BaseSubjectAttributesFormSet = forms.modelformset_factory(
-			subject.__class__.get_attribute_model(),
-			form=SubjectAttributeForm,
-			extra=0,
-			can_delete=True,
-			can_order=False
-		)
-		
-		# Define formset for attributes specific to a subject (Species or Individual)
-		class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
-			def __init__(self, subject, *args, **kwargs):
-				super().__init__(
-					queryset=subject.__class__.get_attribute_model().objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
-					form_kwargs={'zoo_id': subject.zoo.id},
-					*args, **kwargs
-				)
-				
-		return SubjectAttributesFormSet(subject, *args, **kwargs)
-	return None
+		def __init__(self, *args, **kwargs):
+			super().__init__(*args, **kwargs)
+			self.fields['attribute'].label = self.instance.category.name
+	
+	
+	# Define formset for multiple attributes
+	BaseSubjectAttributesFormSet = forms.modelformset_factory(
+		subject.__class__.get_attribute_model(),
+		form=SubjectAttributeForm,
+		extra=0,
+		can_delete=True,
+		can_order=False
+	)
+	
+	# Define formset for attributes specific to a subject (Species or Individual)
+	class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
+		def __init__(self, subject, *args, **kwargs):
+			super().__init__(
+				queryset=subject.__class__.get_attribute_model().objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
+				form_kwargs={'zoo_id': subject.zoo.id},
+				*args, **kwargs
+			)
+	
+	return SubjectAttributesFormSet(subject, *args, **kwargs)
 
 
 def get_attribute_categories_formset(zoo_id, *args, **kwargs):

@@ -26,22 +26,12 @@
 </div>
 
 <div class="form-section">
-	<label>{{ form.image.label }}</label>
-	<br/>
-	<img id="id_subject_image_display" style="max-height:200px" src="data:image/png;base64,{{ subject.image_str }}"/>
-	<br/><br/>
-	{{ form.image }}
+	{{ form.image|as_crispy_field }}
 </div>
 
 {% if 'audio' in form.fields %}
 	<div class="form-section">
-		<label>{{ form.audio.label }}</label>
-		<audio id="id_audio_control" class="mb-4" style="display:block" controls><source id="id_subject_audio_display" src="data:audio/mp3;base64,{{ subject.audio_str }}"/></audio>
-		{{ form.audio }}
-		{% if subject.audio %}
-			<input type="checkbox" id="DELETE-FIELD_audio" name="DELETE-FIELD_audio">
-			<label for="DELETE-FIELD_audio" class="form-check-label">Delete</label>
-		{% endif %}
+		{{ form.audio|as_crispy_field }}
 	</div>
 {% endif %}
 

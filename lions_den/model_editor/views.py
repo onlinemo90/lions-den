@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
@@ -43,9 +44,9 @@ class SubjectPageView(BaseZooView):
 	def get_subject(self, zoo_id, subject_id):
 		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
 	
-	def get_forms(self, subject, request=None):
-		request_data = request.POST if request else None
-		request_files = request.FILES if request else None
+	def get_forms(self, request, subject):
+		request_data = request.POST if request.POST else None
+		request_files = request.FILES if request.FILES else None
 		
 		subject_form = self.model.form(data=request_data, files=request_files, instance=subject)
 		attributes_formset = get_attributes_formset(data=request_data, files=request_files, subject=subject, prefix='attributes')
@@ -53,7 +54,7 @@ class SubjectPageView(BaseZooView):
 	
 	def get(self, request, zoo_id, subject_id):
 		subject = self.get_subject(zoo_id, subject_id)
-		subject_form, attributes_formset = self.get_forms(subject=subject)
+		subject_form, attributes_formset = self.get_forms(request=request, subject=subject)
 		return render(
 			request=request,
 			template_name=self.template_name,
@@ -88,12 +89,11 @@ class SubjectPageView(BaseZooView):
 	def post(self, request, zoo_id, subject_id):
 		subject = self.get_subject(zoo_id, subject_id)
 		if 'submit_subject' in request.POST:
-			subject_form, attributes_formset = self.get_forms(subject, request)
-			if subject_form.is_valid() and (attributes_formset is None or attributes_formset.is_valid()):
-				subject_field_deletions = [field.partition('_')[2] for field in request.POST if field.startswith('DELETE-FIELD_')]
-				subject_form.save(fields_to_delete=subject_field_deletions)
-				if attributes_formset is not None:
-					attributes_formset.save()
+			subject_form, attributes_formset = self.get_forms(request=request, subject=subject)
+			if subject_form.is_valid() and attributes_formset.is_valid():
+				subject_form.save()
+				attributes_formset.save()
+				request.POST = None
 		
 		elif 'submit_new_attribute' in request.POST:
 			new_attribute_form = get_new_attribute_form(subject=self.get_subject(zoo_id, subject_id), data=request.POST, prefix='new_attribute')
@@ -101,6 +101,9 @@ class SubjectPageView(BaseZooView):
 				new_attribute_form.save()
 		
 		return self.get(request, zoo_id, subject_id)
+	
+	def post_ajax(self, request, zoo_id, subject_id):
+		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
 
 class SubjectsListView(BaseZooView):
@@ -149,6 +152,9 @@ class SubjectsListView(BaseZooView):
 			subject = self.model.objects.using(zoo_id).filter(id=request.POST.get('subject_id')).get()
 			subject.delete()
 		return self.get(request, zoo_id)
+	
+	def post_ajax(self, request, zoo_id):
+		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
 
 # Renderable Views---------------------------------------------------

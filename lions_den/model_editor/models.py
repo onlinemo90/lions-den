@@ -1,5 +1,3 @@
-import io
-import base64
 import enum
 
 from abc import abstractmethod
@@ -9,27 +7,13 @@ from django.db import models
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
+from .model_fields import DefaultCharField, ImageBlobField, AudioBlobField
 from .utils.qrcode_creator import create_request_qrcode
 
 
 class Gender(enum.Enum):
 	MALE = 'M'
 	FEMALE = 'F'
-
-
-class BlobField(models.BinaryField):
-	def from_db_value(self, value, expression, connection):
-		return io.BytesIO(value) if value is not None else io.BytesIO()
-	
-	def get_db_prep_value(self, value, connection, prepared=False):
-		return value.read() if value is not None else None
-
-
-class DefaultCharField(models.CharField):
-	def __init__(self, *args, **kwargs):
-		if 'max_length' not in kwargs:
-			kwargs['max_length'] = 16
-		super().__init__(*args, **kwargs)
 
 
 class AbstractBaseModel(models.Model):
@@ -51,22 +35,12 @@ class SubjectManager(models.Manager):
 
 class Subject(AbstractBaseModel):
 	name = DefaultCharField()
-	image = BlobField(editable=True, null=True, blank=False)
+	image = ImageBlobField(size=(256, 192), format='PNG', editable=True, null=True, blank=False)
 	
 	objects = SubjectManager()
 	
 	class Meta:
 		abstract = True
-	
-	def __getattribute__(self, name):
-		try:
-			return super().__getattribute__(name)
-		except AttributeError:
-			try:
-				blob_field = name.removesuffix('_str')
-				return base64.b64encode(super().__getattribute__(blob_field).read()).decode()
-			except:
-				return super().__getattribute__(name)  # raise original exception
 	
 	def __str__(self):
 		return self.name
@@ -88,7 +62,7 @@ class Subject(AbstractBaseModel):
 	
 
 class Species(Subject):
-	audio = BlobField(editable=True, null=True, blank=True)
+	audio = AudioBlobField(editable=True, null=True, blank=True)
 	weight = DefaultCharField()
 	size = DefaultCharField()
 	
@@ -137,7 +111,7 @@ class Individual(Subject):
 
 
 class Group(Subject):
-	audio = BlobField(editable=True, null=True, blank=True)
+	audio = ImageBlobField(editable=True, null=True, blank=True)
 	species = models.ManyToManyField(Species, related_name='groups', related_query_name='group', db_table='GROUPS_SPECIES')
 	individuals = models.ManyToManyField(Individual, related_name='groups', related_query_name='group', db_table='GROUPS_INDIVIDUALS')
 	

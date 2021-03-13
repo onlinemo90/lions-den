@@ -204,6 +204,10 @@ nav, .navbar-image {
 	overflow: hidden;
 }
 
+img#id_subject_image-display {
+	border: 5px solid var(--colorPrimary);
+}
+
 a.add-button:focus, a.add-button:hover {
 	color: var(--colorPrimaryDark);
 	display: inline;
