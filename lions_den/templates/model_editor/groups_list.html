@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-	<button class="btn-primary btn-lg" type="button" onclick="getModal('modal_new_subject')">Add new group</button>
+	<div class="page-header">
+		<h2 class="title pr-2" style="display:inline-block">Groups</h2>
+		{% include 'utils/buttons/add.html' with onclick="getModal('modal_new_subject')" tooltip_text='Add a new group' %}
+	</div>
 	{% include 'model_editor/subject_table.html' %}
 {% endblock %}

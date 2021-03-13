@@ -118,7 +118,7 @@ class SubjectsListView(BaseZooView):
 		if 'modal_new_subject' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/new_subject_modal_form.html',
+				template_name='model_editor/modals/new_subject_modal_form.html',
 				context={
 					'title': f'New {self.model.get_type_str().capitalize()}',
 					'form': self.model.form(zoo_id=zoo_id),
@@ -128,7 +128,8 @@ class SubjectsListView(BaseZooView):
 		else:
 			return self.get_ajax_sub(request, zoo_id)
 	
-	def get_ajax_extra(self, request, zoo_id):
+	def get_ajax_sub(self, request, zoo_id):
+		""" Method for subclasses to implement their specific get_ajax logic without overwriting the base class one """
 		return None
 	
 	def post(self, request, zoo_id):

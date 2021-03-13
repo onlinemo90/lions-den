@@ -13,13 +13,15 @@
 				{% include 'model_editor/group_members.html' with form_field=form.individuals title='Individuals' members_type='individuals' %}
 			</div>
 		</div>
-	{% elif subject.species %} {# Individuals #}
+	{% elif subject.species %} {# Individuals Page #}
 		<table>
 			<tr>
 				<td><label>Species:</label></td>
 				<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
 			</tr>
 		</table>
+	{% elif form.species %} {# New Individual Modal Form #}
+		{{ form.species|as_crispy_field }}
 	{% endif %}
 </div>
 
