@@ -99,38 +99,36 @@ class AttributeCategoryForm(BaseModelForm):
 
 def get_attributes_formset(subject, *args, **kwargs):
 	SubjectAttribute = SpeciesAttribute if isinstance(subject, Species) else IndividualAttribute
-	if len(subject.attributes.all()) > 0:
-		# Define form for displaying/editing each attribute
-		class SubjectAttributeForm(BaseModelForm):
-			class Meta:
-				model = SubjectAttribute
-				fields = ('attribute',)
+	# Define form for displaying/editing each attribute
+	class SubjectAttributeForm(BaseModelForm):
+		class Meta:
+			model = SubjectAttribute
+			fields = ('attribute',)
+		
+		def __init__(self, *args, **kwargs):
+			super().__init__(*args, **kwargs)
+			self.fields['attribute'].label = self.instance.category.name
+	
+	
+	# Define formset for multiple attributes
+	BaseSubjectAttributesFormSet = forms.modelformset_factory(
+		SubjectAttribute,
+		form=SubjectAttributeForm,
+		extra=0,
+		can_delete=True,
+		can_order=False
+	)
+	
+	# Define formset for attributes specific to a subject (Species or Individual)
+	class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
+		def __init__(self, subject, *args, **kwargs):
+			super().__init__(
+				queryset=SubjectAttribute.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
+				form_kwargs={'zoo_id': subject.zoo.id},
+				*args, **kwargs
+			)
 			
-			def __init__(self, *args, **kwargs):
-				super().__init__(*args, **kwargs)
-				self.fields['attribute'].label = self.instance.category.name
-		
-		
-		# Define formset for multiple attributes
-		BaseSubjectAttributesFormSet = forms.modelformset_factory(
-			SubjectAttribute,
-			form=SubjectAttributeForm,
-			extra=0,
-			can_delete=True,
-			can_order=False
-		)
-		
-		# Define formset for attributes specific to a subject (Species or Individual)
-		class SubjectAttributesFormSet(BaseSubjectAttributesFormSet):
-			def __init__(self, subject, *args, **kwargs):
-				super().__init__(
-					queryset=SubjectAttribute.objects.using(subject.zoo.id).filter(subject_id=subject.id).order_by('category__position').all(),
-					form_kwargs={'zoo_id': subject.zoo.id},
-					*args, **kwargs
-				)
-				
-		return SubjectAttributesFormSet(subject, *args, **kwargs)
-	return None
+	return SubjectAttributesFormSet(subject, *args, **kwargs)
 
 
 def get_attribute_categories_formset(zoo_id, *args, **kwargs):
