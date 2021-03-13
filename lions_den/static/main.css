@@ -152,7 +152,7 @@ select:-webkit-autofill:focus {
 
 .zoo-page-btn:hover {
 	background-color: var(--colorPrimary);
-	color: var(--colorBackground);;
+	color: var(--colorBackground);
 }
 
 .zoo-page-btn + .zoo-page-btn {
@@ -211,4 +211,8 @@ img#id_subject_image-display {
 a.add-button:focus, a.add-button:hover {
 	color: var(--colorPrimaryDark);
 	display: inline;
+}
+
+a.direction-button:focus, a.direction-button:hover {
+	color: var(--colorPrimaryDark);
 }

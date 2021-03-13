@@ -219,3 +219,50 @@ document.addEventListener("DOMContentLoaded", function(){
 	});
 });
 //----------------------------------------------------------------------------------------------------------------------
+
+// Attribute Categories Formset-----------------------------------------------------------------------------------------
+function updateOrderFields(){
+	// Find each ORDER form field and number them sequentially from 1 in the order they appear in the DOM
+	let currentPosition = 1;
+	$.each($('input[id$=-ORDER]'), function(i, val){
+    	val.value = currentPosition;
+    	currentPosition += 1;
+    });
+}
+
+function moveCategoryForm(formIndex, direction){
+	// Move forms in front-end
+	let form1Id = '#form_fields_slot_' + formIndex;
+	let form2Id = '#form_fields_slot_' + (formIndex + direction);
+
+	tmpForm1HTML = $(form1Id).html();
+	$(form1Id).html($(form2Id).html());
+	$(form2Id).html(tmpForm1HTML);
+
+	updateOrderFields();
+}
+
+function decreaseCategoryPosition(formIndex){
+	if (formIndex > 0){
+		moveCategoryForm(formIndex, -1);
+	}
+}
+
+function increaseCategoryPosition(formIndex){
+	if (formIndex + 1 < $('#id_form-TOTAL_FORMS').val()){
+		moveCategoryForm(formIndex, +1);
+	}
+}
+
+function addCategoryForm(){
+	numForms = parseInt($('#id_form-TOTAL_FORMS').val());
+
+	newFormHTML = $('#EMPTY_FORM_TEMPLATE').html().replaceAll('__prefix__', numForms);
+
+	$('#down_button_' + (numForms - 1)).prop('hidden', false);
+	$('#attribute_categories_html_form button[type="submit"]').before(newFormHTML);
+
+	// Increment form count
+	$('#id_form-TOTAL_FORMS').val(numForms + 1);
+}
+//----------------------------------------------------------------------------------------------------------------------

@@ -297,30 +297,15 @@ class AttributeCategoryListView(BaseZooView):
 			template_name=self.template_name,
 			context={
 				'zoo': self.get_zoo(zoo_id),
-				'formset': get_attribute_categories_formset(zoo_id=zoo_id)
+				'formset': get_attribute_categories_formset(zoo_id=zoo_id, data=(request.POST if request.POST else None))
 			}
 		)
-	
-	def get_ajax(self, request, zoo_id):
-		if 'modal_new_category' in request.GET:
-			return render(
-				request=request,
-				template_name='utils/modals/modal_form.html',
-				context={
-					'title': 'New Attribute Category',
-					'form': AttributeCategoryForm(zoo_id=zoo_id),
-					'submit_btn_name': 'submit_new_category'
-				}
-			)
 	
 	def post(self, request, zoo_id):
 		if 'submit_categories' in request.POST:
 			categories_formset = get_attribute_categories_formset(zoo_id=zoo_id, data=request.POST)
 			if categories_formset.is_valid():
 				categories_formset.save()
-		elif 'submit_new_category' in request.POST:
-			new_category_form = AttributeCategoryForm(zoo_id=zoo_id, data=request.POST)
-			if new_category_form.is_valid():
-				new_category_form.save()
+				request.POST = None
 		
 		return self.get(request, zoo_id)
