@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+	<button class="btn-primary btn-lg" type="button" onclick="getModal('modal_new_subject')">Add new group</button>
+	{% include 'model_editor/subject_table.html' %}
+{% endblock %}

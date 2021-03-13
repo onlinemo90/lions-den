@@ -3,15 +3,23 @@
 <div class="form-section">
 	{{ form.name|as_crispy_field }}
 	
-	{% if subject.species %}
-			<table>
-				<tr>
-					<td><label>Species:</label></td>
-					<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
-				</tr>
-			</table>
-	{% elif form.species %}
-			{{ form.species|as_crispy_field }}
+	{% if subject.species and subject.individuals %} {# Groups #}
+		<hr>
+		<div class="row">
+			<div class="col">
+				{% include 'model_editor/group_members.html' with form_field=form.species title='Species' members_type='species' %}
+			</div>
+			<div class="col">
+				{% include 'model_editor/group_members.html' with form_field=form.individuals title='Individuals' members_type='individuals' %}
+			</div>
+		</div>
+	{% elif subject.species %} {# Individuals #}
+		<table>
+			<tr>
+				<td><label>Species:</label></td>
+				<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
+			</tr>
+		</table>
 	{% endif %}
 </div>
 

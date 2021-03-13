@@ -1,11 +1,13 @@
 // Load Bootstrap Toasts------------------------------------------------------------------------------------------------
-$('.toast').toast('show');
-$(document).ready(function(){
-	$('[data-toggle="tooltip"]').tooltip();
+window.addEventListener('load', function () {
+	$('.toast').toast('show');
+	$(document).ready(function(){
+		$('[data-toggle="tooltip"]').tooltip();
+	});
 });
 //----------------------------------------------------------------------------------------------------------------------
 
-// Allow Ajax to submit POST forms--------------------------------------------------------------------------------------
+// Setup AJAX to support POST requests----------------------------------------------------------------------------------
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -127,5 +129,61 @@ document.addEventListener("DOMContentLoaded", function(){
 			});
 		});
 	}
+});
+//----------------------------------------------------------------------------------------------------------------------
+
+// Group Page - Show and Edit Members-----------------------------------------------------------------------------------
+function addMemberToGroup(membersType){
+	memberId = document.getElementById('group_select_' + membersType).value;
+	if (memberId){
+		$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', true); // select in hidden form field
+		$('#group_list_' + membersType + ' li[value=' + memberId + ']').prop('hidden', false); // show in members list
+		$('#group_select_' + membersType + ' option[value=' + memberId + ']').prop('hidden', true); // hide from non-members select
+
+		$('#group_select_' + membersType).prop('selectedIndex', 0); // reset selection
+	}
+}
+
+function removeMemberFromGroup(membersType, memberId){
+	$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', false); // unselect in hidden form field
+	$('#group_list_' + membersType + ' li[value=' + memberId + ']').prop('hidden', true); // hide from members list
+	$('#group_select_' + membersType + ' option[value=' + memberId + ']').prop('hidden', false); // show in non-members select
+}
+
+function createGroupListItem(membersType, text, value){
+	let memberListItem = document.getElementById('GROUP_LIST_ITEM_TEMPLATE_' + membersType).cloneNode(true);
+	memberListItem.removeAttribute('id');
+	memberListItem.value = value;
+	memberListItem.innerHTML = memberListItem.innerHTML.replaceAll('[VALUE]', value).replaceAll('[MEMBER_NAME]', text);
+	return memberListItem;
+}
+
+function initGroupMembersDisplay(membersType){
+	for (let option of document.getElementById('id_subject_' + membersType).options){
+		// Non-members select
+		let selectOption = document.createElement('option');
+		selectOption.text = option.innerHTML;
+		selectOption.value = option.value;
+
+		// Members list
+		let memberListItem = createGroupListItem(membersType, option.innerHTML, option.value);
+
+		if (option.selected){
+			memberListItem.removeAttribute('hidden'); // un-hide from list
+			selectOption.setAttributeNode(document.createAttribute('hidden')); // hide from select
+		}
+
+		// Add elements
+		document.getElementById('group_select_' + membersType).add(selectOption);
+		document.getElementById('group_list_' + membersType).appendChild(memberListItem);
+	}
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+	['species', 'individuals'].forEach(function(membersType){
+		if (document.getElementById('id_subject_' + membersType)){
+			initGroupMembersDisplay(membersType);
+		}
+	});
 });
 //----------------------------------------------------------------------------------------------------------------------

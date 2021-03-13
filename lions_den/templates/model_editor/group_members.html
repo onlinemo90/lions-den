@@ -1,0 +1,21 @@
+<legend>{{ title }}</legend>
+
+{{ form_field }} {# Form field is hidden so alternate controls can be used #}
+
+<select style="min-width:12em" class="select" id="group_select_{{ members_type }}">
+	<option selected></option>
+	{# Options will be retrieved via Javascript from the form field #}
+</select>
+<button type="button" onclick="addMemberToGroup('{{ members_type }}')">Add</button>
+
+<ul id="group_list_{{ members_type }}" class="list-group">
+	{# Options will be retrieved via Javascript from the form field. The following is used as a template for those list items #}
+	<li id="GROUP_LIST_ITEM_TEMPLATE_{{ members_type }}" class="list-group-item" hidden>
+		[MEMBER_NAME]
+		<button type="button" class="close" onclick="removeMemberFromGroup('{{ members_type }}', [VALUE])">
+			<svg id="i-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="var(--danger)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="padding:4 4 0 0">
+				<path d="M2 30 L30 2 M30 30 L2 2"></path>
+			</svg>
+		</button>
+	</li>
+</ul>
