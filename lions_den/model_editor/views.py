@@ -125,6 +125,14 @@ class SubjectsListView(BaseZooView):
 					'submit_btn_name': 'submit_new_subject'
 				}
 			)
+		elif 'modal_delete_subject' in request.GET:
+			return render(
+				request=request,
+				template_name='model_editor/modals/delete_subject_modal.html',
+				context={
+					'subject': self.model.objects.using(zoo_id).filter(id=request.GET.get('subject_id')).get()
+				}
+			)
 		else:
 			return self.get_ajax_sub(request, zoo_id)
 	
@@ -137,6 +145,9 @@ class SubjectsListView(BaseZooView):
 			new_subject_form = self.model.form(data=request.POST, files=request.FILES, zoo_id=zoo_id)
 			if new_subject_form.is_valid():
 				new_subject_form.save()
+		elif 'submit_delete_subject' in request.POST:
+			subject = self.model.objects.using(zoo_id).filter(id=request.POST.get('subject_id')).get()
+			subject.delete()
 		return self.get(request, zoo_id)
 
 

@@ -1,8 +1,9 @@
 {% extends "base.html" %}
+{% load model_editor_extras %}
 {% block content %}
 	{% for zoo in zoos %}
 		<div class="mt-4">
-			{% include 'utils/tile.html' with tile_href=zoo.id img_class='zoo-thumbnail' img_src=zoo.image.url label=zoo.name %}
+			{% include 'utils/tile.html' with tile_onclick="location='"|addstr:zoo.id|addstr:"'" img_class='zoo-thumbnail' img_src=zoo.image.url label=zoo.name %}
 		</div>
 	{% empty %}
 		<div class="alert alert-danger">

@@ -1,8 +1,13 @@
+{% load model_editor_extras %}
 <table id="subject-table" style="table-layout:fixed; width:100%">
 	{% for subject in subjects %}
 		{% cycle '<tr>' '' %}
 		<td>
-			{% include 'utils/tile.html' with tile_href=subject.id img_class='rounded-circle subject-thumbnail' img_src='data:image/png;base64,'|add:subject.image_str label=subject.name %}
+			{% with tile_onclick="if(!window.cursorInSubjectDeleteButton){ location='"|addstr:subject.id|addstr:"' }; window.cursorInSubjectDeleteButton=false" %}
+				{% with delete_btn_onclick="window.cursorInSubjectDeleteButton = true; getModal('modal_delete_subject', 'subject_id="|addstr:subject.id|addstr:"');" %}
+					{% include 'utils/tile.html' with tile_href=subject.id img_class='rounded-circle subject-thumbnail' img_src='data:image/png;base64,'|addstr:subject.image_str label=subject.name %}
+				{% endwith %}
+			{% endwith %}
 		</td>
 		{% cycle '' '</tr>' %}
 	{% endfor %}

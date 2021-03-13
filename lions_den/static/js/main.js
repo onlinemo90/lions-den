@@ -39,11 +39,15 @@ $.ajaxSetup({
 //----------------------------------------------------------------------------------------------------------------------
 
 // Modals---------------------------------------------------------------------------------------------------------------
-function getModal(modalID){
+function getModal(modalID, extraData){
+	data = modalID;
+	if (extraData){
+		data += '&' + extraData;
+	}
 	$.ajax({
 		type: 'GET',
 		url: document.URL,
-		data: modalID,
+		data: data,
 		success: function(response){
 			if (document.getElementById('modal')){
 				$('#modal').replaceWith(response);

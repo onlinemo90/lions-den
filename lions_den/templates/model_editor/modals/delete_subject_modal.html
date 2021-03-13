@@ -1,0 +1,17 @@
+{% extends 'utils/modals/modal.html' %}
+
+{% block title %}Delete {{ subject.name }}{% endblock %}
+
+{% block body %}
+	<p>Are you sure you want to delete {{ subject.name }}?</p>
+	<p>This will permanently remove all its associated data!</p>
+{% endblock %}
+
+{% block footer %}
+	<form method="POST">
+		{% csrf_token %}
+		<input type="hidden" name="subject_id" value="{{ subject.id }}">
+		<button type="submit" class="btn btn-danger" name="submit_delete_subject">Delete</button>
+	</form>
+	<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+{% endblock %}
