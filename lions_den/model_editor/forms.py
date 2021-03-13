@@ -92,8 +92,8 @@ class IndividualForm(BaseSubjectForm):
 
 
 class GroupForm(BaseSubjectForm):
-	image = forms.FileField()
-	audio = forms.FileField(required=False)
+	image = ImageBlobField()
+	audio = AudioBlobField(required=False)
 	
 	class Meta:
 		model = Group

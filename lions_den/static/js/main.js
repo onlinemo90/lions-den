@@ -108,6 +108,7 @@ function setDynamicImageDisplay(displayID, widgetID, audioControlID){
 			let formdata = new FormData();
 			if (formdata) {
 				formdata.append("image", file);
+				formdata.append("update_image_display", null);
 				$.ajax({
 					url: document.URL,
 					type: "POST",

@@ -20,7 +20,7 @@
 				<td><h3 class="mx-2">{{ subject.species.name }}</h3></td>
 			</tr>
 		</table>
-	{% elif form.species %} {# New Individual Modal Form #}
+	{% elif form.species and not form.individuals %} {# New Individual Modal Form #}
 		{{ form.species|as_crispy_field }}
 	{% endif %}
 </div>

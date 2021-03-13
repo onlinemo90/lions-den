@@ -60,6 +60,16 @@ class Subject(AbstractBaseModel):
 	@abstractmethod
 	def form(self, *args, **kwargs): pass
 	
+	def qr_code(self):
+		return create_request_qrcode(
+			zoo=self.zoo,
+			request = {
+				'zoo': self.zoo.id,
+				'type': self.__class__.get_type_str(),
+				'id': self.id
+			}
+		)
+
 
 class Species(Subject):
 	audio = AudioBlobField(editable=True, null=True, blank=True)
@@ -77,16 +87,7 @@ class Species(Subject):
 	def form(cls, *args, **kwargs):
 		from .forms import SpeciesForm
 		return SpeciesForm(*args, **kwargs)
-	
-	def qr_code(self):
-		return create_request_qrcode(
-			zoo=self.zoo,
-			request = {
-				'zoo': self.zoo.id,
-				'type': self.__class__.get_type_str(),
-				'id': self.id
-			}
-		)
+
 
 class Individual(Subject):
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
@@ -111,7 +112,7 @@ class Individual(Subject):
 
 
 class Group(Subject):
-	audio = ImageBlobField(editable=True, null=True, blank=True)
+	audio = AudioBlobField(editable=True, null=True, blank=True)
 	species = models.ManyToManyField(Species, related_name='groups', related_query_name='group', db_table='GROUPS_SPECIES')
 	individuals = models.ManyToManyField(Individual, related_name='groups', related_query_name='group', db_table='GROUPS_INDIVIDUALS')
 	

@@ -85,6 +85,8 @@ class SubjectPageView(BaseZooView):
 					'subject': self.get_subject(zoo_id, subject_id)
 				}
 			)
+		else:
+			return self.get_ajax_sub(request, zoo_id, subject_id)
 	
 	def post(self, request, zoo_id, subject_id):
 		subject = self.get_subject(zoo_id, subject_id)
@@ -94,16 +96,19 @@ class SubjectPageView(BaseZooView):
 				subject_form.save()
 				attributes_formset.save()
 				request.POST = None
-		
 		elif 'submit_new_attribute' in request.POST:
 			new_attribute_form = get_new_attribute_form(subject=self.get_subject(zoo_id, subject_id), data=request.POST, prefix='new_attribute')
 			if new_attribute_form.is_valid():
 				new_attribute_form.save()
+				request.POST = None
 		
 		return self.get(request, zoo_id, subject_id)
 	
 	def post_ajax(self, request, zoo_id, subject_id):
-		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+		if 'update_image_display' in request.POST:
+			return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+		else:
+			return self.post_ajax_sub(request, zoo_id, subject_id)
 
 
 class SubjectsListView(BaseZooView):
@@ -270,7 +275,7 @@ class GroupPageView(SubjectPageView):
 			}
 		)
 	
-	def post_ajax(self, request, zoo_id, subject_id):
+	def post_ajax_sub(self, request, zoo_id, subject_id):
 		group = self.get_subject(zoo_id, subject_id)
 		if request.POST.get('action') == 'add':
 			getattr(group, request.POST.get('members_type')).add(request.POST['id'])
