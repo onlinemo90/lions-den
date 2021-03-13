@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
@@ -11,6 +13,7 @@ from .forms import SpeciesForm, IndividualForm, AttributeCategoryForm, get_attri
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
+	@method_decorator(never_cache)
 	def dispatch(self, request, *args, **kwargs):
 		""" Restrict access to view only to logged-in users with access to the specific zoo """
 		# Get request and zoo_id arguments
