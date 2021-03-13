@@ -28,7 +28,7 @@ class AbstractBaseModel(models.Model):
 
 class ZooSubject(AbstractBaseModel):
 	name = DefaultCharField()
-	image = BlobField(editable=True, null=True, blank=False)
+	image = ImageBlobField(size=(256, 192), format='PNG', editable=True, null=True, blank=False)
 	
 	class Meta:
 		abstract = True

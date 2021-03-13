@@ -2,7 +2,7 @@ import io
 import base64
 import functools
 
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 from PIL import Image
 
 from django.db import models
@@ -100,7 +100,7 @@ class DefaultCharField(models.CharField):
 		super().__init__(*args, **kwargs)
 
 
-class BlobField(ABC, models.BinaryField):
+class BlobField(models.BinaryField):
 	def from_db_value(self, value, expression, connection):
 		return self.obj_class(bytes=value, parent_field=self) if value is not None else None
 	

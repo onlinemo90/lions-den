@@ -104,7 +104,7 @@ class SubjectPageView(BaseZooView):
 		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
 
-class SubjectListView(BaseZooView):
+class SubjectsListView(BaseZooView):
 	def post_ajax(self, request, zoo_id):
 		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
@@ -146,7 +146,7 @@ class ZooHomeView(BaseZooView):
 		return self.get(request, zoo_id)
 
 
-class SpeciesListView(SubjectListView):
+class SpeciesListView(SubjectsListView):
 	model = Species
 	
 	def get(self, request, zoo_id):
@@ -179,7 +179,7 @@ class SpeciesListView(SubjectListView):
 		return self.get(request, zoo_id)
 
 
-class IndividualsListView(SubjectListView):
+class IndividualsListView(SubjectsListView):
 	model = Individual
 	
 	def get(self, request, zoo_id):

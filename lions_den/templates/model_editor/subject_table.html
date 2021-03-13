@@ -2,7 +2,7 @@
 	{% for subject in subjects %}
 		{% cycle '<tr>' '' %}
 		<td>
-			{% include 'utils/tile.html' with tile_href=subject.id img_class='rounded-circle subject-thumbnail' img_src='{{ subject.image.url }} label=subject.name %}
+			{% include 'utils/tile.html' with tile_href=subject.id img_class='rounded-circle subject-thumbnail' img_src=subject.image.url label=subject.name %}
 		</td>
 		{% cycle '' '</tr>' %}
 	{% endfor %}
