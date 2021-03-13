@@ -8,11 +8,7 @@
 		</div>
 		{% if delete_btn_onclick %}
 			<div class="col-sm" style="display:inline-block; float:right">
-				<button type="button" class="close tile-delete-btn" style="color:var(--danger)" onclick="{{ delete_btn_onclick }}">
-					<svg id="i-close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" style="padding:4 4 0 0">
-						<path d="M2 30 L30 2 M30 30 L2 2"></path>
-					</svg>
-				</button>
+				{% include 'utils/buttons/delete.html' with onclick=delete_btn_onclick %}
 			</div>
 		{% endif %}
 	</div>

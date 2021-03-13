@@ -289,7 +289,7 @@ class GroupPageView(SubjectPageView):
 
 
 class AttributeCategoryListView(BaseZooView):
-	template_name = 'model_editor/attribute_category_list.html'
+	template_name = 'model_editor/attribute_categories_list.html'
 	
 	def get(self, request, zoo_id):
 		return render(

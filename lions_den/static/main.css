@@ -137,6 +137,12 @@ select:-webkit-autofill:focus {
 	border-top: 1px solid var(--colorAccent) !important;
 }
 
+.list-group-item {
+	color: var(--colorContrast);
+	background-color: var(--colorBackground);
+	border: 1px solid var(--colorAccent) !important;
+}
+
 
 /* Custom-------------------------------------------------------------------------------------------------------------*/
 .page-header{

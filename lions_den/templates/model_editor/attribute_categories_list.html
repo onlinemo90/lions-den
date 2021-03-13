@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+	<div class="page-header">
+		<h2 class="title pr-2" style="display:inline-block">Attribute Categories</h2>
+		{% include 'utils/buttons/add.html' with onclick="addCategoryForm()" tooltip_text='Add a new attribute category' %}
+	</div>
+	
+	<form id="attribute_categories_html_form" class="form-horizontal" method="POST">
+		{% csrf_token %}
+		{{ formset.management_form }}
+		{% for form in formset %}
+			{% include 'model_editor/attribute_category_form.html' with form=form form_index=forloop.counter0 is_top_form=forloop.first is_bottom_form=forloop.last %}
+		{% endfor %}
+		<button type="submit" name="submit_categories" class="btn btn-primary">Save</button>
+	</form>
+	<div id="EMPTY_FORM_TEMPLATE" hidden>
+		{% include 'model_editor/attribute_category_form.html' with form=formset.empty_form form_index='__prefix__' is_top_form=False is_bottom_form=True %}
+	</div>
+{% endblock %}
