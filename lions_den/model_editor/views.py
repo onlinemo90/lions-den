@@ -41,9 +41,9 @@ class SubjectPageView(BaseZooView):
 	def get_subject(self, zoo_id, subject_id):
 		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
 	
-	def get_forms(self, subject, request=None):
-		request_data = request.POST if request else None
-		request_files = request.FILES if request else None
+	def get_forms(self, request, subject):
+		request_data = request.POST if request.POST else None
+		request_files = request.FILES if request.FILES else None
 		
 		subject_form_class = SpeciesForm if isinstance(subject, Species) else IndividualForm
 		subject_form = subject_form_class(data=request_data, files=request_files, instance=subject)
@@ -52,7 +52,7 @@ class SubjectPageView(BaseZooView):
 	
 	def get(self, request, zoo_id, subject_id):
 		subject = self.get_subject(zoo_id, subject_id)
-		subject_form, attributes_formset = self.get_forms(subject=subject)
+		subject_form, attributes_formset = self.get_forms(request=request, subject=subject)
 		return render(
 			request=request,
 			template_name=self.template_name,
@@ -87,7 +87,7 @@ class SubjectPageView(BaseZooView):
 	def post(self, request, zoo_id, subject_id):
 		subject = self.get_subject(zoo_id, subject_id)
 		if 'submit_subject' in request.POST:
-			subject_form, attributes_formset = self.get_forms(subject, request)
+			subject_form, attributes_formset = self.get_forms(request=request, subject=subject)
 			if subject_form.is_valid() and attributes_formset.is_valid():
 				subject_form.save()
 				attributes_formset.save()

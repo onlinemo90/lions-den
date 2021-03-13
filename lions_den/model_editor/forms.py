@@ -127,7 +127,7 @@ def get_attributes_formset(subject, *args, **kwargs):
 				form_kwargs={'zoo_id': subject.zoo.id},
 				*args, **kwargs
 			)
-			
+	
 	return SubjectAttributesFormSet(subject, *args, **kwargs)
 
 
