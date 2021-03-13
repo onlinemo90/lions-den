@@ -22,6 +22,6 @@ from django.shortcuts import redirect
 urlpatterns = [
     path('', lambda request : redirect('login'), name='home'),
     path('', include('zoo_auth.urls')),
-    path('zoos/', include('model_editor.urls'), name='zoos'),
+    path('zoos/', include('zoo_editor.urls'), name='zoos'),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

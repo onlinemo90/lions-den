@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 	'zoo_auth.apps.ZooAuthConfig',
-	'model_editor.apps.ModelEditorConfig',
+	'zoo_editor.apps.ModelEditorConfig',
 	'crispy_forms',
 	'django.forms',
 	'django.contrib.admin',
@@ -81,7 +81,7 @@ DATABASES = {
 	}
 }
 # Add custom databases
-for db_file in (BASE_DIR / 'model_editor' / 'databases').iterdir():
+for db_file in (BASE_DIR / 'zoo_editor' / 'databases').iterdir():
     zoo_id = db_file.name.split('.')[0]
     DATABASES[zoo_id] = {
         'ENGINE': 'django.db.backends.sqlite3',

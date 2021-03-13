@@ -10,7 +10,7 @@ from django.views.decorators.cache import never_cache
 from zoo_auth.models import Zoo
 
 from .models import Species, Individual, Group
-from .forms import AttributeCategoryForm, get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
+from .forms import get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -39,7 +39,7 @@ class BaseZooView(LoginRequiredMixin, View):
 
 
 class SubjectPageView(BaseZooView):
-	template_name = 'model_editor/subject.html'
+	template_name = 'zoo_editor/subject.html'
 	
 	def get_subject(self, zoo_id, subject_id):
 		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
@@ -80,7 +80,7 @@ class SubjectPageView(BaseZooView):
 		elif 'modal_qr_code' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/modals/qrcode_modal.html',
+				template_name='zoo_editor/modals/qrcode_modal.html',
 				context={
 					'subject': self.get_subject(zoo_id, subject_id)
 				}
@@ -126,7 +126,7 @@ class SubjectsListView(BaseZooView):
 		if 'modal_new_subject' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/modals/new_subject_modal_form.html',
+				template_name='zoo_editor/modals/new_subject_modal_form.html',
 				context={
 					'title': f'New {self.model.get_type_str().capitalize()}',
 					'form': self.model.form(zoo_id=zoo_id),
@@ -136,7 +136,7 @@ class SubjectsListView(BaseZooView):
 		elif 'modal_delete_subject' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/modals/delete_subject_modal.html',
+				template_name='zoo_editor/modals/delete_subject_modal.html',
 				context={
 					'subject': self.model.objects.using(zoo_id).filter(id=request.GET.get('subject_id')).get()
 				}
@@ -169,13 +169,13 @@ class ZoosIndexView(LoginRequiredMixin, View):
 			return redirect(request.user.allowed_zoos[0].id + '/')
 		return render(
 			request=request,
-			template_name = 'model_editor/zoos_index.html',
+			template_name = 'zoo_editor/zoos_list.html',
 			context={'zoos': request.user.allowed_zoos}
 		)
 
 
 class ZooHomeView(BaseZooView):
-	template_name = 'model_editor/zoo.html'
+	template_name = 'zoo_editor/zoo.html'
 	
 	def get(self, request, zoo_id):
 		return render(
@@ -188,7 +188,7 @@ class ZooHomeView(BaseZooView):
 		if 'modal_zoo_commit' in request.GET:
 			return render(
 				request=request,
-				template_name='model_editor/modals/zoo_commit_modal.html'
+				template_name='zoo_editor/modals/zoo_commit_modal.html'
 			)
 	
 	def post(self, request, zoo_id):
@@ -202,12 +202,12 @@ class ZooHomeView(BaseZooView):
 
 class SpeciesListView(SubjectsListView):
 	model = Species
-	template_name = 'model_editor/species_list.html'
+	template_name = 'zoo_editor/species_list.html'
 
 
 class IndividualsListView(SubjectsListView):
 	model = Individual
-	template_name = 'model_editor/individuals_list.html'
+	template_name = 'zoo_editor/individuals_list.html'
 	
 	def get(self, request, zoo_id):
 		return render(
@@ -227,14 +227,14 @@ class IndividualsListView(SubjectsListView):
 				individuals_shown = individuals_shown.filter(species__id=request.GET['species_id'])
 			return render(
 				request=request,
-				template_name='model_editor/subject_table.html',
+				template_name='zoo_editor/subject_table.html',
 				context={'subjects': individuals_shown}
 			)
 
 
 class GroupsListView(SubjectsListView):
 	model = Group
-	template_name = 'model_editor/groups_list.html'
+	template_name = 'zoo_editor/groups_list.html'
 	
 	def get(self, request, zoo_id):
 		return render(
@@ -266,7 +266,7 @@ class GroupPageView(SubjectPageView):
 		non_members = getattr(group, 'non_member_' + members_type_str)
 		return render(
 			request=request,
-			template_name='model_editor/group_members.html',
+			template_name='zoo_editor/group_members.html',
 			context={
 				'title': 'Species' if members_type_str == 'species' else 'Individuals',
 				'members_type' : members_type_str,
@@ -289,7 +289,7 @@ class GroupPageView(SubjectPageView):
 
 
 class AttributeCategoryListView(BaseZooView):
-	template_name = 'model_editor/attribute_categories_list.html'
+	template_name = 'zoo_editor/attribute_categories_list.html'
 	
 	def get(self, request, zoo_id):
 		return render(

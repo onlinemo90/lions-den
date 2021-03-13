@@ -7,10 +7,10 @@
 		<hr>
 		<div class="row">
 			<div class="col">
-				{% include 'model_editor/group_members.html' with form_field=form.species title='Species' members_type='species' %}
+				{% include 'zoo_editor/group_members.html' with form_field=form.species title='Species' members_type='species' %}
 			</div>
 			<div class="col">
-				{% include 'model_editor/group_members.html' with form_field=form.individuals title='Individuals' members_type='individuals' %}
+				{% include 'zoo_editor/group_members.html' with form_field=form.individuals title='Individuals' members_type='individuals' %}
 			</div>
 		</div>
 	{% elif subject.species %} {# Individuals Page #}

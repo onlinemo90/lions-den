@@ -4,7 +4,7 @@ from django.core import validators
 
 class BlobClearableFileInput(forms.ClearableFileInput):
 	subwidget_template_name = None  # needs to be defined in subclass
-	template_name = 'model_editor/widgets/blob_clearable_file_input.html'
+	template_name = 'zoo_editor/widgets/blob_clearable_file_input.html'
 	initial_text = ''
 	input_text = ''
 	
@@ -18,11 +18,11 @@ class BlobClearableFileInput(forms.ClearableFileInput):
 
 
 class ImageBlobClearableFileInput(BlobClearableFileInput):
-	subwidget_template_name = 'model_editor/widgets/image_subwidget.html'
+	subwidget_template_name = 'zoo_editor/widgets/image_subwidget.html'
 
 
 class AudioBlobClearableFileInput(BlobClearableFileInput):
-	subwidget_template_name = 'model_editor/widgets/audio_subwidget.html'
+	subwidget_template_name = 'zoo_editor/widgets/audio_subwidget.html'
 
 
 class ImageBlobField(forms.FileField):
