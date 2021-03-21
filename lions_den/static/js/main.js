@@ -59,28 +59,6 @@ function getModal(modalID, extraData){
 		},
 	});
 }
-
-function submitModalForm(updateTargetID){
-	/*
-		Submits the unique modal form
-		updateTargetID - ID of the HTML element that the AJAX response is supposed to replace
-		If updateTargetID is not provided, then the whole page is reloaded from the server
-	*/
-	$.ajax({
-		type: 'POST',
-		url: document.URL,
-		data: new FormData(document.getElementById('modalForm')),
-        processData: false,
-        contentType: false,
-		success: function (response) {
-			if (updateTargetID){
-				$('#' + updateTargetID).replaceWith(response);
-			} else {
-				location.reload();
-			}
-		}
-	});
-}
 //----------------------------------------------------------------------------------------------------------------------
 
 // Dynamic image & audio updating in subject forms----------------------------------------------------------------------
@@ -260,7 +238,7 @@ function addCategoryForm(){
 	newFormHTML = $('#EMPTY_FORM_TEMPLATE').html().replaceAll('__prefix__', numForms);
 
 	$('#down_button_' + (numForms - 1)).prop('hidden', false);
-	$('#attribute_categories_html_form button[type="submit"]').before(newFormHTML);
+	$('#attribute_categories_html_form_submit_btn').before(newFormHTML);
 
 	// Increment form count
 	$('#id_form-TOTAL_FORMS').val(numForms + 1);

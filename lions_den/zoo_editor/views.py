@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
@@ -36,6 +36,9 @@ class BaseZooView(LoginRequiredMixin, View):
 	
 	def get_zoo(self, zoo_id):
 		return Zoo.objects.filter(id=zoo_id).get()
+	
+	def redirect_to_self(self, request):
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class SubjectPageView(BaseZooView):
@@ -95,12 +98,12 @@ class SubjectPageView(BaseZooView):
 			if subject_form.is_valid() and attributes_formset.is_valid():
 				subject_form.save()
 				attributes_formset.save()
-				request.POST = None
+				return self.redirect_to_self(request)
 		elif 'submit_new_attribute' in request.POST:
 			new_attribute_form = get_new_attribute_form(subject=self.get_subject(zoo_id, subject_id), data=request.POST, prefix='new_attribute')
 			if new_attribute_form.is_valid():
 				new_attribute_form.save()
-				request.POST = None
+				return self.redirect_to_self(request)
 		
 		return self.get(request, zoo_id, subject_id)
 	
@@ -153,13 +156,17 @@ class SubjectsListView(BaseZooView):
 			new_subject_form = self.model.form(data=request.POST, files=request.FILES, zoo_id=zoo_id)
 			if new_subject_form.is_valid():
 				new_subject_form.save()
+				return self.redirect_to_self(request)
 		elif 'submit_delete_subject' in request.POST:
 			subject = self.model.objects.using(zoo_id).filter(id=request.POST.get('subject_id')).get()
 			subject.delete()
+			return self.redirect_to_self(request)
+		
 		return self.get(request, zoo_id)
 	
 	def post_ajax(self, request, zoo_id):
-		return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+		if 'update_image_display' in request.POST:
+			return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
 
 
 # Renderable Views---------------------------------------------------
@@ -195,6 +202,7 @@ class ZooHomeView(BaseZooView):
 		try:
 			self.get_zoo(zoo_id).commit_to_zooverse(request.user)
 			messages.info(request, 'Your commit request has been received and will be processed within 30 days')
+			return self.redirect_to_self(request)
 		except Exception as e:
 			messages.error(request, str(e))
 		return self.get(request, zoo_id)
@@ -306,6 +314,6 @@ class AttributeCategoryListView(BaseZooView):
 			categories_formset = get_attribute_categories_formset(zoo_id=zoo_id, data=request.POST)
 			if categories_formset.is_valid():
 				categories_formset.save()
-				request.POST = None
+				return self.redirect_to_self(request)
 		
 		return self.get(request, zoo_id)
