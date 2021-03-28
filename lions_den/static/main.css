@@ -214,6 +214,10 @@ img#id_subject_image-display {
 	border: 5px solid var(--colorPrimary);
 }
 
+a.icon-button {
+	cursor: pointer;
+}
+
 a.add-button:focus, a.add-button:hover {
 	color: var(--colorPrimaryDark);
 	display: inline;
