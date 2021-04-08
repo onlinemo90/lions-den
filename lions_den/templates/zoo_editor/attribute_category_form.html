@@ -1,24 +1,22 @@
 {% load crispy_forms_tags %}
+{% load zoo_editor_tags %}
+
 <div class="row form-section">
 	<table class="mx-2 my-4">
 		<tr>
 			<td height="32px">
 				{% if not is_top_form %}
-					<a type="button" id="up_button_{{ form_index }}" class="direction-button" onclick="decreaseCategoryPosition({{ form_index }})">
-						<svg id="i-chevron-top" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-							<path d="M30 20 L16 8 2 20" />
-						</svg>
-					</a>
+					{% with id='up_button_'|addstr:form_index onclick='decreaseCategoryPosition('|addstr:form_index|addstr:')' %}
+						{% include 'utils/buttons/up.html' %}
+					{% endwith%}
 				{% endif %}
 			</td>
 		</tr>
 		<tr>
 			<td height="32px">
-				<a type="button" id="down_button_{{ form_index }}" class="direction-button" onclick="increaseCategoryPosition({{ form_index }})" {% if is_bottom_form %} hidden {% endif %}>
-					<svg id="i-chevron-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-						<path d="M30 12 L16 24 2 12" />
-					</svg>
-				</a>
+				{% with id='down_button_'|addstr:form_index onclick='increaseCategoryPosition('|addstr:form_index|addstr:')' %}
+					{% include 'utils/buttons/down.html' with hidden=is_bottom_form %}
+				{% endwith%}
 			</td>
 		</tr>
 	</table>

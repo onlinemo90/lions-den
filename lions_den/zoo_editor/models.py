@@ -34,7 +34,7 @@ class SubjectManager(models.Manager):
 
 
 class Subject(AbstractBaseModel):
-	name = DefaultCharField()
+	name = DefaultCharField(unique=True)
 	image = ImageBlobField(size=(256, 192), format='PNG', editable=True, null=True, blank=False)
 	
 	objects = SubjectManager()
@@ -90,6 +90,7 @@ class Species(Subject):
 
 
 class Individual(Subject):
+	name = DefaultCharField(unique=False)
 	species = models.ForeignKey(Species, related_name='individuals', on_delete=models.CASCADE)  # If the species is deleted, so are the related individuals
 	dob = models.DateField()
 	place_of_birth = DefaultCharField()

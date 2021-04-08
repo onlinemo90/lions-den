@@ -218,6 +218,10 @@ a.icon-button {
 	cursor: pointer;
 }
 
+a.add-button {
+	position: absolute;
+}
+
 a.add-button:focus, a.add-button:hover {
 	color: var(--colorPrimaryDark);
 	display: inline;

@@ -1,0 +1,5 @@
+<a id="{{ id }}" class="{% block css_classes %}icon-button{% endblock %}" onclick="{{ onclick }}" title="{{ tooltip_text }}" data-placement="{{ tooltip_placement|default:'right' }}" data-toggle="tooltip"
+   {% if hidden %}hidden{% endif %}>
+	{% block icon %}{% endblock %}
+</a>
+{# Best source of SVG icons: https://github.com/danklammer/bytesize-icons #}

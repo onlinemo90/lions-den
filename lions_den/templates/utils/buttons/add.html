@@ -1,5 +1,12 @@
-<a class="icon-button add-button" style="position:absolute" onclick="{{ onclick }}" title="{{ tooltip_text }}" data-placement="{{ tooltip_placement|default:'right' }}" data-toggle="tooltip">
+{% extends 'utils/buttons/icon_button.html' %}
+
+{% block css_classes %}
+	{{ block.super }}
+	add-button
+{% endblock %}
+
+{% block icon %}
 	<svg id="i-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="36" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
 		<path d="M16 2 L16 30 M2 16 L30 16" />
 	</svg>
-</a>
+{% endblock %}
