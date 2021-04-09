@@ -240,6 +240,11 @@ function addCategoryForm(){
 	$('#down_button_' + (numForms - 1)).prop('hidden', false);
 	$('#attribute_categories_html_form_submit_btn').before(newFormHTML);
 
+	// If this is the first form to be added, hide the up button
+	if ($('#id_form-TOTAL_FORMS').val() == 0){
+		$('#up_button_' + numForms).prop('hidden', true);
+	}
+
 	// Increment form count
 	$('#id_form-TOTAL_FORMS').val(numForms + 1);
 }
