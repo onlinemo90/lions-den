@@ -2,7 +2,7 @@
 {% block content %}
 	<div class="page-header">
 		<h2 class="title pr-2" style="display:inline-block">Attribute Categories</h2>
-		{% include 'utils/buttons/add.html' with onclick="addCategoryForm()" tooltip_text='Add a new attribute category' %}
+		{% include 'utils/buttons/plus.html' with css_class='add-button' onclick="addCategoryForm()" tooltip_text='Add a new attribute category' %}
 	</div>
 	
 	<form id="attribute_categories_html_form" class="form-horizontal" method="POST">

@@ -8,7 +8,7 @@
 		</div>
 		{% if delete_btn_onclick %}
 			<div class="col-sm" style="display:inline-block; float:right">
-				{% include 'utils/buttons/delete.html' with onclick=delete_btn_onclick %}
+				{% include 'utils/buttons/close.html' with css_class='close' stroke='var(--danger)' onclick=delete_btn_onclick %}
 			</div>
 		{% endif %}
 	</div>

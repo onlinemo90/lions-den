@@ -7,7 +7,7 @@
 			<td height="32px">
 				{% if not is_top_form %}
 					{% with id='up_button_'|addstr:form_index onclick='decreaseCategoryPosition('|addstr:form_index|addstr:')' %}
-						{% include 'utils/buttons/up.html' %}
+						{% include 'utils/buttons/up.html' with css_class='direction-button' %}
 					{% endwith%}
 				{% endif %}
 			</td>
@@ -15,8 +15,8 @@
 		<tr>
 			<td height="32px">
 				{% with id='down_button_'|addstr:form_index onclick='increaseCategoryPosition('|addstr:form_index|addstr:')' %}
-					{% include 'utils/buttons/down.html' with hidden=is_bottom_form %}
-				{% endwith%}
+					{% include 'utils/buttons/down.html' with css_class='direction-button' hidden=is_bottom_form %}
+				{% endwith %}
 			</td>
 		</tr>
 	</table>

@@ -2,7 +2,7 @@
 {% block content %}
 	<div class="page-header">
 		<h2 class="title pr-2" style="display:inline-block">Groups</h2>
-		{% include 'utils/buttons/add.html' with onclick="getModal('modal_new_subject')" tooltip_text='Add a new group' %}
+		{% include 'utils/buttons/plus.html' with css_class='add-button' onclick="getModal('modal_new_subject')" tooltip_text='Add a new group' %}
 	</div>
 	{% include 'zoo_editor/subject_table.html' %}
 {% endblock %}

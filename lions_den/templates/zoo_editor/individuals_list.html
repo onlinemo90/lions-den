@@ -3,7 +3,7 @@
 {% block content %}
 	<div class="page-header">
 		<h2 class="title pr-2" style="display:inline-block">Individuals</h2>
-		{% include 'utils/buttons/add.html' with onclick="getModal('modal_new_subject')" tooltip_text='Add a new individual' %}
+		{% include 'utils/buttons/plus.html' with css_class='add-button' onclick="getModal('modal_new_subject')" tooltip_text='Add a new individual' %}
 	</div>
 	
 	<select class="select form-control mb-3" name="species" id="select_species">
