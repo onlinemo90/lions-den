@@ -10,6 +10,12 @@
 		{{ formset.management_form }}
 		{% for form in formset %}
 			{% include 'zoo_editor/attribute_category_form.html' with form=form form_index=forloop.counter0 is_top_form=forloop.first is_bottom_form=forloop.last %}
+		{% empty %}
+		<div class="alert alert-warning">
+			It looks like you don't have a category created yet.
+			<br>
+			Please press the + button to get started.
+		</div>
 		{% endfor %}
 		<button id="attribute_categories_html_form_submit_btn" type="submit" name="submit_categories" class="btn btn-primary">Save</button>
 	</form>
