@@ -124,16 +124,18 @@ class SubjectsListView(BaseZooView):
 				'subjects': self.model.objects.using(zoo_id).all()
 			}
 		)
-	
-	def get_ajax(self, request, zoo_id):
+
+	def get_ajax(self, request, zoo_id, form=None):
 		if 'modal_new_subject' in request.GET:
+			if not form: # invalid form
+				form = self.model.form(zoo_id=zoo_id)
 			return render(
 				request=request,
 				template_name='zoo_editor/modals/new_subject_modal_form.html',
 				context={
 					'title': f'New {self.model.get_type_str().capitalize()}',
-					'form': self.model.form(zoo_id=zoo_id),
-					'submit_btn_name': 'submit_new_subject'
+					'form': form,
+					'submit_btn_name': 'modal_new_subject'
 				}
 			)
 		elif 'modal_delete_subject' in request.GET:
@@ -146,27 +148,30 @@ class SubjectsListView(BaseZooView):
 			)
 		else:
 			return self.get_ajax_sub(request, zoo_id)
-	
+
 	def get_ajax_sub(self, request, zoo_id):
 		""" Method for subclasses to implement their specific get_ajax logic without overwriting the base class one """
 		return None
-	
+
 	def post(self, request, zoo_id):
-		if 'submit_new_subject' in request.POST:
-			new_subject_form = self.model.form(data=request.POST, files=request.FILES, zoo_id=zoo_id)
-			if new_subject_form.is_valid():
-				new_subject_form.save()
-				return self.redirect_to_self(request)
-		elif 'submit_delete_subject' in request.POST:
+		if 'submit_delete_subject' in request.POST:
 			subject = self.model.objects.using(zoo_id).filter(id=request.POST.get('subject_id')).get()
 			subject.delete()
 			return self.redirect_to_self(request)
-		
+
 		return self.get(request, zoo_id)
-	
+
 	def post_ajax(self, request, zoo_id):
 		if 'update_image_display' in request.POST:
 			return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+		elif 'modal_new_subject' in request.POST:
+			new_subject_form = self.model.form(data=request.POST, files=request.FILES, zoo_id=zoo_id)
+			if new_subject_form.is_valid():
+				new_subject_form.save()
+				return JsonResponse({'form_valid': True})
+			else:
+				request.GET = request.POST
+				return self.get_ajax(request, zoo_id, form=new_subject_form)
 
 
 # Renderable Views---------------------------------------------------
