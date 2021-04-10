@@ -245,6 +245,9 @@ function addCategoryForm(){
 		$('#up_button_' + numForms).prop('hidden', true);
 	}
 
+	// Hide 'no categories yet' warning
+	$('#no_attribute_categories_warning').prop('hidden', true);
+
 	// Increment form count
 	$('#id_form-TOTAL_FORMS').val(numForms + 1);
 }

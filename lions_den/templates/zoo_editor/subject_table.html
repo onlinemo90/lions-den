@@ -10,5 +10,15 @@
 			{% endwith %}
 		</td>
 		{% cycle '' '</tr>' %}
+	{% empty %}
+		<tr>
+			<td>
+				<div class="alert alert-warning">
+					It looks like you don't have a{{subject_type}} created yet.
+					<br>
+					Please press the + button to get started.
+				</div>
+			</td>
+		</tr>
 	{% endfor %}
 </table>
