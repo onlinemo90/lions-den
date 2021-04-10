@@ -4,5 +4,5 @@
 		<h2 class="title pr-2" style="display:inline-block">Species</h2>
 		{% include 'utils/buttons/plus.html' with css_class='add-button' onclick="getModal('modal_new_subject')" tooltip_text='Add a new species' %}
 	</div>
-	{% include 'zoo_editor/subject_table.html' %}
+	{% include 'zoo_editor/subject_table.html' with subject_type=" species"%}
 {% endblock %}
