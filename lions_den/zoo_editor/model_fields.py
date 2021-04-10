@@ -29,6 +29,7 @@ class ImageBlob(BlobObject):
 		return f'data:image/{self.parent_field.format};base64,{base64.b64encode(self._get_normalised_img().getvalue()).decode()}'
 	
 	def _get_normalised_img(self):
+		"""" Rotates the image to correct bad EXIF metadata and normalises it to the defined model form field size """
 		img = Image.open(self)
 		img = self._adjust_rotation(img)
 		width, height = img.size
@@ -86,6 +87,23 @@ class ImageBlob(BlobObject):
 		else:
 			return functools.reduce(type(img).transpose, seq, img)
 
+	def as_rotated_without_exif(self):
+		"""" Returns the image BytesIO object after adjusting the rotation to correct bad EXIF metadata """
+
+		# Adjust EXIF data by rotating image
+		img = self._adjust_rotation(Image.open(self))
+
+		# Remove EXIF data
+		image_without_exif = Image.new(img.mode, img.size)
+		image_without_exif.putdata(list(img.getdata()))
+		img = image_without_exif
+
+		# Save to BytesIO object
+		output_file = io.BytesIO()
+		img.save(output_file, format=self.parent_field.format)
+		return output_file
+
+
 
 class AudioBlob(BlobObject):
 	@property
@@ -119,6 +137,9 @@ class ImageBlobField(BlobField):
 		super().__init__(*args, **kwargs)
 		self.size = size
 		self.format = format
+
+	def get_db_prep_value(self, value, connection, prepared=False):
+			return self.obj_class(bytes=value.read(), parent_field=self).as_rotated_without_exif().getvalue() if value else None
 
 
 class AudioBlobField(BlobField):
