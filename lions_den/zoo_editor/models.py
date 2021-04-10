@@ -3,6 +3,7 @@ import enum
 from abc import abstractmethod
 
 from django.db import models
+from django.db.models.functions import Lower
 
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
@@ -30,7 +31,7 @@ class AbstractBaseModel(models.Model):
 
 class SubjectManager(models.Manager):
 	def get_queryset(self):
-		return super().get_queryset().order_by('name')
+		return super().get_queryset().order_by(Lower('name'))
 
 
 class Subject(AbstractBaseModel):
