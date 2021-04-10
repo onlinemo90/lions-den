@@ -209,13 +209,13 @@ function updateOrderFields(){
 }
 
 function moveCategoryForm(formIndex, direction){
-	// Move forms in front-end
-	let form1Id = '#form_fields_slot_' + formIndex;
-	let form2Id = '#form_fields_slot_' + (formIndex + direction);
+	var currentField = 'id_form-' + formIndex + '-name'
+	var newField = 'id_form-' + (formIndex + direction) + '-name'
+	var currentValue = document.getElementById(currentField).value;
+	var newValue = document.getElementById(newField).value;
 
-	tmpForm1HTML = $(form1Id).html();
-	$(form1Id).html($(form2Id).html());
-	$(form2Id).html(tmpForm1HTML);
+	$('#' + currentField).val(newValue);
+	$('#' + newField).val(currentValue);
 
 	updateOrderFields();
 }
