@@ -31,7 +31,7 @@ class ImageBlob(BlobObject):
 	def _get_normalised_img(self):
 		"""" Rotates the image to correct bad EXIF metadata and normalises it to the defined model form field size """
 		img = Image.open(self)
-		img = self._adjust_rotation(img)
+		img = self._correct_exif_rotation(img)
 		width, height = img.size
 		x_min, x_max, y_min, y_max = 0, width, 0, height
 		aspect_ratio = self.parent_field.size[0] / self.parent_field.size[1]
@@ -49,13 +49,18 @@ class ImageBlob(BlobObject):
 		
 		# Scale
 		img = img.resize(self.parent_field.size, Image.ANTIALIAS)
+
+		# Remove EXIF data
+		img_data = list(img.getdata())
+		img = Image.new(img.mode, img.size)
+		img.putdata(img_data)
 		
 		# Output
 		output_file = io.BytesIO()
 		img.save(output_file, format=self.parent_field.format)
 		return output_file
 	
-	def _adjust_rotation(self, img):
+	def _correct_exif_rotation(self, img):
 		"""
 		Camera orientation is stored in the image metadata (EXIF data).
 		PIL's Image.open() does not account for this, causing silent image rotation.
@@ -91,12 +96,12 @@ class ImageBlob(BlobObject):
 		"""" Returns the image BytesIO object after adjusting the rotation to correct bad EXIF metadata """
 
 		# Adjust EXIF data by rotating image
-		img = self._adjust_rotation(Image.open(self))
+		img = self._correct_exif_rotation(Image.open(self))
 
 		# Remove EXIF data
-		image_without_exif = Image.new(img.mode, img.size)
-		image_without_exif.putdata(list(img.getdata()))
-		img = image_without_exif
+		img_data = list(img.getdata())
+		img = Image.new(img.mode, img.size)
+		img.putdata(img_data)
 
 		# Save to BytesIO object
 		output_file = io.BytesIO()
