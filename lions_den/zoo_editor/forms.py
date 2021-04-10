@@ -23,6 +23,7 @@ class BaseModelForm(forms.ModelForm):
 		if 'instance' not in kwargs:
 			super().__init__(*args, **kwargs)
 			self.instance._state.db = self.zoo_id
+			self.instance._meta.default_manager._db = self.zoo_id # needed to ensure uniqueness constraints can be validated
 		else:
 			super().__init__(*args, **kwargs)
 
