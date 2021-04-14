@@ -24,4 +24,5 @@ urlpatterns = [
     path('', include('zoo_auth.urls')),
     path('zoos/', include('zoo_editor.urls'), name='zoos'),
     path('admin/', admin.site.urls),
+    path('tickets/', include('ticket_system.urls'), name='tickets')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
