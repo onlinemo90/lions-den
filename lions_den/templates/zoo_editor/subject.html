@@ -3,23 +3,33 @@
 {% block content %}
 	<form enctype="multipart/form-data" method="POST">
 		{% csrf_token %}
-		{{ attributes_formset.management_form }}
 		
 		{% include 'zoo_editor/subject_form_fields.html' with form=subject_form %}
 		
-		<div class="form-section">
+		<div id="attributes_formset_section" class="form-section">
 			<h3 class="pr-2" style="display:inline-block">Attributes</h3>
 			{% if not subject.has_max_attributes %}
-				{% include 'utils/buttons/plus.html' with css_class='add-button' onclick="getModal('modal_new_attribute')" tooltip_text='Add a new attribute' %}
+				{% include 'utils/buttons/plus.html' with id='add_attribute_btn' css_class='add-button' onclick="getModal('modal_new_attribute', getAlreadyUsedCategoryIDs())" tooltip_text='Add a new attribute' %}
 			{% endif %}
+			
 			<br/>
 			<br/>
-			<table>
-				{{ attributes_formset|crispy }}
-			</table>
+			
+			{{ attributes_formset.management_form }}
+			{% for form in attributes_formset %}
+				<div id="attribute_form_{{ forloop.counter0 }}">
+					{{ form|crispy }}
+				</div>
+			{% endfor %}
 		</div>
 		<button type="submit" name="submit_subject" class="btn btn-primary">Submit</button>
 	</form>
+	
+	<div id="EMPTY_FORM_TEMPLATE" hidden>
+		<div id="attribute_form___prefix__">
+			{{ attributes_formset.empty_form|crispy }}
+		</div>
+	</div>
 {% endblock content %}
 
 {% block extra_navbar_items %}
