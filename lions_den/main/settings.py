@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+	'ticket_system.apps.TicketSystemConfig',
 	'zoo_auth.apps.ZooAuthConfig',
 	'zoo_editor.apps.ModelEditorConfig',
 	'crispy_forms',
