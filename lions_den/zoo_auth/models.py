@@ -34,12 +34,24 @@ class ZooUserManager(BaseUserManager):
 class ZooUser(AbstractUser):
 	username = None
 	email = models.EmailField(_('email address'), unique=True)
+	first_name = models.CharField(blank=True, max_length=64)
+	last_name = models.CharField(blank=True, max_length=64)
 	
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = []
 	objects = ZooUserManager()
-
+	
 	def __str__(self):
+		return self.email
+	
+	@property
+	def name(self):
+		if self.first_name and self.last_name:
+			return f'{self.first_name} {self.last_name}'
+		elif self.first_name:
+			return self.first_name
+		elif self.last_name:
+			return self.last_name
 		return self.email
 	
 	@property

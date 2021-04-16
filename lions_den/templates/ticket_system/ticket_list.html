@@ -1,5 +1,5 @@
-Hello world
+{% extends "base.html" %}
 
-{% for ticket in object_list %}
-	{{ ticket }}
-{% endfor %}
+{% block content %}
+	<a type="button" class="bg-primary" onclick="getModal('modal_new_ticket');">Create Ticket</a>
+{% endblock %}
