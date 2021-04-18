@@ -61,6 +61,22 @@ function getModal(modalID, extraData){
 }
 //----------------------------------------------------------------------------------------------------------------------
 
+// AJAX Modal Form------------------------------------------------------------------------------------------------------
+function submitModalForm(formName, successFunction){
+	formData = new FormData($('#modalForm')[0]);
+	formData.append(formName, '');
+	$.ajax({
+		type: 'POST',
+		enctype: 'multipart/form-data',
+		url: document.URL,
+		data: formData,
+		processData: false,
+		contentType: false,
+		success: successFunction
+	});
+}
+//----------------------------------------------------------------------------------------------------------------------
+
 // Dynamic image & audio updating in subject forms----------------------------------------------------------------------
 function setDynamicBlobDisplay(displayID, widgetID, audioControlID, updateFunction) {
 	let reloadAudio = function(){ if (audioControlID){ $("#" + audioControlID)[0].load() } };
@@ -123,6 +139,67 @@ function initDynamicBlobFieldDisplay(){
 document.addEventListener("DOMContentLoaded", function(){
 	initDynamicBlobFieldDisplay();
 });
+//----------------------------------------------------------------------------------------------------------------------
+
+// Subject Attributes Formset-------------------------------------------------------------------------------------------
+function addSubjectAttributeForm(ajaxResponse){
+	newCategoryID = ajaxResponse['category_id']
+	newCategoryName = ajaxResponse['category_name'];
+	newCategoryPosition = ajaxResponse['category_position'];
+
+	FORM_PREFIX = 'attributes-'
+	FORM_ID_PREFIX = 'id_' + FORM_PREFIX
+
+	// Prepare new form from empty template form
+	numForms = parseInt($('#' + FORM_ID_PREFIX + 'TOTAL_FORMS').val());
+	newFormHTML = $('#EMPTY_FORM_TEMPLATE').html()
+		.replaceAll('__prefix__', numForms)
+		.replaceAll('__CATEGORY_NAME_PLACEHOLDER__', newCategoryName);
+
+	// Place form in correct order (by category position)
+	formPlaced = false;
+	$('#attributes_formset_section div[id^=attribute_form_]').each(function(){
+		formCategoryPosition = $('input[id$=category_position]', this).val();
+		if (newCategoryPosition < formCategoryPosition){
+			$(this).before(newFormHTML);
+			formPlaced = true;
+			return false; // break out of $.each
+		}
+	});
+	if (!formPlaced){
+		$('#attributes_formset_section').append(newFormHTML);
+	}
+
+	// Set new form values
+	$('input[id=' + FORM_ID_PREFIX + numForms + '-category]').val(newCategoryID);
+	$('input[id=' + FORM_ID_PREFIX + numForms + '-category_name]').val(newCategoryName);
+	$('input[id=' + FORM_ID_PREFIX + numForms + '-category_position]').val(newCategoryPosition);
+
+	// Increment form count
+	numForms += 1;
+	$('#' + FORM_ID_PREFIX + 'TOTAL_FORMS').val(numForms);
+
+	// Hide 'add new attribute' button if no further categories are available
+	if ((numForms) == $('#' + FORM_ID_PREFIX + 'MAX_NUM_FORMS').val()){
+		$('#add_attribute_btn').hide();
+	}
+
+	// Hide modal
+	$('#modal').modal('hide');
+
+	// Prevent category from being added in this session
+	_alreadyUsedCategoryIDs.push(newCategoryID);
+}
+
+var _alreadyUsedCategoryIDs = [];
+function getAlreadyUsedCategoryIDs(){
+	/*
+		Provides a GET parameter containing a list of attribute category IDs added in the current session.
+		Meant to be added to the AJAX GET request when requesting the list of attribute categories
+		the user can still add to the subject.
+	*/
+	return 'exclude_category_ids=' + JSON.stringify(_alreadyUsedCategoryIDs);
+}
 //----------------------------------------------------------------------------------------------------------------------
 
 // New Subject Form-----------------------------------------------------------------------------------------------------

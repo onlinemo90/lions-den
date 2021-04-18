@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
@@ -9,8 +11,9 @@ from django.views.decorators.cache import never_cache
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
-from .models import Species, Individual, Group
-from .forms import get_attributes_formset, get_new_attribute_form, get_attribute_categories_formset
+from .models import Species, Individual, Group, AttributeCategory
+from .forms import get_attributes_formset, get_attribute_categories_formset, AvailableSubjectAttributeCategoriesForm
+
 
 # Base Views---------------------------------------------------------
 class BaseZooView(LoginRequiredMixin, View):
@@ -70,14 +73,19 @@ class SubjectPageView(BaseZooView):
 		)
 	
 	def get_ajax(self, request, zoo_id, subject_id):
+		subject = self.get_subject(zoo_id, subject_id)
 		if 'modal_new_attribute' in request.GET:
 			return render(
 				request=request,
-				template_name='utils/modals/modal_form.html',
+				template_name='utils/modals/modal_form_ajax.html',
 				context={
-					'title': 'Add attribute',
-					'form': get_new_attribute_form(subject=self.get_subject(zoo_id, subject_id), prefix='new_attribute'),
-					'submit_btn_name': 'submit_new_attribute'
+					'title': 'Add Attribute',
+					'form': AvailableSubjectAttributeCategoriesForm(
+						subject=subject,
+						exclude_categories=json.loads(request.GET.get('exclude_category_ids'))
+					),
+					'submit_btn_name': 'add_new_attribute',
+					'ajax_success_function_name': 'addSubjectAttributeForm'
 				}
 			)
 		elif 'modal_qr_code' in request.GET:
@@ -85,7 +93,7 @@ class SubjectPageView(BaseZooView):
 				request=request,
 				template_name='zoo_editor/modals/qrcode_modal.html',
 				context={
-					'subject': self.get_subject(zoo_id, subject_id)
+					'subject': subject
 				}
 			)
 		else:
@@ -99,17 +107,20 @@ class SubjectPageView(BaseZooView):
 				subject_form.save()
 				attributes_formset.save()
 				return self.redirect_to_self(request)
-		elif 'submit_new_attribute' in request.POST:
-			new_attribute_form = get_new_attribute_form(subject=self.get_subject(zoo_id, subject_id), data=request.POST, prefix='new_attribute')
-			if new_attribute_form.is_valid():
-				new_attribute_form.save()
-				return self.redirect_to_self(request)
 		
 		return self.get(request, zoo_id, subject_id)
 	
 	def post_ajax(self, request, zoo_id, subject_id):
 		if 'update_image_display' in request.POST:
 			return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+		elif 'add_new_attribute' in request.POST:
+			if 'name' in request.POST: # name field actually returns the category id
+				attribute_category = AttributeCategory.objects.using(zoo_id).get(id=request.POST.get('name'))
+				return JsonResponse({
+					'category_id': attribute_category.id,
+					'category_name': attribute_category.name,
+					'category_position': attribute_category.position
+				})
 		else:
 			return self.post_ajax_sub(request, zoo_id, subject_id)
 
