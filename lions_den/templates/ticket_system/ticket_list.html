@@ -1,5 +1,15 @@
-{% extends "base.html" %}
+{% extends "ticket_system/base.html" %}
 
 {% block content %}
-	<a type="button" class="bg-primary" onclick="getModal('modal_new_ticket');">Create Ticket</a>
+	<div class="page-header">
+		<h2 class="title pr-2" style="display:inline-block">All tickets:</h2>
+	</div>
+	
+	{% for ticket in object_list %}
+		<a class="btn-primary" href="./browse/{{ ticket.id }}">
+			<div class="container border mb-3">
+				<p class="my-2">{{ ticket.title }}</p>
+			</div>
+		</a>
+	{% endfor %}
 {% endblock %}
