@@ -1,16 +1,19 @@
 from django import forms
 
-from .models import Ticket, Comment
+# noinspection PyUnresolvedReferences
 from zoo_auth.models import ZooUser
+
+from .models import Ticket, Comment
 
 
 class TicketForm(forms.ModelForm):
 	class Meta:
 		model = Ticket
-		fields = ('title', 'type', 'priority', 'description')
-	
-	def save(self, reporter, commit=True):
-		self.instance.reporter = reporter
+		fields = ('app', 'title', 'type', 'priority', 'description')
+
+	def save(self, reporter=None, commit=True):
+		if reporter:
+			self.instance.reporter = reporter
 		super().save(commit)
 
 

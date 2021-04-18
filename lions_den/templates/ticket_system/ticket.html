@@ -1,12 +1,13 @@
 {% extends 'ticket_system/base.html' %}
 
 {% block content %}
-	<div class="row"> {# Ticket Info header #}
-		<div class="col-9 border shadow">
+	<div class="row shadow-lg"> {# Ticket Info header #}
+		<div class="col-9 border">
 			<div class="my-2">
 				<h2>{{ object.title }}</h2>
+				<h6 style="color:var(--colorPrimaryDark)">{{ object.get_app_display }}</h6>
 			</div>
-			<div class="row my-4 text-center">
+			<div class="row mt-4 text-center">
 				<div class="col-3 center">
 					<p><b>Status:</b> {{ object.get_status_display}}</p>
 				</div>
@@ -20,16 +21,22 @@
 					<p><b>Action:</b> {{ object.get_action_display }}</p>
 				</div>
 			</div>
-			<div class="mx-2 my-4">
+			<div class="mx-2 mb-4 mt-2">
 				<p style="white-space:pre">{{ object.description }}</p>
 			</div>
 		</div>
 		
-		<div class="col-3 border container-fluid shadow small">
+		<div class="col-3 border container-fluid small">
 			<div class="row border-bottom my-3">
 				<div class="container">
 					<p><strong>Created by:</strong> {{ object.reporter }}</p>
-					<p><strong>Assigned to:</strong> {{ object.assignee|default:'---' }}</p>
+					<p>
+						{% if object.assignee %}
+							<strong>Assigned to:</strong> {{ object.assignee }}
+						{% else %}
+							<strong>Unassigned</strong>
+						{% endif %}
+					</p>
 				</div>
 			</div>
 			<div class="row my-3">
@@ -51,8 +58,8 @@
 						<div class="card-header">
 							<b>{{ comment.creator }}</b> commented on {{ comment.added_date }}
 						</div>
-						<div class="card-body">
-							{{ comment.text }}
+						<div class="card-body pt-2 pb-1">
+							<p style="white-space:pre">{{ comment.text }}</p>
 						</div>
 					</div>
 				{% endfor %}

@@ -6,6 +6,10 @@ from zoo_auth.models import ZooUser
 
 
 class Ticket(models.Model):
+	class Apps(models.TextChoices):
+		ZOOVERSE = 'ZV', _('Zooverse')
+		LIONS_DEN = 'LD', _("Lion's Den")
+
 	class Statuses(models.TextChoices):
 		OPEN = 'O', _('Open')
 		CLOSED = 'C', _('Closed')
@@ -38,8 +42,9 @@ class Ticket(models.Model):
 	created_date = models.DateTimeField(auto_now_add=True)
 	last_updated_date = models.DateTimeField(auto_now=True)
 	closed_date = models.DateTimeField(blank=True, null=True)
-	
-	status = models.CharField(max_length=2, choices=Statuses.choices, blank=False)
+
+	app = models.CharField(max_length=2, choices=Apps.choices, blank=False)
+	status = models.CharField(max_length=2, choices=Statuses.choices, default=Statuses.OPEN, blank=False)
 	type = models.CharField(max_length=2, choices=Types.choices, blank=False)
 	priority = models.IntegerField(choices=Priorities.choices, blank=False)
 	action = models.CharField(max_length=2, choices=Actions.choices, default=Actions.WAIT, blank=False)
