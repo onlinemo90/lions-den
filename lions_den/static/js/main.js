@@ -209,25 +209,22 @@ function updateOrderFields(){
 }
 
 function moveCategoryForm(formIndex, direction){
+	let form1Selector = '#form_fields_slot_' + formIndex;
+	let form2Selector = '#form_fields_slot_' + (formIndex + direction);
 
-
-	let form1Id = 'form_fields_slot_' + formIndex;
-	let form2Id = 'form_fields_slot_' + (formIndex + direction);
-
-	//Buffer values of the the 2 fields to be moved
-	var currentValueField = document.getElementById(form1Id).getElementsByClassName('textInput');
-	var newValueField = document.getElementById(form2Id).getElementsByClassName('textInput');
-	var currentValue = currentValueField[0].value;
-	var newValue = newValueField[0].value;
+	// Buffer values of the 2 fields to be moved
+	formInputSelector = "input[type='text'][id^='id_form-'][id$='-name']"
+	form1OldValue = $(formInputSelector, $(form1Selector)).val();
+	form2OldValue = $(formInputSelector, $(form2Selector)).val();
 
 	// Move forms in front-end
-	tmpForm1HTML = $('#' + form1Id).html();
-	$('#' + form1Id).html($('#' + form2Id).html());
-	$('#' + form2Id).html(tmpForm1HTML);
+	tmpForm1HTML = $(form1Selector).html();
+	$(form1Selector).html($(form2Selector).html());
+	$(form2Selector).html(tmpForm1HTML);
 
-	//Add buffered Values to moved forms
-	$(currentValueField).val(newValue);
-	$(newValueField).val(currentValue);
+	// Add buffered Values to moved forms
+	$(formInputSelector, form1Selector).val(form2OldValue);
+	$(formInputSelector, form2Selector).val(form1OldValue);
 
 	updateOrderFields();
 }
