@@ -5,13 +5,6 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
-from django.views.generic.list import ListView
-
-from .models import Ticket
-from django.urls import reverse
-from django.utils.decorators import method_decorator
-from django.views import View
-from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
 
