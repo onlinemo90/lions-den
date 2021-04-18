@@ -59,10 +59,8 @@ function getModal(modalID, extraData){
 		},
 	});
 }
-//----------------------------------------------------------------------------------------------------------------------
 
-// AJAX Modal Form------------------------------------------------------------------------------------------------------
-function submitModalForm(formName, successFunction){
+function submitModalForm(formName, successFunction){ // Submit AJAX modal form
 	formData = new FormData($('#modalForm')[0]);
 	formData.append(formName, '');
 	$.ajax({
@@ -203,27 +201,15 @@ function getAlreadyUsedCategoryIDs(){
 //----------------------------------------------------------------------------------------------------------------------
 
 // New Subject Form-----------------------------------------------------------------------------------------------------
-function submitModalForm(formName){
-	formData = new FormData($('#modalForm')[0]);
-	formData.append(formName, '');
-	$.ajax({
-		type: 'POST',
-		enctype: 'multipart/form-data',
-		url: document.URL,
-		data: formData,
-		processData: false,
-		contentType: false,
-		success: function(response) {
-			if (response['form_valid']){
-				window.location = window.location;
-			} else {
-				newModal = $(response);
-				newModalContents = $('.modal-content', newModal);
-				$('#modal .modal-content').html(newModalContents.html());
-				initDynamicBlobFieldDisplay();
-			}
-		}
-	});
+function newSubjectFormSuccess(response){
+	if (response['form_valid']){
+		window.location = window.location;
+	} else {
+		newModal = $(response);
+		newModalContents = $('.modal-content', newModal);
+		$('#modal .modal-content').html(newModalContents.html());
+		initDynamicBlobFieldDisplay();
+	}
 }
 //----------------------------------------------------------------------------------------------------------------------
 

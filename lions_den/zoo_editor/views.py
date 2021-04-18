@@ -146,7 +146,8 @@ class SubjectsListView(BaseZooView):
 				context={
 					'title': f'New {self.model.get_type_str().capitalize()}',
 					'form': form,
-					'submit_btn_name': 'modal_new_subject'
+					'submit_btn_name': 'modal_new_subject',
+					'ajax_success_function_name': 'newSubjectFormSuccess'
 				}
 			)
 		elif 'modal_delete_subject' in request.GET:
