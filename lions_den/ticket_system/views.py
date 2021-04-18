@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
@@ -50,7 +51,7 @@ class BaseView(LoginRequiredMixin, View):
 			form = TicketForm(request.POST)
 			if form.is_valid():
 				form.save(reporter=request.user)
-				return self.redirect_to_self()
+				return redirect(to=reverse('ticket_view', kwargs={'pk': form.instance.id}))
 		return self.post_sub(request, *args, **kwargs)
 	
 	def get_ajax_sub(self, request, *args, **kwargs):
@@ -90,7 +91,7 @@ class TicketView(BaseView, DetailView):
 				context={
 					'title': 'Edit ticket',
 					'form': TicketForm(instance=self.get_ticket(pk)),
-					'submit_btn_name': 'create_ticket',
+					'submit_btn_name': 'edit_ticket',
 				}
 			)
 		elif 'modal_update_ticket' in request.GET:
@@ -119,6 +120,11 @@ class TicketView(BaseView, DetailView):
 			form = CommentForm(request.POST)
 			if form.is_valid():
 				form.save(ticket=self.get_ticket(pk), creator=request.user)
+				return self.redirect_to_self(request)
+		elif 'edit_ticket' in request.POST:
+			form = TicketForm(request.POST, instance=self.get_ticket(pk))
+			if form.is_valid():
+				form.save()
 				return self.redirect_to_self(request)
 		elif 'update_ticket' in request.POST:
 			form = UpdateTicketForm(request.POST, instance=self.get_ticket(pk))
