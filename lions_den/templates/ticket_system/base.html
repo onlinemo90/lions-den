@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+
+{% block extra_navbar_items %}
+	{% include 'utils/buttons/plus.html' with css_class='navbar-image mr-3' stroke='var(--colorBackground)' onclick="getModal('modal_new_ticket')" %}
+{% endblock %}
