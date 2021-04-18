@@ -42,10 +42,6 @@ class ZooUser(AbstractUser):
 	objects = ZooUserManager()
 	
 	def __str__(self):
-		return self.email
-	
-	@property
-	def name(self):
 		if self.first_name and self.last_name:
 			return f'{self.first_name} {self.last_name}'
 		elif self.first_name:
@@ -53,7 +49,7 @@ class ZooUser(AbstractUser):
 		elif self.last_name:
 			return self.last_name
 		return self.email
-	
+
 	@property
 	def allowed_zoos(self):
 		return Zoo.objects.all() if self.is_superuser else self.zoos.all()

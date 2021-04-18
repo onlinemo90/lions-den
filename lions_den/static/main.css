@@ -26,7 +26,7 @@ h1, h2, h3, h4, h5, h6, a, legend {
 	color: var(--colorPrimary);
 }
 
-p, label {
+p, label, pre {
 	color: var(--colorForeground);
 }
 
@@ -143,6 +143,27 @@ select:-webkit-autofill:focus {
 	border: 1px solid var(--colorAccent) !important;
 }
 
+div.border {
+	border: 1px solid var(--colorAccent) !important;
+}
+
+div.border-bottom {
+	border-bottom: 1px solid var(--colorAccent) !important;
+}
+
+div.card {
+	border-color: var(--colorAccent);
+}
+
+div.card-header {
+	background-color: var(--colorAccent) !important;
+	color: var(--colorForeground);
+}
+
+div.card-body {
+	background-color: var(--colorBackground) !important;
+	color: var(--colorForeground);
+}
 
 /* Custom-------------------------------------------------------------------------------------------------------------*/
 .page-header{
