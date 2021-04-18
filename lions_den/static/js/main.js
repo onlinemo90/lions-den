@@ -209,13 +209,25 @@ function updateOrderFields(){
 }
 
 function moveCategoryForm(formIndex, direction){
-	var currentField = 'id_form-' + formIndex + '-name'
-	var newField = 'id_form-' + (formIndex + direction) + '-name'
-	var currentValue = document.getElementById(currentField).value;
-	var newValue = document.getElementById(newField).value;
 
-	$('#' + currentField).val(newValue);
-	$('#' + newField).val(currentValue);
+
+	let form1Id = 'form_fields_slot_' + formIndex;
+	let form2Id = 'form_fields_slot_' + (formIndex + direction);
+
+	//Buffer values of the the 2 fields to be moved
+	var currentValueField = document.getElementById(form1Id).getElementsByClassName('textInput');
+	var newValueField = document.getElementById(form2Id).getElementsByClassName('textInput');
+	var currentValue = currentValueField[0].value;
+	var newValue = newValueField[0].value;
+
+	// Move forms in front-end
+	tmpForm1HTML = $('#' + form1Id).html();
+	$('#' + form1Id).html($('#' + form2Id).html());
+	$('#' + form2Id).html(tmpForm1HTML);
+
+	//Add buffered Values to moved forms
+	$(currentValueField).val(newValue);
+	$(newValueField).val(currentValue);
 
 	updateOrderFields();
 }
