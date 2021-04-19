@@ -10,16 +10,19 @@
 					<h1 class="title">{{ zoo.name }}</h1>
 				</td>
 				<td style="width:33.33%">
-					<button type="button" class="btn btn-warning" style="float:right"
-							{% if zoo.can_commit %}
-								onclick="getModal('modal_zoo_commit')"
-							{% else %}
-								data-toggle="tooltip" data-placement="top" title="
-									Cannot commit to the Zooverse app.
-									Please wait another {{ zoo.days_until_commit_allowed }} day{{ zoo.days_until_commit_allowed|pluralize:'s' }}.
-								"
-							{% endif %}
-					>Commit to ZooVerse</button>
+					<span style="float:right"
+						{% if not zoo.can_commit %}
+							data-toggle="tooltip" data-placement="top"
+							title="Cannot commit to the Zooverse app. Please wait another {{ zoo.days_until_commit_allowed }} day{{ zoo.days_until_commit_allowed|pluralize:'s' }}."
+						{% endif %}>
+						<button type="button" class="btn btn-warning"
+								{% if zoo.can_commit %}
+									onclick="getModal('modal_zoo_commit')"
+								{% else %}
+									disabled style="pointer-events:none;"
+								{% endif %}
+						>Commit to ZooVerse</button>
+					</span>
 				</td>
 			</tr>
 		</table>
