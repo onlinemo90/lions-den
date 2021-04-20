@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import ZooUser
@@ -17,7 +18,7 @@ class TicketForm(forms.ModelForm):
 		super().save(commit)
 
 
-class AssignTicketForm(forms.ModelForm):
+class TicketAssigneeForm(forms.ModelForm):
 	class Meta:
 		model = Ticket
 		fields = ('assignee',)
@@ -27,24 +28,44 @@ class AssignTicketForm(forms.ModelForm):
 		self.fields['assignee'] = forms.ModelChoiceField(queryset=ZooUser.objects.filter(is_staff=True))
 	
 	def save(self, commit=True):
+		super().save(commit=False)
+		if self.instance.status == Ticket.Status.UNASSIGNED and self.instance.assignee is not None:
+			self.instance.status = Ticket.Status.IN_ANALYSIS
 		super().save(commit)
-		if self.instance.action == Ticket.Actions.WAIT:
-			self.instance.action = Ticket.Actions.IN_ANALYSIS
-			self.instance.save()
 
 
-class UpdateTicketForm(forms.ModelForm):
+class TicketStatusForm(forms.ModelForm):
 	class Meta:
 		model = Ticket
-		fields = ('status', 'action')
+		fields = ('status',)
+	
+	def save(self, commit=True):
+		super().save(commit=False)
+		if self.instance.is_open() != Ticket.Status.is_open(self.initial['status']):
+			self.instance.closed_date = timezone.now() if not self.instance.is_open() else None
+		super().save(commit)
 
 
 class CommentForm(forms.ModelForm):
+	id = forms.CharField(widget=forms.HiddenInput, required=False)
 	class Meta:
 		model = Comment
-		fields = ('text',)
+		fields = ('id', 'text')
+		widgets = {
+			'text': forms.Textarea(attrs={'rows': 3}),
+		}
+		labels = {
+			'text': 'Comment'
+		}
 	
-	def save(self, ticket, creator, commit=True):
-		self.instance.ticket = ticket
-		self.instance.creator = creator
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		if self.data and self.data.get('id'): # to allow for editing comments
+			self.instance = self._meta.model.objects.filter(id=self.data.get('id')).get()
+			
+	def save(self, ticket=None, creator=None, commit=True):
+		if ticket:
+			self.instance.ticket = ticket
+		if creator:
+			self.instance.creator = creator
 		super().save(commit)

@@ -251,3 +251,19 @@ a.add-button:focus, a.add-button:hover {
 a.direction-button:focus, a.direction-button:hover {
 	color: var(--colorPrimaryDark);
 }
+
+a.edit-ticket-button {
+	color: var(--colorForeground);
+}
+
+a.edit-ticket-button:focus, a.edit-ticket-button:hover {
+	color: var(--colorPrimaryDark);
+}
+
+div.comment a.edit-ticket-button {
+	display: none;
+}
+
+div.comment:hover a.edit-ticket-button {
+	display: block;
+}

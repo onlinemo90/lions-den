@@ -8,8 +8,8 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView
 from django.views.generic.list import ListView
 
-from .models import Ticket
-from .forms import TicketForm, CommentForm, UpdateTicketForm, AssignTicketForm
+from .models import Ticket, Comment
+from .forms import TicketForm, CommentForm, TicketStatusForm, TicketAssigneeForm
 
 
 class BaseView(LoginRequiredMixin, View):
@@ -73,18 +73,19 @@ class TicketView(BaseView, DetailView):
 	def get_ticket(self, pk):
 		return Ticket.objects.filter(id=pk).get()
 	
+	def get(self, request, pk):
+		return render(
+			request=request,
+			template_name=self.template_name,
+			context={
+				'object': self.get_ticket(pk),
+				'comment_form': CommentForm(),
+				'comment_form_submit_btn_name': 'create_comment',
+			}
+		)
+	
 	def get_ajax_sub(self, request, pk):
-		if 'modal_new_comment' in request.GET:
-			return render(
-				request=request,
-				template_name='utils/modals/modal_form.html',
-				context={
-					'title': 'Add comment',
-					'form': CommentForm(),
-					'submit_btn_name': 'create_comment',
-				}
-			)
-		elif 'modal_edit_ticket' in request.GET:
+		if 'modal_edit_ticket' in request.GET:
 			return render(
 				request=request,
 				template_name='utils/modals/modal_form.html',
@@ -94,14 +95,14 @@ class TicketView(BaseView, DetailView):
 					'submit_btn_name': 'edit_ticket',
 				}
 			)
-		elif 'modal_update_ticket' in request.GET:
+		elif 'modal_ticket_status' in request.GET:
 			return render(
 				request=request,
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Update ticket',
-					'form': UpdateTicketForm(instance=self.get_ticket(pk)),
-					'submit_btn_name': 'update_ticket',
+					'form': TicketStatusForm(user=request.user, instance=self.get_ticket(pk)),
+					'submit_btn_name': 'update_ticket_status',
 				}
 			)
 		elif 'modal_assign_ticket' in request.GET:
@@ -110,29 +111,54 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Assign ticket',
-					'form': AssignTicketForm(instance=self.get_ticket(pk)),
+					'form': TicketAssigneeForm(instance=self.get_ticket(pk)),
 					'submit_btn_name': 'assign_ticket',
+				}
+			)
+		elif 'modal_new_comment' in request.GET:
+			return render(
+				request=request,
+				template_name='utils/modals/modal_form.html',
+				context={
+					'title': 'Add comment',
+					'form': CommentForm(),
+					'submit_btn_name': 'create_comment',
+				}
+			)
+		elif 'modal_edit_comment' in request.GET:
+			return render(
+				request=request,
+				template_name='utils/modals/modal_form.html',
+				context={
+					'title': 'Edit comment',
+					'form': CommentForm(instance=Comment.objects.filter(id=request.GET.get('id')).get()),
+					'submit_btn_name': 'edit_comment',
 				}
 			)
 	
 	def post_sub(self, request, pk):
-		if 'create_comment' in request.POST:
-			form = CommentForm(request.POST)
-			if form.is_valid():
-				form.save(ticket=self.get_ticket(pk), creator=request.user)
-				return self.redirect_to_self(request)
-		elif 'edit_ticket' in request.POST:
+		if 'edit_ticket' in request.POST:
 			form = TicketForm(request.POST, instance=self.get_ticket(pk))
 			if form.is_valid():
 				form.save()
 				return self.redirect_to_self(request)
-		elif 'update_ticket' in request.POST:
-			form = UpdateTicketForm(request.POST, instance=self.get_ticket(pk))
+		elif 'update_ticket_status' in request.POST:
+			form = TicketStatusForm(user=request.user, data=request.POST, instance=self.get_ticket(pk))
 			if form.is_valid():
 				form.save()
 				return self.redirect_to_self(request)
 		elif 'assign_ticket' in request.POST:
-			form = AssignTicketForm(request.POST, instance=self.get_ticket(pk))
+			form = TicketAssigneeForm(request.POST, instance=self.get_ticket(pk))
+			if form.is_valid():
+				form.save()
+				return self.redirect_to_self(request)
+		elif 'create_comment' in request.POST:
+			form = CommentForm(request.POST)
+			if form.is_valid():
+				form.save(ticket=self.get_ticket(pk), creator=request.user)
+				return self.redirect_to_self(request)
+		elif 'edit_comment' in request.POST:
+			form = CommentForm(request.POST)
 			if form.is_valid():
 				form.save()
 				return self.redirect_to_self(request)

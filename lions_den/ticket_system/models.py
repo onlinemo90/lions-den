@@ -6,36 +6,37 @@ from zoo_auth.models import ZooUser
 
 
 class Ticket(models.Model):
-	class Apps(models.TextChoices):
+	class App(models.TextChoices):
 		ZOOVERSE = 'ZV', _('Zooverse')
 		LIONS_DEN = 'LD', _("Lion's Den")
-
-	class Statuses(models.TextChoices):
-		OPEN = 'O', _('Open')
-		CLOSED = 'C', _('Closed')
 	
-	class Types(models.TextChoices):
+	class Status(models.TextChoices):
+		UNASSIGNED = 'U', _('Unassigned')
+		IN_ANALYSIS = 'A', _('In Analysis')
+		IN_DEVELOPMENT = 'D', _('In Development')
+		CANCELLED = 'CA', _('Cancelled')
+		REJECTED = 'R', _('Rejected')
+		COMPLETED = 'CO', _('Completed')
+		
+		@classmethod
+		def is_open(cls, status_str):
+			return status_str not in (cls.CANCELLED, cls.REJECTED, cls.COMPLETED)
+	
+	class Type(models.TextChoices):
 		BUG = 'B', _('Bug')
 		FEATURE = 'F', _('Feature Request')
 		IMPROVEMENT = 'I', _('Improvement Request')
 		MAINTENANCE = 'M', _('Maintenance')
 	
-	class Priorities(models.IntegerChoices):
+	class Priority(models.IntegerChoices):
 		TRIVIAL = 0, _('Trivial')
 		LOW = 1, _('Low')
 		MEDIUM = 2, _('Medium')
 		HIGH = 3, _('High')
 		CRITICAL = 4, _('Critical')
 	
-	class Actions(models.TextChoices):
-		WAIT = 'W', _('Awaiting assignment')
-		IN_ANALYSIS = 'A', _('In Analysis')
-		IN_DEVELOPMENT = 'D', _('In Development')
-		COMPLETED = 'C', _('Completed')
-		REJECTED = 'R', _('Rejected')
-	
 	id = models.AutoField(primary_key=True)
-	title = models.CharField(max_length=48)
+	title = models.CharField(max_length=128)
 	description = models.TextField()
 	reporter = models.ForeignKey(ZooUser, related_name='reported_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None)
 	assignee = models.ForeignKey(ZooUser, related_name='assigned_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None)
@@ -43,11 +44,10 @@ class Ticket(models.Model):
 	last_updated_date = models.DateTimeField(auto_now=True)
 	closed_date = models.DateTimeField(blank=True, null=True)
 
-	app = models.CharField(max_length=2, choices=Apps.choices, blank=False)
-	status = models.CharField(max_length=2, choices=Statuses.choices, default=Statuses.OPEN, blank=False)
-	type = models.CharField(max_length=2, choices=Types.choices, blank=False)
-	priority = models.IntegerField(choices=Priorities.choices, blank=False)
-	action = models.CharField(max_length=2, choices=Actions.choices, default=Actions.WAIT, blank=False)
+	app = models.CharField(max_length=2, choices=App.choices, blank=False)
+	status = models.CharField(max_length=2, choices=Status.choices, default=Status.UNASSIGNED, blank=False)
+	type = models.CharField(max_length=2, choices=Type.choices, blank=False)
+	priority = models.IntegerField(choices=Priority.choices, blank=False)
 	# TODO: add watchers
 	# TODO: add fix versions
 	
@@ -55,7 +55,7 @@ class Ticket(models.Model):
 		return str(self.id) + ' - ' + self.title
 
 	def is_open(self):
-		return self.status == 'O'
+		return self.Status.is_open(self.status)
 
 
 class Comment(models.Model):
