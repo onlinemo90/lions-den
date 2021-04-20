@@ -48,14 +48,26 @@ class Ticket(models.Model):
 	status = models.CharField(max_length=2, choices=Status.choices, default=Status.UNASSIGNED, blank=False)
 	type = models.CharField(max_length=2, choices=Type.choices, blank=False)
 	priority = models.IntegerField(choices=Priority.choices, blank=False)
-	# TODO: add watchers
-	# TODO: add fix versions
+
+	watchers = models.ManyToManyField(to=ZooUser, related_name='watched_tickets', blank=True, default=None)
 	
 	def __str__(self):
 		return str(self.id) + ' - ' + self.title
 
 	def is_open(self):
 		return self.Status.is_open(self.status)
+
+	def get_status_colour(self):
+		if self.status == self.Status.UNASSIGNED:
+			return'var(--info)'
+		elif self.status == self.Status.IN_ANALYSIS:
+			return 'var(--cyan)'
+		elif self.status == self.Status.IN_DEVELOPMENT:
+			return 'var(--primary)'
+		elif self.status in (self.Status.CANCELLED, self.Status.REJECTED):
+			return 'var(--danger)'
+		elif self.status == self.Status.COMPLETED:
+			return 'var(--success)'
 
 
 class Comment(models.Model):

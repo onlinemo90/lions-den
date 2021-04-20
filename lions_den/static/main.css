@@ -112,8 +112,12 @@ select:-webkit-autofill:focus {
 	flex-direction: row !important;
 }
 
-.navbar-brand {
+.navbar-brand, .nav-link {
 	color: var(--colorBackground) !important;
+}
+
+.navbar-brand:hover, .nav-link:hover {
+	color: var(--colorContrast) !important;
 }
 
 .dropdown-menu {
@@ -153,16 +157,6 @@ div.border-bottom {
 
 div.card {
 	border-color: var(--colorAccent);
-}
-
-div.card-header {
-	background-color: var(--colorAccent) !important;
-	color: var(--colorForeground);
-}
-
-div.card-body {
-	background-color: var(--colorBackground) !important;
-	color: var(--colorForeground);
 }
 
 /* Custom-------------------------------------------------------------------------------------------------------------*/
@@ -260,10 +254,29 @@ a.edit-ticket-button:focus, a.edit-ticket-button:hover {
 	color: var(--colorPrimaryDark);
 }
 
+div.comment {
+	border: 1px solid var(--colorAccent);
+	border-radius: .25rem;
+	overflow: hidden;
+}
+
 div.comment a.edit-ticket-button {
 	display: none;
 }
 
 div.comment:hover a.edit-ticket-button {
 	display: block;
+}
+
+div.comment-header {
+	background-color: var(--colorAccent) !important;
+	color: var(--colorForeground);
+	padding: .75rem 1.25rem;
+    margin-bottom: 0;
+}
+
+div.comment-body {
+	background-color: var(--colorBackground);
+	color: var(--colorForeground);
+	padding: .75rem 1.25rem;
 }

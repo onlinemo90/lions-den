@@ -340,3 +340,27 @@ function addCategoryForm(){
 	$('#id_form-TOTAL_FORMS').val(numForms + 1);
 }
 //----------------------------------------------------------------------------------------------------------------------
+// Ticket Page----------------------------------------------------------------------------------------------------------
+function setUserWatcherStatus(addAsWatcher){
+	formData = new FormData();
+	formData.append('set_watcher_status', addAsWatcher);
+	$.ajax({
+		type: 'POST',
+		url: document.URL,
+		data: formData,
+		processData: false,
+		contentType: false,
+		success: function(response){
+			buttonSelector = $('#add_as_watcher_btn');
+			iconSelector = $('svg', buttonSelector);
+			if (response['user_is_watcher']){
+				iconSelector.attr({'stroke': 'var(--colorPrimary)'});
+			} else {
+				iconSelector.attr({'stroke': 'var(--colorForeground)'});
+			}
+			// Hide tooltip
+			buttonSelector.attr({'data-original-title': ''});
+		},
+	});
+}
+//----------------------------------------------------------------------------------------------------------------------

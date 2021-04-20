@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -79,6 +79,7 @@ class TicketView(BaseView, DetailView):
 			template_name=self.template_name,
 			context={
 				'object': self.get_ticket(pk),
+				'user_is_watcher': (request.user in self.get_ticket(pk).watchers.all()),
 				'comment_form': CommentForm(),
 				'comment_form_submit_btn_name': 'create_comment',
 			}
@@ -101,7 +102,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Update ticket',
-					'form': TicketStatusForm(user=request.user, instance=self.get_ticket(pk)),
+					'form': TicketStatusForm(instance=self.get_ticket(pk), user=request.user),
 					'submit_btn_name': 'update_ticket_status',
 				}
 			)
@@ -143,7 +144,7 @@ class TicketView(BaseView, DetailView):
 				form.save()
 				return self.redirect_to_self(request)
 		elif 'update_ticket_status' in request.POST:
-			form = TicketStatusForm(user=request.user, data=request.POST, instance=self.get_ticket(pk))
+			form = TicketStatusForm(data=request.POST, instance=self.get_ticket(pk), user=request.user)
 			if form.is_valid():
 				form.save()
 				return self.redirect_to_self(request)
@@ -162,3 +163,14 @@ class TicketView(BaseView, DetailView):
 			if form.is_valid():
 				form.save()
 				return self.redirect_to_self(request)
+
+	def post_ajax(self, request, pk):
+		if 'set_watcher_status' in request.POST:
+			# tickets are added to user's watched_tickets and not the other way around to prevent updating the ticket
+			ticket = self.get_ticket(pk)
+			if request.POST.get('set_watcher_status') and ticket not in request.user.watched_tickets.all():
+				request.user.watched_tickets.add(ticket)
+			elif ticket in request.user.watched_tickets.all():
+				request.user.watched_tickets.remove(ticket)
+			request.user.save()
+			return JsonResponse({'user_is_watcher': (request.user in ticket.watchers.all())})

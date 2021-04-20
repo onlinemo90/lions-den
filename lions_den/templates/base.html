@@ -29,6 +29,30 @@
 					Lion's Den
 				</a>
 				
+				{% if request.user.is_authenticated %}
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						<ul class="navbar-nav mr-auto">
+							{% if request.user.allowed_zoos.count == 1 %}
+								<li class="nav-item active">
+									<a class="nav-link" href="{% url 'zoo_index' %}">Zooverse Editor</a>
+								</li>
+							{% else %}
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Zooverse Editor</a>
+									<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+										{% for zoo in request.user.allowed_zoos %}
+											<a class="dropdown-item" href="{% url 'zoo' zoo_id=zoo.id %}">{{ zoo.name }}</a>
+										{% endfor %}
+									</div>
+								</li>
+							{% endif %}
+							<li class="nav-item">
+								<a class="nav-link" href="{% url 'ticket_list' %}">Bug Tracker</a>
+							</li>
+						</ul>
+					</div>
+				{% endif %}
+				
 				<ul class="navbar-nav ml-auto">
 					{% block extra_navbar_items %}{% endblock %}
 					<li class="nav-item dropdown">

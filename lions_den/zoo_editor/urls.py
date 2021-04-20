@@ -3,7 +3,7 @@ from .views import ZoosIndexView, ZooHomeView, SpeciesPageView, IndividualPageVi
 
 urlpatterns = [
 	path('', ZoosIndexView.as_view(), name='zoo_index'),
-	path('<str:zoo_id>/', ZooHomeView.as_view()),
+	path('<str:zoo_id>/', ZooHomeView.as_view(), name='zoo'),
 	
 	path('<str:zoo_id>/species/', SpeciesListView.as_view(), name='species_list'),
 	path('<str:zoo_id>/species/<str:subject_id>', SpeciesPageView.as_view()),
