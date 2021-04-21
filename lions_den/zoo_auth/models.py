@@ -61,11 +61,11 @@ class ZooUser(AbstractUser):
 		return self.email
 	
 	@property
-	def allowed_zoos(self):
+	def zoos(self):
 		return Zoo.objects.all() if self.is_superuser else self.zoos.all()
 	
 	def has_access(self, zoo_id):
-		return any(zoo.id==zoo_id for zoo in self.allowed_zoos)
+		return any(zoo.id==zoo_id for zoo in self.zoos)
 	
 
 class Zoo(models.Model):
@@ -77,7 +77,7 @@ class Zoo(models.Model):
 	date_joined = models.DateField(auto_now_add=True)
 	last_commit_date = models.DateField(blank=True)
 	
-	users = models.ManyToManyField(ZooUser, related_name='zoos')
+	users = models.ManyToManyField(ZooUser, related_name='_zoos')
 	
 	def __str__(self):
 		return self.name

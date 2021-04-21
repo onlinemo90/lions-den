@@ -8,7 +8,7 @@ from .models import Zoo, ZooUser
 
 
 class ZooUserBaseForm(forms.ModelForm):
-	zoos = forms.ModelMultipleChoiceField(
+	_zoos = forms.ModelMultipleChoiceField(
 		queryset=Zoo.objects.all(),
 		required=False,
 		widget=FilteredSelectMultiple(
@@ -19,13 +19,13 @@ class ZooUserBaseForm(forms.ModelForm):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		if self.instance and self.instance.pk:
-			self.fields['zoos'].initial = self.instance.zoos.all()
+			self.fields['_zoos'].initial = self.instance._zoos.all()
 	
 	def save(self, commit=True):
 		user = super().save(commit=False)
 		user.save()
 		if user.pk:
-			user.zoos.set(self.cleaned_data['zoos'])
+			user._zoos.set(self.cleaned_data['_zoos'])
 			self.save_m2m()
 		return user
 
@@ -33,13 +33,13 @@ class ZooUserBaseForm(forms.ModelForm):
 class ZooUserChangeForm(ZooUserBaseForm):
 	class Meta:
 		model = ZooUser
-		fields=('zoos',)
+		fields=('_zoos',)
 
 
 class ZooUserCreationForm(UserCreationForm, ZooUserBaseForm):
 	class Meta:
 		model = ZooUser
-		fields=('email', 'password1', 'password2', 'zoos')
+		fields=('email', 'password1', 'password2', '_zoos')
 
 
 @admin.register(ZooUser)
@@ -53,17 +53,17 @@ class ZoomUserAdmin(UserAdmin):
 		(None, {'fields': ('email',)}),
 		(_('Personal info'), {'fields': ('first_name', 'last_name')}),
 		(_('Permissions'), {
-			'fields': ('is_active', 'is_superuser', 'zoos', 'groups', 'user_permissions'),
+			'fields': ('is_active', 'is_superuser', '_zoos', 'groups', 'user_permissions'),
 		}),
 		(_('Important dates'), {'fields': ('last_login', 'date_joined')}),
 	)
 	add_fieldsets = (
 		(None, {
 			'classes': ('wide',),
-			'fields': ('email', 'password1', 'password2', 'zoos')}
+			'fields': ('email', 'password1', 'password2', '_zoos')}
 		 ),
 	)
-	filter_horizontal = ('groups', 'user_permissions', 'zoos')
+	filter_horizontal = ('groups', 'user_permissions', '_zoos')
 	search_fields = ('email',)
 	ordering = ('email',)
 
