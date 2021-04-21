@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class ModelEditorConfig(AppConfig):
+class ZooEditorConfig(AppConfig):
     name = 'zoo_editor'

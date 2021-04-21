@@ -29,9 +29,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-	'ticket_system.apps.TicketSystemConfig',
 	'zoo_auth.apps.ZooAuthConfig',
-	'zoo_editor.apps.ModelEditorConfig',
+	'zoo_editor.apps.ZooEditorConfig',
+	'ticket_system.apps.TicketSystemConfig',
 	'crispy_forms',
 	'django.forms',
 	'django.contrib.admin',
