@@ -36,27 +36,32 @@ class Ticket(models.Model):
 		CRITICAL = 4, _('Critical')
 	
 	id = models.AutoField(primary_key=True)
-	title = models.CharField(max_length=128)
-	description = models.TextField()
-	reporter = models.ForeignKey(ZooUser, related_name='reported_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None)
-	assignee = models.ForeignKey(ZooUser, related_name='assigned_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None)
+	title = models.CharField(max_length=128, verbose_name='Title')
+	description = models.TextField(verbose_name='Description')
+	
+	app = models.CharField(max_length=2, choices=App.choices, blank=False, verbose_name='App')
+	status = models.CharField(max_length=2, choices=Status.choices, default=Status.UNASSIGNED, blank=False, verbose_name='Status')
+	type = models.CharField(max_length=2, choices=Type.choices, blank=False, verbose_name='Type')
+	priority = models.IntegerField(choices=Priority.choices, blank=False, verbose_name='Priority')
+	
+	reporter = models.ForeignKey(ZooUser, related_name='reported_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Reporter')
+	assignee = models.ForeignKey(ZooUser, related_name='assigned_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Assignee')
+	last_updater = models.ForeignKey(ZooUser, on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Last Updater')
+	watchers = models.ManyToManyField(ZooUser, related_name='watched_tickets', blank=True, default=None)
+	
 	created_date = models.DateTimeField(auto_now_add=True)
 	last_updated_date = models.DateTimeField(auto_now=True)
 	closed_date = models.DateTimeField(blank=True, null=True)
-
-	app = models.CharField(max_length=2, choices=App.choices, blank=False)
-	status = models.CharField(max_length=2, choices=Status.choices, default=Status.UNASSIGNED, blank=False)
-	type = models.CharField(max_length=2, choices=Type.choices, blank=False)
-	priority = models.IntegerField(choices=Priority.choices, blank=False)
-
-	watchers = models.ManyToManyField(to=ZooUser, related_name='watched_tickets', blank=True, default=None)
+	
+	# Define the fields that, when changed, will trigger notifications
+	notification_fields = [title, description, app, status, type, priority, assignee]
 	
 	def __str__(self):
-		return str(self.id) + ' - ' + self.title
-
+		return f'#{self.id} - {self.title}'
+	
 	def is_open(self):
 		return self.Status.is_open(self.status)
-
+	
 	def get_status_colour(self):
 		if self.status == self.Status.UNASSIGNED:
 			return'var(--info)'
@@ -74,10 +79,12 @@ class Comment(models.Model):
 	id = models.AutoField(primary_key=True)
 	ticket = models.ForeignKey(Ticket, related_name='comments', on_delete=models.CASCADE)
 	creator = models.ForeignKey(ZooUser, related_name='comments', on_delete=models.PROTECT)
-	text = models.TextField()
+	text = models.TextField(verbose_name='Contents')
 	added_date = models.DateTimeField(auto_now_add=True)
 	last_updated_date = models.DateTimeField(auto_now=True)
-	
+
+	notification_fields = [text]
+
 	def __str__(self):
 		return self.text
 

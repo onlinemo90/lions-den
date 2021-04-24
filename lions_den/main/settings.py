@@ -146,6 +146,7 @@ EMAIL_PORT = 465
 EMAIL_HOST = 'mail.zooverse.org'
 EMAIL_HOST_USER = 'contact@zooverse.org'
 EMAIL_HOST_PASSWORD =  'ZSL@ldn2020'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Allow additional template definitions
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'

@@ -7,18 +7,28 @@ from zoo_auth.models import ZooUser
 from .models import Ticket, Comment
 
 
-class TicketForm(forms.ModelForm):
-	class Meta:
-		model = Ticket
-		fields = ('app', 'title', 'type', 'priority', 'description')
-
-	def save(self, reporter=None, commit=True):
-		if reporter:
-			self.instance.reporter = reporter
+class BaseTicketForm(forms.ModelForm):
+	def save(self, updater, commit=True):
+		self.instance.last_updater = updater
 		super().save(commit)
 
 
-class TicketAssigneeForm(forms.ModelForm):
+class TicketForm(BaseTicketForm):
+	class Meta:
+		model = Ticket
+		fields = ('app', 'title', 'type', 'priority', 'description')
+	
+	def save(self, updater, commit=True):
+		if not self.instance.pk: # new ticket
+			self.instance.reporter = updater
+			super().save(updater, commit)
+			self.instance.watchers.add(updater)
+			self.instance.save()
+		else:
+			super().save(updater, commit)
+
+
+class TicketAssigneeForm(BaseTicketForm):
 	class Meta:
 		model = Ticket
 		fields = ('assignee',)
@@ -27,23 +37,23 @@ class TicketAssigneeForm(forms.ModelForm):
 		super().__init__(*args, **kwargs)
 		self.fields['assignee'] = forms.ModelChoiceField(queryset=ZooUser.objects.filter(is_staff=True))
 	
-	def save(self, commit=True):
-		super().save(commit=False)
+	def save(self, updater, commit=True):
+		super().save(updater=updater, commit=False)
 		if self.instance.status == Ticket.Status.UNASSIGNED and self.instance.assignee is not None:
 			self.instance.status = Ticket.Status.IN_ANALYSIS
-		super().save(commit)
+		super().save(updater=updater, commit=commit)
 
 
-class TicketStatusForm(forms.ModelForm):
+class TicketStatusForm(BaseTicketForm):
 	class Meta:
 		model = Ticket
 		fields = ('status',)
 	
-	def save(self, commit=True):
-		super().save(commit=False)
+	def save(self, updater, commit=True):
+		super().save(updater=updater, commit=False)
 		if self.instance.is_open() != Ticket.Status.is_open(self.initial['status']):
 			self.instance.closed_date = timezone.now() if not self.instance.is_open() else None
-		super().save(commit)
+		super().save(updater=updater, commit=commit)
 
 
 class CommentForm(forms.ModelForm):
@@ -69,3 +79,10 @@ class CommentForm(forms.ModelForm):
 		if creator:
 			self.instance.creator = creator
 		super().save(commit)
+		
+		# Add comment creator as ticket watcher
+		self.instance.ticket.watchers.add(self.instance.creator)
+		
+		# Update last updater and last updated date on host ticket
+		self.instance.ticket.last_updater = self.instance.creator
+		self.instance.ticket.save()

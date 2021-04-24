@@ -1,9 +1,11 @@
 import datetime
 
-from django.conf import settings
+import django.conf
+import html2text
+
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 
@@ -31,6 +33,11 @@ class ZooUserManager(BaseUserManager):
 		return self.create_user(email, password, **extra_fields)
 
 
+class ZooAdminUserManager(BaseUserManager):
+	def get_queryset(self):
+		return super().get_queryset().filter(is_staff=True)
+
+
 class ZooUser(AbstractUser):
 	username = None
 	email = models.EmailField(_('email address'), unique=True)
@@ -40,18 +47,9 @@ class ZooUser(AbstractUser):
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = []
 	objects = ZooUserManager()
+	admins = ZooAdminUserManager()
 	
 	def __str__(self):
-		if self.first_name and self.last_name:
-			return f'{self.first_name} {self.last_name}'
-		elif self.first_name:
-			return self.first_name
-		elif self.last_name:
-			return self.last_name
-		return self.email
-
-	@property
-	def name(self):
 		if self.first_name and self.last_name:
 			return f'{self.first_name} {self.last_name}'
 		elif self.first_name:
@@ -62,11 +60,57 @@ class ZooUser(AbstractUser):
 	
 	@property
 	def zoos(self):
-		return Zoo.objects.all() if self.is_superuser else self.zoos.all()
+		return Zoo.objects.all() if self.is_superuser else self._zoos.all()
 	
 	def has_access(self, zoo_id):
 		return any(zoo.id==zoo_id for zoo in self.zoos)
 	
+	def notify(self, subject, text_message=None, html_message=None):
+		type(self).notify_users([self], subject, text_message, html_message, notify_admins=False)
+	
+	@classmethod
+	def notify_users(cls, users, subject, text_message=None, html_message=None, notify_separately=True, notify_admins=True):
+		"""
+		Sends an email to the relevant users
+		:param users: queryset of users meant to be notified
+		:param subject: subject line of email
+		:param text_message: text version contents of the email. Will be auto-generated from html_message if not present
+		:param html_message: HTML contents of the email
+		:param notify_separately: if False, a single email will be sent with all users in To field, with admins in BCC
+		:param notify_admins: if True, admins will be notified even if not in users
+		:return: None
+		"""
+		
+		if not text_message and not html_message:
+			raise ValueError('Notification email cannot be sent without content')
+		if not text_message:
+			text_message = html2text.html2text(html_message)
+		
+		admins = ZooUser.admins.all()
+		bcc_users = []
+		
+		if notify_admins:
+			users = users.difference(admins)
+		if notify_separately:
+			mailing_lists = [(user,) for user in users]
+			if notify_admins:
+				mailing_lists.append(admins)
+		else:
+			mailing_lists = [users]
+			if notify_admins:
+				bcc_users = admins
+		
+		for mailing_list in mailing_lists:
+			email_message = EmailMultiAlternatives(
+				subject=subject,
+				body=text_message,
+				to=[user.email for user in mailing_list],
+				bcc=[user.email for user in bcc_users],
+			)
+			if html_message:
+				email_message.attach_alternative(html_message, 'text/html')
+			email_message.send(fail_silently=True)
+
 
 class Zoo(models.Model):
 	_id = models.AutoField(primary_key=True)
@@ -91,16 +135,14 @@ class Zoo(models.Model):
 		else:
 			return 0
 	
-	def commit_to_zooverse(self, user):
+	def commit_to_zooverse(self, user): # TODO: Change from using text to using HTML
 		if self.can_commit():
-			# Send notification email
-			send_mail(
-				subject=f'Request for commit - {self.name}',
-				message=f'Commit Request received:\n\tZoo name:\t{self.name}\n\tZoo ID:\t{self.id}\n\tUser:\t{user.email}',
-				from_email=settings.EMAIL_HOST_USER,
-				recipient_list=['pedro.ferreira@zooverse.org', 'moritz.fritzsche@zooverse.org'],
-				fail_silently=False,
-			)
+			for admin_user in ZooUser.admins.all():
+				admin_user.notify(
+					subject=f'Request for commit - {self.name}',
+					text_message=f'Commit Request received:\n\tZoo name:\t{self.name}\n\tZoo ID:\t{self.id}\n\tUser:\t{user.email}',
+					html_message=None
+				)
 			self.last_commit_date = datetime.date.today()
 			self.save()
 		else:

@@ -50,7 +50,7 @@ class BaseView(LoginRequiredMixin, View):
 		if 'create_ticket' in request.POST:
 			form = TicketForm(request.POST)
 			if form.is_valid():
-				form.save(reporter=request.user)
+				form.save(updater=request.user)
 				return redirect(to=reverse('ticket_view', kwargs={'pk': form.instance.id}))
 		return self.post_sub(request, *args, **kwargs)
 	
@@ -102,7 +102,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Update ticket',
-					'form': TicketStatusForm(instance=self.get_ticket(pk), user=request.user),
+					'form': TicketStatusForm(instance=self.get_ticket(pk)),
 					'submit_btn_name': 'update_ticket_status',
 				}
 			)
@@ -141,17 +141,17 @@ class TicketView(BaseView, DetailView):
 		if 'edit_ticket' in request.POST:
 			form = TicketForm(request.POST, instance=self.get_ticket(pk))
 			if form.is_valid():
-				form.save()
+				form.save(request.user)
 				return self.redirect_to_self(request)
 		elif 'update_ticket_status' in request.POST:
-			form = TicketStatusForm(data=request.POST, instance=self.get_ticket(pk), user=request.user)
+			form = TicketStatusForm(request.POST, instance=self.get_ticket(pk))
 			if form.is_valid():
-				form.save()
+				form.save(request.user)
 				return self.redirect_to_self(request)
 		elif 'assign_ticket' in request.POST:
 			form = TicketAssigneeForm(request.POST, instance=self.get_ticket(pk))
 			if form.is_valid():
-				form.save()
+				form.save(request.user)
 				return self.redirect_to_self(request)
 		elif 'create_comment' in request.POST:
 			form = CommentForm(request.POST)

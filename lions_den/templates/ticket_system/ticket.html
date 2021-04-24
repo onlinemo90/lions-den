@@ -6,7 +6,7 @@
 	<div class="row shadow-lg">
 		<div class="col-9 border">
 			<div class="my-2">
-				<div class="float-left"><h2>#{{ object.id }} - {{ object.title }}</h2></div>
+				<div class="float-left"><h2>{{ object }}</h2></div>
 				<div class="float-right">
 					<div class="row">
 						<div class="col px-0 mx-1">
@@ -54,6 +54,10 @@
 				<div class="container">
 					<div class="float-left"><p><b>Created by:</b></p></div>
 					<div class="float-right"><p>{{ object.reporter }}</p></div>
+					<div class="clearfix"></div>
+					
+					<div class="float-left"><p><b>Last updated by:</b></p></div>
+					<div class="float-right"><p>{{ object.last_updater }}</p></div>
 					<div class="clearfix"></div>
 					
 					<div class="float-left"><p><b>{% if object.assignee %}Assigned to:{% else %}Unassigned{% endif %}</b></p></div>
