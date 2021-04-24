@@ -1,10 +1,9 @@
 import datetime
-
-import django.conf
 import html2text
 
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
+from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
@@ -110,6 +109,16 @@ class ZooUser(AbstractUser):
 			if html_message:
 				email_message.attach_alternative(html_message, 'text/html')
 			email_message.send(fail_silently=True)
+	
+	@classmethod
+	def notify_admins(cls, subject, text_message=None, html_message=None):
+		cls.notify_users(
+			users=cls.objects.none(),
+			subject=subject,
+			text_message=text_message,
+			html_message=html_message,
+			notify_admins=True
+		)
 
 
 class Zoo(models.Model):
@@ -135,14 +144,15 @@ class Zoo(models.Model):
 		else:
 			return 0
 	
-	def commit_to_zooverse(self, user): # TODO: Change from using text to using HTML
+	def commit_to_zooverse(self, user):
 		if self.can_commit():
-			for admin_user in ZooUser.admins.all():
-				admin_user.notify(
-					subject=f'Request for commit - {self.name}',
-					text_message=f'Commit Request received:\n\tZoo name:\t{self.name}\n\tZoo ID:\t{self.id}\n\tUser:\t{user.email}',
-					html_message=None
+			ZooUser.notify_admins(
+				subject=f'Request for commit - {self.name}',
+				html_message=render_to_string(
+					'zoo_auth/emails/zoo_commit.html',
+					{ 'zoo': self, 'user': user}
 				)
+			)
 			self.last_commit_date = datetime.date.today()
 			self.save()
 		else:
