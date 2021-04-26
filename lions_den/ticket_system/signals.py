@@ -29,10 +29,10 @@ def notify_ticket_changes(sender, instance, **kwargs):
 		old_ticket = sender.objects.get(pk=instance.pk)
 	except sender.DoesNotExist:
 		ZooUser.notify_users(
-			users=instance.watchers.all(),
-			subject=f'{instance.reporter} created a ticket: {instance}',
+			users=ZooUser.objects.filter(id=instance.reporter.id),
+			subject=f'{instance.reporter} created a ticket: {instance.title}',
 			html_message=render_to_string(
-				'ticket_system/notification_email.html',
+				'ticket_system/emails/notification.html',
 				{'context': get_instance_changes(instance)}
 			)
 		)
@@ -41,9 +41,9 @@ def notify_ticket_changes(sender, instance, **kwargs):
 		if changes:
 			ZooUser.notify_users(
 				users=instance.watchers.all(),
-				subject=f'{instance.last_updater} edited ticket: {instance}',
+				subject=f'{instance.last_updater} edited ticket: {instance.title}',
 				html_message=render_to_string(
-					'ticket_system/notification_email.html',
+					'ticket_system/emails/notification.html',
 					{'context': changes, 'edit_instance': True}
 				)
 			)
@@ -57,7 +57,7 @@ def notify_comment_changes(sender, instance, **kwargs):
 			users=instance.ticket.watchers.all(),
 			subject=f'{instance.creator} added a comment on ticket: {instance.ticket}',
 			html_message=render_to_string(
-				'ticket_system/notification_email.html',
+				'ticket_system/emails/notification.html',
 				{'context': get_instance_changes(instance)}
 			)
 		)
@@ -68,7 +68,7 @@ def notify_comment_changes(sender, instance, **kwargs):
 				users=instance.ticket.watchers.all(),
 				subject=f'{instance.creator} edited a comment in ticket: {instance.ticket}',
 				html_message=render_to_string(
-					'ticket_system/notification_email.html',
+					'ticket_system/emails/notification.html',
 					{'context': changes, 'edit_instance': True}
 				)
 			)
