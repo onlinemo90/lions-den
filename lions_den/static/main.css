@@ -155,8 +155,12 @@ div.border-bottom {
 	border-bottom: 1px solid var(--colorAccent) !important;
 }
 
-div.card {
-	border-color: var(--colorAccent);
+.table-bordered td, .table-bordered th {
+	border: 1px solid var(--colorAccent) !important;
+}
+
+.table {
+	color: var(--colorForeground) !important;
 }
 
 /* Custom-------------------------------------------------------------------------------------------------------------*/

@@ -4,7 +4,7 @@ from django.utils import timezone
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import ZooUser
 
-from .models import Ticket, Comment
+from .models import Ticket, Comment, TicketAttachment
 
 
 class BaseTicketForm(forms.ModelForm):
@@ -86,3 +86,15 @@ class CommentForm(forms.ModelForm):
 		# Update last updater and last updated date on host ticket
 		self.instance.ticket.last_updater = self.instance.creator
 		self.instance.ticket.save()
+
+
+class TicketAttachmentForm(forms.ModelForm):
+	class Meta:
+		model = TicketAttachment
+		fields = ('file',)
+	
+	def save(self, ticket, uploader, commit=True):
+		self.instance.name = self.instance.file.file.name
+		self.instance.ticket = ticket
+		self.instance.uploader = uploader
+		super().save(commit)

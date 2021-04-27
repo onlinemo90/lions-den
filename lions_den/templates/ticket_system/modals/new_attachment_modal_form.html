@@ -1,0 +1,7 @@
+{% extends 'utils/modals/modal_form.html' %}
+{% load crispy_forms_tags %}
+
+{% block form_fields %}
+	{{ attachment_form|crispy }}
+	{{ comment_form|crispy }}
+{% endblock %}

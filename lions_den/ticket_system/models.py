@@ -89,4 +89,12 @@ class Comment(models.Model):
 		return self.text
 
 
-# TODO: Add release versions
+class TicketAttachment(models.Model):
+	ticket = models.ForeignKey(Ticket, related_name='attachments', on_delete=models.CASCADE)
+	name = models.CharField(max_length=128, blank=False)
+	file = models.FileField(blank=False)
+	uploader = models.ForeignKey(ZooUser, related_name='attachments', on_delete=models.PROTECT)
+	uploaded_date = models.DateTimeField(auto_now_add=True)
+	
+	def __str__(self):
+		return self.name

@@ -9,7 +9,7 @@ from django.views.generic import DetailView
 from django.views.generic.list import ListView
 
 from .models import Ticket, Comment
-from .forms import TicketForm, CommentForm, TicketStatusForm, TicketAssigneeForm
+from .forms import TicketForm, CommentForm, TicketStatusForm, TicketAssigneeForm, TicketAttachmentForm
 
 
 class BaseView(LoginRequiredMixin, View):
@@ -136,6 +136,17 @@ class TicketView(BaseView, DetailView):
 					'submit_btn_name': 'edit_comment',
 				}
 			)
+		elif 'modal_new_attachment' in request.GET:
+			return render(
+				request=request,
+				template_name='ticket_system/modals/new_attachment_modal_form.html',
+				context={
+					'title': 'Add attachment',
+					'comment_form': CommentForm(prefix='comment'),
+					'attachment_form': TicketAttachmentForm(prefix='attachment'),
+					'submit_btn_name': 'add_attachment',
+				}
+			)
 	
 	def post_sub(self, request, pk):
 		if 'edit_ticket' in request.POST:
@@ -162,6 +173,13 @@ class TicketView(BaseView, DetailView):
 			form = CommentForm(request.POST)
 			if form.is_valid():
 				form.save()
+				return self.redirect_to_self(request)
+		elif 'add_attachment' in request.POST:
+			comment_form = CommentForm(request.POST, prefix='comment')
+			attachment_form = TicketAttachmentForm(request.POST, request.FILES, prefix='attachment')
+			if comment_form.is_valid() and attachment_form.is_valid():
+				comment_form.save(ticket=self.get_ticket(pk), creator=request.user)
+				attachment_form.save(ticket=self.get_ticket(pk), uploader=request.user)
 				return self.redirect_to_self(request)
 
 	def post_ajax(self, request, pk):
