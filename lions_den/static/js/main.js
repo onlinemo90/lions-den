@@ -213,12 +213,12 @@ function moveCategoryForm(formIndex, direction){
 	let form2Selector = '#form_fields_slot_' + (formIndex + direction);
 
 	// Buffer values of the 2 fields to be moved
-	formInputSelector = "input[type='text'][id^='id_form-'][id$='-name']"
-	form1OldValue = $(formInputSelector, $(form1Selector)).val();
-	form2OldValue = $(formInputSelector, $(form2Selector)).val();
+	let formInputSelector = "input[type='text'][id^='id_form-'][id$='-name']"
+	let form1OldValue = $(formInputSelector, $(form1Selector)).val();
+	let form2OldValue = $(formInputSelector, $(form2Selector)).val();
 
 	// Move forms in front-end
-	tmpForm1HTML = $(form1Selector).html();
+	let tmpForm1HTML = $(form1Selector).html();
 	$(form1Selector).html($(form2Selector).html());
 	$(form2Selector).html(tmpForm1HTML);
 
