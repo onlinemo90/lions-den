@@ -32,20 +32,35 @@
 				{% if request.user.is_authenticated %}
 					<div class="collapse navbar-collapse" id="navbarSupportedContent">
 						<ul class="navbar-nav mr-auto">
-							{% if request.user.zoos.count == 1 %}
-								<li class="nav-item active">
-									<a class="nav-link" href="{% url 'zoo_index' %}">Zooverse Editor</a>
-								</li>
-							{% else %}
-								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Zooverse Editor</a>
-									<div class="dropdown-menu" aria-labelledby="navbarDropdown">
+							<li class="nav-item active">
+								<div class="btn-group">
+									<a class="nav-link" href="{% url 'zoo_index' %}" style="padding-right:0">Zooverse Editor</a>
+									<a class="nav-link dropdown-toggle" href="#" id="id_zoos_navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="padding-left:0">&nbsp;</a>
+									<ul class="dropdown-menu" aria-labelledby="id_zoos_navbarDropdown">
 										{% for zoo in request.user.zoos %}
-											<a class="dropdown-item" href="{% url 'zoo' zoo_id=zoo.id %}">{{ zoo.name }}</a>
+											{% if request.user.zoos.count != 1 %}
+												<li class="dropdown-submenu">
+													<a class="dropdown-item dropdown-toggle" href="{% url 'zoo' zoo_id=zoo.id %}">{{ zoo.name }}</a>
+													<div class="dropdown-menu">
+														<a class="dropdown-item" href="{% url 'species_list' zoo_id=zoo.id %}">Species</a>
+														<a class="dropdown-item" href="{% url 'individuals_list' zoo_id=zoo.id %}">Individuals</a>
+														<a class="dropdown-item" href="{% url 'groups_list' zoo_id=zoo.id %}">Groups</a>
+														<a class="dropdown-item" href="{% url 'attribute_categories_list' zoo_id=zoo.id %}">Attribute Categories</a>
+													</div>
+												</li>
+											{% else %}
+												<li><a class="dropdown-item" href="{% url 'species_list' zoo_id=zoo.id %}">Species</a></li>
+												<li><a class="dropdown-item" href="{% url 'individuals_list' zoo_id=zoo.id %}">Individuals</a></li>
+												<li><a class="dropdown-item" href="{% url 'groups_list' zoo_id=zoo.id %}">Groups</a></li>
+												<li><a class="dropdown-item" href="{% url 'attribute_categories_list' zoo_id=zoo.id %}">Attribute Categories</a></li>
+											{% endif %}
+											{% if not forloop.last %}
+												<div class="dropdown-divider"></div>
+											{% endif %}
 										{% endfor %}
-									</div>
-								</li>
-							{% endif %}
+									</ul>
+								</div>
+							</li>
 							<li class="nav-item">
 								<a class="nav-link" href="{% url 'ticket_list' %}">Bug Tracker</a>
 							</li>

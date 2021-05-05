@@ -7,6 +7,25 @@ window.addEventListener('load', function () {
 });
 //----------------------------------------------------------------------------------------------------------------------
 
+// Enable submenus in Bootstrap dropdowns-------------------------------------------------------------------------------
+window.addEventListener('load', function () {
+	$('.dropdown-menu a.dropdown-toggle').on('mouseenter', function(e) {
+		if (!$(this).next().hasClass('show')) {
+			$(this).parents('.dropdown-menu').first().find('.show').removeClass('show');
+		}
+		var $subMenu = $(this).next('.dropdown-menu');
+		if (!$subMenu.hasClass('show')){
+			$subMenu.toggleClass('show');
+		}
+
+		$(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+			$('.dropdown-submenu .show').removeClass('show');
+		});
+		return false;
+	});
+});
+//----------------------------------------------------------------------------------------------------------------------
+
 // Setup AJAX to support POST requests----------------------------------------------------------------------------------
 function getCookie(name) {
     var cookieValue = null;

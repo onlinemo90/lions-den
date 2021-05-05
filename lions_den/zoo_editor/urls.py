@@ -14,5 +14,5 @@ urlpatterns = [
 	path('<str:zoo_id>/groups/', GroupsListView.as_view(), name='groups_list'),
 	path('<str:zoo_id>/groups/<str:subject_id>', GroupPageView.as_view()),
 	
-	path('<str:zoo_id>/attributes/', AttributeCategoryListView.as_view(), name='attributes_list'),
+	path('<str:zoo_id>/attributes/', AttributeCategoryListView.as_view(), name='attribute_categories_list'),
 ]
