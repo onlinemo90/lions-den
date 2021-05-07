@@ -57,6 +57,31 @@ $.ajaxSetup({
 });
 //----------------------------------------------------------------------------------------------------------------------
 
+// Responsive Form Submit Buttons---------------------------------------------------------------------------------------
+function initResponsiveSubmitButtons() {
+	// Adding the hidden spinners to all submit buttons
+	let SPINNER_HTML = '<div style="display:none" class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></div> '
+	let SPINNER_SELECTOR = '.spinner-border';
+	let submitBtnSelector = 'button[type=submit]';
+	$(submitBtnSelector).each(function() {
+		if ($(this).children(SPINNER_SELECTOR).length == 0) {
+			$(this).prepend(SPINNER_HTML + ' ');
+		}
+	});
+
+	// Making it so successfully submitting forms shows the spinners
+	$('form').on('submit', function(){
+		$(this).find(SPINNER_SELECTOR).css('display', 'inline-block');
+
+		// The submit buttons on modal footers are dummies that call the onclick of a hidden submit button, so need to explicitly change them
+		$('.modal-footer button[type=submit] ' + SPINNER_SELECTOR).css('display', 'inline-block');
+	});
+}
+
+window.addEventListener('load', function () {
+	initResponsiveSubmitButtons();
+});
+
 // Modals---------------------------------------------------------------------------------------------------------------
 function getModal(modalID, extraData){
 	data = modalID;
@@ -75,11 +100,13 @@ function getModal(modalID, extraData){
 			}
 			$('#modal').modal('show');
 			initDynamicBlobFieldDisplay(); // allow for newly created image and audio fields to dynamically update
+			initResponsiveSubmitButtons();
 		},
 	});
 }
 
 function submitModalForm(formName, successFunction){ // Submit AJAX modal form
+	$('#modalForm').triggerHandler('submit'); // to trigger any on submit event handlers
 	formData = new FormData($('#modalForm')[0]);
 	formData.append(formName, '');
 	$.ajax({
