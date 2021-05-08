@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 # noinspection PyUnresolvedReferences
@@ -35,7 +36,7 @@ class TicketAssigneeForm(BaseTicketForm):
 	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.fields['assignee'] = forms.ModelChoiceField(queryset=ZooUser.objects.filter(is_staff=True))
+		self.fields['assignee'] = forms.ModelChoiceField(queryset=get_user_model().objects.filter(is_staff=True))
 	
 	def save(self, updater, commit=True):
 		super().save(updater=updater, commit=False)

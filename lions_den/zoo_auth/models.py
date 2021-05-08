@@ -1,8 +1,9 @@
 import datetime
 import html2text
 
-from django.utils.translation import ugettext_lazy as _
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import get_user_model
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth.base_user import BaseUserManager
@@ -38,11 +39,14 @@ class ZooAdminUserManager(BaseUserManager):
 
 
 class ZooUser(AbstractUser):
-	username = None
 	email = models.EmailField(_('email address'), unique=True)
 	first_name = models.CharField(blank=True, max_length=64)
 	last_name = models.CharField(blank=True, max_length=64)
 	
+	# Preferences
+	wants_email_notifications = models.BooleanField(verbose_name='Receive notifications via email', blank=False, default=False)
+	
+	username = None
 	USERNAME_FIELD = 'email'
 	REQUIRED_FIELDS = []
 	objects = ZooUserManager()
@@ -85,7 +89,8 @@ class ZooUser(AbstractUser):
 		if not text_message:
 			text_message = html2text.html2text(html_message)
 		
-		admins = ZooUser.admins.all()
+		users = users.exclude(wants_email_notifications=False)
+		admins = ZooUser.admins.filter(wants_email_notifications=True)
 		bcc_users = []
 		
 		if notify_admins:
@@ -130,7 +135,7 @@ class Zoo(models.Model):
 	date_joined = models.DateField(auto_now_add=True)
 	last_commit_date = models.DateField(blank=True)
 	
-	users = models.ManyToManyField(ZooUser, related_name='_zoos')
+	users = models.ManyToManyField(get_user_model(), related_name='_zoos')
 	
 	def __str__(self):
 		return self.name
@@ -146,7 +151,7 @@ class Zoo(models.Model):
 	
 	def commit_to_zooverse(self, user):
 		if self.can_commit():
-			ZooUser.notify_admins(
+			get_user_model().notify_admins(
 				subject=f'Request for commit - {self.name}',
 				html_message=render_to_string(
 					'zoo_auth/emails/zoo_commit.html',

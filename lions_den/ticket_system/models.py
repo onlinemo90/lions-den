@@ -1,8 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-# noinspection PyUnresolvedReferences
-from zoo_auth.models import ZooUser
 
 
 class Ticket(models.Model):
@@ -44,10 +42,10 @@ class Ticket(models.Model):
 	type = models.CharField(max_length=2, choices=Type.choices, blank=False, verbose_name='Type')
 	priority = models.IntegerField(choices=Priority.choices, blank=False, verbose_name='Priority')
 	
-	reporter = models.ForeignKey(ZooUser, related_name='reported_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Reporter')
-	assignee = models.ForeignKey(ZooUser, related_name='assigned_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Assignee')
-	last_updater = models.ForeignKey(ZooUser, on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Last Updater')
-	watchers = models.ManyToManyField(ZooUser, related_name='watched_tickets', blank=True, default=None)
+	reporter = models.ForeignKey(get_user_model(), related_name='reported_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Reporter')
+	assignee = models.ForeignKey(get_user_model(), related_name='assigned_tickets', on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Assignee')
+	last_updater = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, blank=True, null=True, default=None, verbose_name='Last Updater')
+	watchers = models.ManyToManyField(get_user_model(), related_name='watched_tickets', blank=True, default=None)
 	
 	created_date = models.DateTimeField(auto_now_add=True)
 	last_updated_date = models.DateTimeField(auto_now=True)
@@ -78,7 +76,7 @@ class Ticket(models.Model):
 class Comment(models.Model):
 	id = models.AutoField(primary_key=True)
 	ticket = models.ForeignKey(Ticket, related_name='comments', on_delete=models.CASCADE)
-	creator = models.ForeignKey(ZooUser, related_name='comments', on_delete=models.PROTECT)
+	creator = models.ForeignKey(get_user_model(), related_name='comments', on_delete=models.PROTECT)
 	text = models.TextField(verbose_name='Contents')
 	added_date = models.DateTimeField(auto_now_add=True)
 	last_updated_date = models.DateTimeField(auto_now=True)
@@ -93,7 +91,7 @@ class TicketAttachment(models.Model):
 	ticket = models.ForeignKey(Ticket, related_name='attachments', on_delete=models.CASCADE)
 	name = models.CharField(max_length=128, blank=False)
 	file = models.FileField(blank=False)
-	uploader = models.ForeignKey(ZooUser, related_name='attachments', on_delete=models.PROTECT)
+	uploader = models.ForeignKey(get_user_model(), related_name='attachments', on_delete=models.PROTECT)
 	uploaded_date = models.DateTimeField(auto_now_add=True)
 	
 	def __str__(self):

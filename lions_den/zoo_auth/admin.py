@@ -3,6 +3,7 @@ from django.contrib import admin
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.admin import UserAdmin, UserCreationForm
+from django.contrib.auth.forms import UserChangeForm
 
 from .models import Zoo, ZooUser
 
@@ -16,6 +17,7 @@ class ZooUserBaseForm(forms.ModelForm):
 			is_stacked=False
 		)
 	)
+	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		if self.instance and self.instance.pk:
@@ -30,16 +32,16 @@ class ZooUserBaseForm(forms.ModelForm):
 		return user
 
 
-class ZooUserChangeForm(ZooUserBaseForm):
+class ZooUserChangeForm(ZooUserBaseForm, UserChangeForm):
 	class Meta:
 		model = ZooUser
-		fields=('_zoos',)
+		fields = ('email', 'first_name', 'last_name', '_zoos')
 
 
 class ZooUserCreationForm(UserCreationForm, ZooUserBaseForm):
 	class Meta:
 		model = ZooUser
-		fields=('email', 'password1', 'password2', '_zoos')
+		fields = ('email', 'password1', 'password2', '_zoos')
 
 
 @admin.register(ZooUser)
@@ -53,9 +55,9 @@ class ZoomUserAdmin(UserAdmin):
 		(None, {'fields': ('email',)}),
 		(_('Personal info'), {'fields': ('first_name', 'last_name')}),
 		(_('Permissions'), {
-			'fields': ('is_active', 'is_superuser', '_zoos', 'groups', 'user_permissions'),
+			'fields': ('is_active', 'is_staff', 'is_superuser', '_zoos'),
 		}),
-		(_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+		(_('Dates'), {'fields': ('last_login', 'date_joined')}),
 	)
 	add_fieldsets = (
 		(None, {

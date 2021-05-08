@@ -79,6 +79,7 @@
 							{% if request.user.is_authenticated %}
 								{% if not disable_navbar_change_password %}
 									<div class="dropdown-divider"></div>
+									<a class="dropdown-item" href="{% url 'edit_preferences' pk=user.id %}">Edit Preferences</a>
 									<a class="dropdown-item" href="{% url 'change_password' %}">Change password</a>
 									<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 								{% endif %}
