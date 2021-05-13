@@ -30,7 +30,7 @@ class ImageBlob(BlobObject):
 	
 	def _get_normalised_img(self):
 		"""" Rotates the image to correct bad EXIF metadata and normalises it to the defined model form field size """
-		img = Image.open(self)
+		img = Image.open(self).convert('RGBA')
 		img = self._correct_exif_rotation(img)
 		width, height = img.size
 		x_min, x_max, y_min, y_max = 0, width, 0, height
@@ -64,11 +64,11 @@ class ImageBlob(BlobObject):
 		"""
 		Camera orientation is stored in the image metadata (EXIF data).
 		PIL's Image.open() does not account for this, causing silent image rotation.
-
+		
 		Apply Image.transpose to ensure 0th row of pixels is at the visual
 		top of the image, and 0th column is the visual left-hand side.
 		Return the original image if unable to determine the orientation.
-
+		
 		As per CIPA DC-008-2012, the orientation field contains an integer,
 		1 through 8. Other values are reserved.
 		"""
