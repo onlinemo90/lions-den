@@ -407,10 +407,10 @@ function filterTicketList(){
 	}
 
 	// Fields whose values need server interpretation
-	filterFields = ['creator', 'assignee'];
+	filterFields = ['creator', 'assignee', 'watcher'];
 	for (let filterField of filterFields){
 		if ($('#id_select_' + filterField).val()){
-			data['__' + filterField + '_is_user__'] = '';
+			data['__user_is_' + filterField + '__'] = '';
 		}
 	}
 

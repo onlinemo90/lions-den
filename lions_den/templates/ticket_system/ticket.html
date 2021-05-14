@@ -95,17 +95,21 @@
 		<h4 style="color:var(--colorPrimaryDark)">Attachments</h4>
 		<div class="container">
 			{% if object.attachments.count %}
-				<table class="table table-bordered" style="max-width:30%">
-					<tr class="">
-						<th>File</th>
-						<th>Date uploaded</th>
-					</tr>
-					{% for attachment in object.attachments.all %}
+				<table class="table table-sm table-bordered" style="max-width:30%">
+					<thead>
 						<tr>
-							<td><a href="{{ attachment.file.url }}" target="_blank">{{ attachment }}</a></td>
-							<td>{{ attachment.uploaded_date }}</td>
+							<th>File</th>
+							<th>Date uploaded</th>
 						</tr>
-					{% endfor %}
+					</thead>
+					<tbody>
+						{% for attachment in object.attachments.all %}
+							<tr>
+								<td><a href="{{ attachment.file.url }}" target="_blank">{{ attachment }}</a></td>
+								<td>{{ attachment.uploaded_date }}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
 				</table>
 			{% endif %}
 			<button class="btn btn-primary" onclick="getModal('modal_new_attachment')">Add attachment</button>
@@ -119,7 +123,7 @@
 				{% for comment in object.comments.all %}
 					<div class="comment shadow mb-2">
 						<div class="comment-header">
-							<div class="float-left"><b>{{ comment.creator }}</b> commented on {{ comment.added_date }}</div>
+							<div class="float-left"><b>{{ comment.creator }}</b> commented on {{ comment.added_date }}{% if comment.has_been_edited %} (edited){% endif %}</div>
 							<div class="float-right">
 								{% if request.user == comment.creator %}
 									{% include 'utils/buttons/edit.html' with css_class='edit-ticket-button' height=14 width=14 onclick="getModal('modal_edit_comment', 'id="|addstr:comment.id|addstr:"')" %}

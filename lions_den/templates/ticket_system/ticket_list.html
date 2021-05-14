@@ -28,6 +28,11 @@
 			<option value="1">Reported by me</option>
 		</select>
 		
+		<select name="watcher" id="id_select_watcher" class="select form-control">
+			<option selected value>Watched by anyone</option>
+			<option value="1">Watched by me</option>
+		</select>
+		
 		{% if request.user.is_staff %}
 			<select name="assignee" id="id_select_assignee" class="select form-control">
 				<option selected value>Assigned to anyone</option>

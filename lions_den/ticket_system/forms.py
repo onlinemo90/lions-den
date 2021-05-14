@@ -94,8 +94,9 @@ class TicketAttachmentForm(forms.ModelForm):
 		model = TicketAttachment
 		fields = ('file',)
 	
-	def save(self, ticket, uploader, commit=True):
+	def save(self, ticket, comment, uploader, commit=True):
 		self.instance.name = self.instance.file.file.name
 		self.instance.ticket = ticket
+		self.instance.comment = comment
 		self.instance.uploader = uploader
 		super().save(commit)

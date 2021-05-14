@@ -84,18 +84,20 @@ class TicketListView(BaseView):
 			[{field: request.GET.get(field)} for field in request.GET if hasattr(Ticket, field)],
 			self.default_queryset
 		)
-		if '__assignee_is_user__' in request.GET:
+		if '__user_is_assignee__' in request.GET:
 			filtered_tickets = filtered_tickets.filter(assignee=request.user)
-		if '__creator_is_user__' in request.GET:
+		if '__user_is_creator__' in request.GET:
 			filtered_tickets = filtered_tickets.filter(reporter=request.user)
+		if '__user_is_watcher__' in request.GET:
+			filtered_tickets = filtered_tickets.filter(watchers=request.user.id)
 		
 		# Keyword search
 		if '__search__' in request.GET:
 			keywords = request.GET.get('__search__').split(' ')
 			filtered_tickets = filtered_tickets.filter(
-				functools.reduce(lambda x, y: x | y, (Q(title__contains=word) for word in keywords)) |
-				functools.reduce(lambda x, y: x | y, (Q(description__contains=word) for word in keywords)) |
-				functools.reduce(lambda x, y: x | y, (Q(comments__text__contains=word) for word in keywords))
+				functools.reduce(lambda x, y: x | y, (Q(title__icontains=word) for word in keywords)) |
+				functools.reduce(lambda x, y: x | y, (Q(description__icontains=word) for word in keywords)) |
+				functools.reduce(lambda x, y: x | y, (Q(comments__text__icontains=word) for word in keywords))
 			).distinct()
 		
 		return render(
@@ -220,7 +222,7 @@ class TicketView(BaseView, DetailView):
 			attachment_form = TicketAttachmentForm(request.POST, request.FILES, prefix='attachment')
 			if comment_form.is_valid() and attachment_form.is_valid():
 				comment_form.save(ticket=self.get_ticket(pk), creator=request.user)
-				attachment_form.save(ticket=self.get_ticket(pk), uploader=request.user)
+				attachment_form.save(ticket=self.get_ticket(pk), comment=comment_form.instance, uploader=request.user)
 				return self.redirect_to_self(request)
 
 	def post_ajax(self, request, pk):
