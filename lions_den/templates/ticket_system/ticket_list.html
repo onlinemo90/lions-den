@@ -2,14 +2,40 @@
 
 {% block content %}
 	<div class="page-header">
-		<h2 class="title pr-2" style="display:inline-block">All tickets:</h2>
+		<h2 class="title pr-2" style="display:inline-block">Tickets</h2>
 	</div>
 	
 	{% for ticket in object_list %}
-		<a class="btn-primary" href="./browse/{{ ticket.id }}">
+		<a class="btn-primary" href="{% url 'ticket_page' pk=ticket.id %}">
 			<div class="container border mb-3">
 				<p class="my-2">{{ ticket.title }}</p>
 			</div>
 		</a>
 	{% endfor %}
+	
+	<div class="mb-3">
+		<input id="id_search_text" type="text" class="textinput textInput form-control" style="width:20%; display:inline" placeholder="Search" />
+		{% include 'utils/buttons/search.html' with onclick='submitTicketSearch()' %}
+	</div>
+	
+	<div id="ticket_list_filters" class="mb-3">
+		{% include 'ticket_system/ticket_list_filter_field.html' with field_enum=ticket_model.App name='app' default_label='All Apps'  %}
+		{% include 'ticket_system/ticket_list_filter_field.html' with field_enum=ticket_model.Priority name='priority' default_label='All Priorities' %}
+		{% include 'ticket_system/ticket_list_filter_field.html' with field_enum=ticket_model.Status name='status' default_label='All Statuses' %}
+		
+		<select name="creator" id="id_select_creator" class="select form-control">
+			<option selected value>Reported by anyone</option>
+			<option value="1">Reported by me</option>
+		</select>
+		
+		{% if request.user.is_staff %}
+			<select name="assignee" id="id_select_assignee" class="select form-control">
+				<option selected value>Assigned to anyone</option>
+				<option value="1">Assigned to me</option>
+			</select>
+		{% endif %}
+		
+	</div>
+	
+	{% include 'ticket_system/ticket_list_table.html' %}
 {% endblock %}

@@ -1,3 +1,6 @@
+import functools
+import operator
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
@@ -6,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView
-from django.views.generic.list import ListView
+from django.db.models import Q
 
 from .models import Ticket, Comment
 from .forms import TicketForm, CommentForm, TicketStatusForm, TicketAssigneeForm, TicketAttachmentForm
@@ -61,9 +64,48 @@ class BaseView(LoginRequiredMixin, View):
 		pass
 
 
-class TicketListView(BaseView, ListView):
-	model = Ticket
+class TicketListView(BaseView):
 	template_name = 'ticket_system/ticket_list.html'
+	default_queryset = Ticket.objects.all().order_by('-id')
+	
+	def get(self, request):
+		return render(
+			request=request,
+			template_name=self.template_name,
+			context={
+				'ticket_model': Ticket,
+				'tickets': Ticket.objects.all().order_by('-id')
+			}
+		)
+	
+	def get_ajax(self, request):
+		filtered_tickets = functools.reduce(
+			lambda ticket_list, field_dict: ticket_list.filter(**field_dict),
+			[{field: request.GET.get(field)} for field in request.GET if hasattr(Ticket, field)],
+			self.default_queryset
+		)
+		if '__assignee_is_user__' in request.GET:
+			filtered_tickets = filtered_tickets.filter(assignee=request.user)
+		if '__creator_is_user__' in request.GET:
+			filtered_tickets = filtered_tickets.filter(reporter=request.user)
+		
+		# Keyword search
+		if '__search__' in request.GET:
+			keywords = request.GET.get('__search__').split(' ')
+			filtered_tickets = filtered_tickets.filter(
+				functools.reduce(lambda x, y: x | y, (Q(title__contains=word) for word in keywords)) |
+				functools.reduce(lambda x, y: x | y, (Q(description__contains=word) for word in keywords)) |
+				functools.reduce(lambda x, y: x | y, (Q(description__contains=word) for word in keywords)) |
+				functools.reduce(lambda x, y: x | y, (Q(comments__text__contains=word) for word in keywords))
+			).distinct()
+		
+		return render(
+			request=request,
+			template_name='ticket_system/ticket_list_table.html',
+			context={
+				'tickets': filtered_tickets
+			}
+		)
 
 
 class TicketView(BaseView, DetailView):

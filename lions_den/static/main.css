@@ -88,6 +88,10 @@ select:-webkit-autofill:focus {
 	-webkit-box-shadow: 0 0 0 30px var(--colorBackground) inset !important;
 }
 
+a:focus, a:hover, a:active {
+	color: var(--colorPrimaryDark);
+}
+
 
 /* Crispy Forms-------------------------------------------------------------------------------------------------------*/
 .selectdatewidget, .select {
@@ -165,6 +169,14 @@ div.border-bottom {
 
 .table {
 	color: var(--colorForeground) !important;
+}
+
+.table td, .table th {
+	border-top: 1px solid var(--colorAccent);
+}
+
+.table thead th {
+	border-bottom: 2px solid var(--colorAccent);
 }
 
 /* Custom-------------------------------------------------------------------------------------------------------------*/

@@ -386,6 +386,55 @@ function addCategoryForm(){
 	$('#id_form-TOTAL_FORMS').val(numForms + 1);
 }
 //----------------------------------------------------------------------------------------------------------------------
+
+// Ticket List----------------------------------------------------------------------------------------------------------
+function submitTicketSearch(){
+	// Reset filter dropdowns
+	$('#ticket_list_filters select').prop('selectedIndex', 0);
+	filterTicketList();
+}
+
+function filterTicketList(){
+	let data = {};
+
+	// Fields whose values map directly to model
+	filterFields = ['app', 'priority', 'status'];
+	for (let filterField of filterFields){
+		let filterValue = $('#id_select_' + filterField).val();
+		if (filterValue){
+			data[filterField] = filterValue;
+		}
+	}
+
+	// Fields whose values need server interpretation
+	filterFields = ['creator', 'assignee'];
+	for (let filterField of filterFields){
+		if ($('#id_select_' + filterField).val()){
+			data['__' + filterField + '_is_user__'] = '';
+		}
+	}
+
+	// Get search text
+	let searchText = $('#id_search_text').val();
+	if (searchText){
+		data['__search__'] = searchText;
+	}
+
+	$.ajax({
+		type: 'GET',
+		url: document.URL,
+		data: Object.keys(data).map(key => `${key}=${data[key]}`).join('&'),
+		success: function(response){
+			$('#table_ticket_list').replaceWith(response);
+		},
+	});
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+	$('#ticket_list_filters select').on('change', filterTicketList);
+});
+//----------------------------------------------------------------------------------------------------------------------
+
 // Ticket Page----------------------------------------------------------------------------------------------------------
 function setUserWatcherStatus(addAsWatcher){
 	formData = new FormData();
