@@ -95,7 +95,6 @@ class TicketListView(BaseView):
 			filtered_tickets = filtered_tickets.filter(
 				functools.reduce(lambda x, y: x | y, (Q(title__contains=word) for word in keywords)) |
 				functools.reduce(lambda x, y: x | y, (Q(description__contains=word) for word in keywords)) |
-				functools.reduce(lambda x, y: x | y, (Q(description__contains=word) for word in keywords)) |
 				functools.reduce(lambda x, y: x | y, (Q(comments__text__contains=word) for word in keywords))
 			).distinct()
 		
