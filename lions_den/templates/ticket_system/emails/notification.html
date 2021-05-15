@@ -15,25 +15,25 @@
 			<table width="100%" border="1" cellpadding="3" cellspacing="0" bgcolor="#F2F2F2">
 				<tr bgcolor="#68b733">
 					<td align="center" valign="top"><strong>Field</strong></td>
-					{% if edit_instance %}
-						<td align="center" valign="top"><strong>Old value</strong></td>
-						<td align="center" valign="top"><strong>New value</strong></td>
-					{% else %}
+					{% if action.is_creation %}
 						<td align="center" valign="top"><strong>Value</strong></td>
+					{% else %}
+						<td align="center" valign="top"><strong>Original value</strong></td>
+						<td align="center" valign="top"><strong>New value</strong></td>
 					{% endif %}
 				</tr>
-				{% for field, field_changes in context.items %}
+				{% for change in action.changes.all %}
 					<tr>
 						<td align="center" valign="top">
-							<strong>{{ field }}</strong>
+							<strong>{{ change.get_field_name }}</strong>
 						</td>
-						{% if edit_instance %}
+						{% if not action.is_creation %}
 							<td align="center" valign="top">
-								{{ field_changes.old_value }}
+								{{ change.get_old_value_display|default:'-' }}
 							</td>
 						{% endif %}
 						<td align="center" valign="top">
-							{{ field_changes.new_value }}
+							{{ change.get_new_value_display|default:'-' }}
 						</td>
 					</tr>
 				{% endfor %}

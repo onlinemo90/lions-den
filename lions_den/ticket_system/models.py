@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 
@@ -32,6 +33,7 @@ class TrackedFieldsModel(models.Model):
 			ticket_action.save()
 			for ticket_change in ticket_changes:
 				ticket_change.save()
+			ticket_action.trigger_notifications()
 
 
 class Ticket(TrackedFieldsModel):
@@ -58,11 +60,11 @@ class Ticket(TrackedFieldsModel):
 		MAINTENANCE = 'M', _('Maintenance')
 	
 	class Priority(models.IntegerChoices):
-		CRITICAL = 4, _('Critical')
-		HIGH = 3, _('High')
-		MEDIUM = 2, _('Medium')
-		LOW = 1, _('Low')
 		TRIVIAL = 0, _('Trivial')
+		LOW = 1, _('Low')
+		MEDIUM = 2, _('Medium')
+		HIGH = 3, _('High')
+		CRITICAL = 4, _('Critical')
 	
 	id = models.AutoField(primary_key=True)
 	title = models.CharField(max_length=128, verbose_name='Title')
@@ -148,16 +150,20 @@ class TicketAction(models.Model):
 	object_id = models.PositiveIntegerField()
 	target = GenericForeignKey('content_type', 'object_id')
 	
+	def __str__(self):
+		return f'{self.target}: {self.user} {self._get_predicate_str(as_html=False)}'
+	
 	def is_creation(self):
 		return self.type == self.Type.CREATE
 	
-	def as_html(self):
+	def _get_predicate_str(self, as_html=False):
 		predicate_str = ''
+		target_str = f'<b>{self.target}</b>' if as_html else f'{self.target}'
 		if type(self.target) == Ticket:
 			if self.type == self.Type.CREATE:
-				predicate_str = f'created <b>{self.target}</b>'
+				predicate_str = f'created {target_str}'
 			elif self.type == self.Type.EDIT:
-				predicate_str = f'made changes to <b>{self.target}</b>'
+				predicate_str = f'made changes to {target_str}'
 		elif type(self.target) == Comment:
 			if self.type == self.Type.CREATE:
 				predicate_str = 'added a comment'
@@ -168,7 +174,20 @@ class TicketAction(models.Model):
 					predicate_str += f' with {num_attachments} attachments'
 			elif self.type == self.Type.EDIT:
 				predicate_str = 'edited a comment'
-		return f'<b>{self.user}</b> {predicate_str}'
+		return predicate_str
+	
+	def as_html(self):
+		return f'<b>{self.user}</b> {self._get_predicate_str(as_html=True)}'
+	
+	def trigger_notifications(self):
+		get_user_model().notify_users(
+			users=self.ticket.watchers,
+			subject=str(self),
+			html_message=render_to_string(
+				template_name='ticket_system/emails/notification.html',
+				context={'action': self}
+			)
+		)
 
 
 class TicketChange(models.Model):
