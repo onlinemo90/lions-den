@@ -93,6 +93,7 @@ class TicketAttachmentForm(forms.ModelForm):
 	class Meta:
 		model = TicketAttachment
 		fields = ('file',)
+		labels = {'file': 'Attachment'}
 	
 	def save(self, ticket, comment, uploader, commit=True):
 		self.instance.name = self.instance.file.file.name

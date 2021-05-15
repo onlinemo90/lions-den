@@ -54,7 +54,7 @@ class BaseView(LoginRequiredMixin, View):
 			form = TicketForm(request.POST)
 			if form.is_valid():
 				form.save(updater=request.user)
-				return redirect(to=reverse('ticket_view', kwargs={'pk': form.instance.id}))
+				return redirect(to=reverse('ticket_page', kwargs={'pk': form.instance.id}))
 		return self.post_sub(request, *args, **kwargs)
 	
 	def get_ajax_sub(self, request, *args, **kwargs):
@@ -78,7 +78,7 @@ class TicketListView(BaseView):
 			}
 		)
 	
-	def get_ajax(self, request):
+	def get_ajax_sub(self, request):
 		filtered_tickets = functools.reduce(
 			lambda ticket_list, field_dict: ticket_list.filter(**field_dict),
 			[{field: request.GET.get(field)} for field in request.GET if hasattr(Ticket, field)],
@@ -124,6 +124,7 @@ class TicketView(BaseView, DetailView):
 				'object': self.get_ticket(pk),
 				'user_is_watcher': (request.user in self.get_ticket(pk).watchers.all()),
 				'comment_form': CommentForm(),
+				'attachment_form': TicketAttachmentForm(prefix='attachment'),
 				'comment_form_submit_btn_name': 'create_comment',
 			}
 		)
@@ -177,17 +178,6 @@ class TicketView(BaseView, DetailView):
 					'title': 'Edit comment',
 					'form': CommentForm(instance=Comment.objects.filter(id=request.GET.get('id')).get()),
 					'submit_btn_name': 'edit_comment',
-				}
-			)
-		elif 'modal_new_attachment' in request.GET:
-			return render(
-				request=request,
-				template_name='ticket_system/modals/new_attachment_modal_form.html',
-				context={
-					'title': 'Add attachment',
-					'comment_form': CommentForm(prefix='comment'),
-					'attachment_form': TicketAttachmentForm(prefix='attachment'),
-					'submit_btn_name': 'add_attachment',
 				}
 			)
 	

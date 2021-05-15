@@ -1,9 +1,40 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils.translation import gettext_lazy as _
 
 
-class Ticket(models.Model):
+class TrackedFieldsModel(models.Model):
+	class Meta:
+		abstract = True
+	
+	def save(self, *args, **kwargs):
+		action_ticket = self if type(self) == Ticket else self.ticket
+		ticket_changes = []
+		if self.pk: # pre-existing model instance
+			old_instance = type(self).objects.get(pk=self.pk)
+			
+			super().save(*args, **kwargs)
+			
+			ticket_action = TicketAction(ticket=action_ticket, target=self, user=action_ticket.last_updater, type=TicketAction.Type.EDIT)
+			for tracked_field in self.tracked_fields:
+				old_value, new_value = getattr(old_instance, tracked_field.name), getattr(self, tracked_field.name)
+				if old_value != new_value:
+					ticket_changes.append(TicketChange(action=ticket_action, field=tracked_field.name, old_value=old_value, new_value=new_value))
+		else: # new model instance
+			super().save(*args, **kwargs)
+			ticket_action = TicketAction(ticket=action_ticket, target=self, user=action_ticket.last_updater, type=TicketAction.Type.CREATE)
+			for tracked_field in self.tracked_fields:
+				ticket_changes.append(TicketChange(action=ticket_action, field=tracked_field.name, new_value=getattr(self, tracked_field.name)))
+		
+		if ticket_changes:
+			ticket_action.save()
+			for ticket_change in ticket_changes:
+				ticket_change.save()
+
+
+class Ticket(TrackedFieldsModel):
 	class App(models.TextChoices):
 		ZOOVERSE = 'ZV', _('Zooverse')
 		LIONS_DEN = 'LD', _("Lion's Den")
@@ -27,11 +58,11 @@ class Ticket(models.Model):
 		MAINTENANCE = 'M', _('Maintenance')
 	
 	class Priority(models.IntegerChoices):
-		TRIVIAL = 0, _('Trivial')
-		LOW = 1, _('Low')
-		MEDIUM = 2, _('Medium')
-		HIGH = 3, _('High')
 		CRITICAL = 4, _('Critical')
+		HIGH = 3, _('High')
+		MEDIUM = 2, _('Medium')
+		LOW = 1, _('Low')
+		TRIVIAL = 0, _('Trivial')
 	
 	id = models.AutoField(primary_key=True)
 	title = models.CharField(max_length=128, verbose_name='Title')
@@ -51,8 +82,8 @@ class Ticket(models.Model):
 	last_updated_date = models.DateTimeField(auto_now=True)
 	closed_date = models.DateTimeField(blank=True, null=True)
 	
-	# Define the fields that, when changed, will trigger notifications
-	notification_fields = [title, description, app, status, type, priority, assignee]
+	# Define the fields whose changes are tracked
+	tracked_fields = [title, description, app, status, type, priority, assignee]
 	
 	def __str__(self):
 		return f'#{self.id} - {self.title}'
@@ -73,7 +104,7 @@ class Ticket(models.Model):
 			return 'var(--success)'
 
 
-class Comment(models.Model):
+class Comment(TrackedFieldsModel):
 	id = models.AutoField(primary_key=True)
 	ticket = models.ForeignKey(Ticket, related_name='comments', on_delete=models.CASCADE)
 	creator = models.ForeignKey(get_user_model(), related_name='comments', on_delete=models.PROTECT)
@@ -81,14 +112,18 @@ class Comment(models.Model):
 	added_date = models.DateTimeField(auto_now_add=True)
 	last_updated_date = models.DateTimeField(auto_now=True)
 
-	notification_fields = [text]
+	tracked_fields = [text]
 
 	def __str__(self):
 		return self.text
+	
+	def has_been_edited(self):
+		return self.added_date != self.last_updated_date
 
 
 class TicketAttachment(models.Model):
 	ticket = models.ForeignKey(Ticket, related_name='attachments', on_delete=models.CASCADE)
+	comment = models.ForeignKey(Comment, related_name='attachments', on_delete=models.CASCADE)
 	name = models.CharField(max_length=128, blank=False)
 	file = models.FileField(blank=False)
 	uploader = models.ForeignKey(get_user_model(), related_name='attachments', on_delete=models.PROTECT)
@@ -96,3 +131,68 @@ class TicketAttachment(models.Model):
 	
 	def __str__(self):
 		return self.name
+
+
+class TicketAction(models.Model):
+	class Type(models.TextChoices):
+		CREATE = 'CREATE', _('created')
+		EDIT = 'EDIT', _('edited')
+	
+	ticket = models.ForeignKey(Ticket, related_name='actions', on_delete=models.CASCADE)
+	user = models.ForeignKey(get_user_model(), related_name='ticket_actions', on_delete=models.PROTECT)
+	timestamp = models.DateTimeField(auto_now_add=True)
+	type = models.CharField(max_length=6, choices=Type.choices, blank=False)
+	
+	# Model that is the target of the change, e.g. Ticket, Comment, etc.
+	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+	object_id = models.PositiveIntegerField()
+	target = GenericForeignKey('content_type', 'object_id')
+	
+	def is_creation(self):
+		return self.type == self.Type.CREATE
+	
+	def as_html(self):
+		predicate_str = ''
+		if type(self.target) == Ticket:
+			if self.type == self.Type.CREATE:
+				predicate_str = f'created <b>{self.target}</b>'
+			elif self.type == self.Type.EDIT:
+				predicate_str = f'made changes to <b>{self.target}</b>'
+		elif type(self.target) == Comment:
+			if self.type == self.Type.CREATE:
+				predicate_str = 'added a comment'
+				num_attachments = len(self.target.attachments.all())
+				if num_attachments == 1:
+					predicate_str += ' with an attachment'
+				elif num_attachments > 1:
+					predicate_str += f' with {num_attachments} attachments'
+			elif self.type == self.Type.EDIT:
+				predicate_str = 'edited a comment'
+		return f'<b>{self.user}</b> {predicate_str}'
+
+
+class TicketChange(models.Model):
+	action = models.ForeignKey(TicketAction, related_name='changes', on_delete=models.CASCADE)
+	field = models.CharField(max_length=32, blank=False)
+	old_value = models.TextField(blank=True, null=True)
+	new_value = models.TextField(blank=True, null=True)
+	
+	def _get_field(self):
+		return getattr(type(self.action.target), self.field).field
+	
+	def get_field_name(self):
+		return self._get_field().verbose_name
+	
+	def _get_value_display(self, stored_value):
+		field = self._get_field()
+		if field.choices:
+			for choice_key, choice_value in field.choices:
+				if str(choice_key) == str(stored_value):
+					return choice_value
+		return stored_value
+	
+	def get_old_value_display(self):
+		return self._get_value_display(self.old_value)
+	
+	def get_new_value_display(self):
+		return self._get_value_display(self.new_value)

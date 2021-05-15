@@ -88,6 +88,10 @@ select:-webkit-autofill:focus {
 	-webkit-box-shadow: 0 0 0 30px var(--colorBackground) inset !important;
 }
 
+input[type="file"] {
+	color: var(--colorForeground);
+}
+
 a:focus, a:hover, a:active {
 	color: var(--colorPrimaryDark);
 }
@@ -116,11 +120,11 @@ a:focus, a:hover, a:active {
 	flex-direction: row !important;
 }
 
-.navbar-brand, .nav-link {
+.navbar-brand, .navbar .nav-link {
 	color: var(--colorBackground) !important;
 }
 
-.navbar-brand:hover, .nav-link:hover {
+.navbar-brand:hover, .navbar .nav-link:hover {
 	color: var(--colorContrast) !important;
 }
 
@@ -177,6 +181,28 @@ div.border-bottom {
 
 .table thead th {
 	border-bottom: 2px solid var(--colorAccent);
+}
+
+div.ticket-tabs-nav {
+	border-bottom: 1px solid var(--colorAccent);
+}
+
+.nav-tabs {
+	border-bottom: 1px solid var(--colorAccent);
+}
+
+.nav-tabs .nav-link.active {
+	color: var(--colorPrimaryDark);
+}
+
+.nav-tabs .nav-link.active {
+	background-color: var(--colorBackground);
+	border-color: var(--colorAccent) var(--colorAccent) transparent var(--colorAccent);
+	color: var(--colorPrimary);
+}
+
+.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+	border-color: var(--colorAccent) var(--colorAccent) transparent var(--colorAccent);
 }
 
 /* Custom-------------------------------------------------------------------------------------------------------------*/
@@ -317,4 +343,10 @@ div.comment-body {
   left: 100%;
   margin-left: .1rem;
   margin-right: .1rem;
+}
+
+div.ticket-tab-content {
+	border-left: 1px solid var(--colorAccent);
+	border-right: 1px solid var(--colorAccent);
+	border-bottom: 1px solid var(--colorAccent);
 }

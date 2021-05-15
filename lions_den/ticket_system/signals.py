@@ -13,7 +13,7 @@ def get_field_display(instance, field):
 
 def get_instance_changes(new_instance, old_instance=None):
 	changes = {}
-	for field in new_instance.notification_fields:
+	for field in new_instance.tracked_fields:
 		if not old_instance or getattr(old_instance, field.name) != getattr(new_instance, field.name):
 			changes[field.verbose_name] = {}
 			changes[field.verbose_name]['new_value'] = get_field_display(new_instance, field)
