@@ -133,7 +133,7 @@
 			<form method="POST" class="mt-3">
 				{% csrf_token %}
 				{{ comment_form|crispy }}
-				<button type="submit" class="btn btn-primary" name="{{ comment_form_submit_btn_name }}">Add comment</button>
+				<button type="submit" class="btn btn-primary" name="add_comment">Add comment</button>
 			</form>
 		</div>
 		
@@ -156,11 +156,11 @@
 					</tbody>
 				</table>
 			{% endif %}
-			<form method="POST" class="mt-3">
+			<form method="POST" class="mt-3" enctype="multipart/form-data">
 				{% csrf_token %}
 				{{ attachment_form|crispy }}
 				{{ comment_form|crispy }}
-				<button type="submit" class="btn btn-primary" name="{{ comment_form_submit_btn_name }}">Add attachment</button>
+				<button type="submit" class="btn btn-primary" name="add_attachment">Add attachment</button>
 			</form>
 		</div>
 		

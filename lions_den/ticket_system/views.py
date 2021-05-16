@@ -123,9 +123,8 @@ class TicketView(BaseView, DetailView):
 			context={
 				'object': self.get_ticket(pk),
 				'user_is_watcher': (request.user in self.get_ticket(pk).watchers.all()),
-				'comment_form': CommentForm(),
-				'attachment_form': TicketAttachmentForm(prefix='attachment'),
-				'comment_form_submit_btn_name': 'create_comment',
+				'comment_form': CommentForm(prefix='comment'),
+				'attachment_form': TicketAttachmentForm(prefix='attachment')
 			}
 		)
 	
@@ -166,7 +165,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Add comment',
-					'form': CommentForm(),
+					'form': CommentForm(prefix='comment'),
 					'submit_btn_name': 'create_comment',
 				}
 			)
@@ -176,7 +175,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Edit comment',
-					'form': CommentForm(instance=Comment.objects.filter(id=request.GET.get('id')).get()),
+					'form': CommentForm(instance=Comment.objects.filter(id=request.GET.get('id')).get(), prefix='comment'),
 					'submit_btn_name': 'edit_comment',
 				}
 			)
@@ -197,13 +196,13 @@ class TicketView(BaseView, DetailView):
 			if form.is_valid():
 				form.save(request.user)
 				return self.redirect_to_self(request)
-		elif 'create_comment' in request.POST:
-			form = CommentForm(request.POST)
+		elif 'add_comment' in request.POST:
+			form = CommentForm(request.POST, prefix='comment')
 			if form.is_valid():
 				form.save(ticket=self.get_ticket(pk), creator=request.user)
 				return self.redirect_to_self(request)
 		elif 'edit_comment' in request.POST:
-			form = CommentForm(request.POST)
+			form = CommentForm(request.POST, prefix='comment')
 			if form.is_valid():
 				form.save()
 				return self.redirect_to_self(request)
