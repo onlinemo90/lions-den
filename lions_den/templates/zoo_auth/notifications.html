@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load lions_den_tags %}
+
+{% block content %}
+	<h2 class="title pr-2 mb-4">Notifications</h2>
+	
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Ticket</th>
+				<th>Notification</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for notification in user.ticket_notifications.all %}
+				<tr id="id_row_ticket_notification_{{ notification.id }}">
+					<td><a href="{{ notification.url }}">{{ notification.action.ticket }}</a></td>
+					<td>{{ notification.as_html|safe }}</td>
+					<td>{% include 'utils/buttons/close.html' with css_class='close' stroke='var(--danger)' onclick='deleteTicketNotification('|addstr:notification.id|addstr:')' %}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}

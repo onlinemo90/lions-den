@@ -112,20 +112,16 @@ class TicketListView(BaseView):
 class TicketView(BaseView, DetailView):
 	model = Ticket
 	template_name = 'ticket_system/ticket.html'
+	context_object_name = 'ticket'
 	
-	def get_ticket(self, pk):
-		return Ticket.objects.filter(id=pk).get()
+	def get_object(self):
+		return Ticket.objects.filter(id=self.kwargs['pk']).get()
 	
-	def get(self, request, pk):
-		return render(
-			request=request,
-			template_name=self.template_name,
-			context={
-				'object': self.get_ticket(pk),
-				'user_is_watcher': (request.user in self.get_ticket(pk).watchers.all()),
-				'comment_form': CommentForm(prefix='comment'),
-				'attachment_form': TicketAttachmentForm(prefix='attachment')
-			}
+	def get_context_data(self, **kwargs):
+		return super().get_context_data(
+			user_is_watcher=(self.request.user in self.get_object().watchers.all()),
+			comment_form=CommentForm(prefix='comment'),
+			attachment_form=TicketAttachmentForm(prefix='attachment')
 		)
 	
 	def get_ajax_sub(self, request, pk):

@@ -79,7 +79,6 @@ class CommentForm(forms.ModelForm):
 			self.instance.ticket = ticket
 		if creator:
 			self.instance.creator = creator
-		super().save(commit)
 		
 		# Add comment creator as ticket watcher
 		self.instance.ticket.watchers.add(self.instance.creator)
@@ -87,6 +86,9 @@ class CommentForm(forms.ModelForm):
 		# Update last updater and last updated date on host ticket
 		self.instance.ticket.last_updater = self.instance.creator
 		self.instance.ticket.save()
+		
+		# Save last to ensure ticket.last_updater is correct for notifications
+		super().save(commit)
 
 
 class TicketAttachmentForm(forms.ModelForm):

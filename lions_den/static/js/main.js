@@ -459,3 +459,16 @@ function setUserWatcherStatus(addAsWatcher){
 	});
 }
 //----------------------------------------------------------------------------------------------------------------------
+
+// User Notifications---------------------------------------------------------------------------------------------------
+function deleteTicketNotification(notificationID){
+	$.ajax({
+		type: 'POST',
+		url: document.URL,
+		data: 'delete_notification&id=' + notificationID,
+		success: function(response){
+			$('#id_row_ticket_notification_' + notificationID).remove();
+		},
+	});
+}
+//----------------------------------------------------------------------------------------------------------------------

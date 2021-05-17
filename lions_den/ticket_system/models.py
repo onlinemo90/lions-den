@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 
@@ -27,7 +28,9 @@ class TrackedFieldsModel(models.Model):
 			super().save(*args, **kwargs)
 			ticket_action = TicketAction(ticket=action_ticket, target=self, user=action_ticket.last_updater, type=TicketAction.Type.CREATE)
 			for tracked_field in self.tracked_fields:
-				ticket_changes.append(TicketChange(action=ticket_action, field=tracked_field.name, new_value=getattr(self, tracked_field.name)))
+				new_value = getattr(self, tracked_field.name)
+				if new_value:
+					ticket_changes.append(TicketChange(action=ticket_action, field=tracked_field.name, new_value=new_value))
 		
 		if ticket_changes:
 			ticket_action.save()
@@ -180,6 +183,15 @@ class TicketAction(models.Model):
 		return f'<b>{self.user}</b> {self._get_predicate_str(as_html=True)}'
 	
 	def trigger_notifications(self):
+		# In-app notifications
+		for user in self.ticket.watchers.all():
+			if user != self.user: # users shouldn't be notified of their own actions
+				TicketActionNotification(
+					user=self.user,
+					action=self
+				).save()
+		
+		# Email notifications
 		get_user_model().notify_users(
 			users=self.ticket.watchers,
 			subject=str(self),
@@ -215,3 +227,17 @@ class TicketChange(models.Model):
 	
 	def get_new_value_display(self):
 		return self._get_value_display(self.new_value)
+
+
+class TicketActionNotification(models.Model):
+	user = models.ForeignKey(get_user_model(), related_name='ticket_notifications', on_delete=models.CASCADE)
+	action = models.ForeignKey(TicketAction, related_name='user_notifications', on_delete=models.CASCADE)
+	
+	def as_html(self):
+		return self.action.as_html()
+	
+	def timestamp(self):
+		return self.action.timestamp
+	
+	def url(self):
+		return reverse_lazy('ticket_page', kwargs={'pk': self.action.ticket.id})

@@ -1,4 +1,6 @@
 {% load static %}
+{% load lions_den_tags %}
+
 <html>
 	<head>
 		<!-- Required meta tags -->
@@ -70,6 +72,11 @@
 				
 				<ul class="navbar-nav ml-auto">
 					{% block extra_navbar_items %}{% endblock %}
+					
+					{% if request.user.is_authenticated %}
+						{% include 'utils/buttons/bell.html' with css_class='navbar-image mr-3' stroke='var(--colorBackground)' href='user_notifications'|rev_url %}
+					{% endif %}
+					
 					<li class="nav-item dropdown">
 						<div id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							{% include 'utils/buttons/menu.html' with stroke='var(--colorBackground)' %}
@@ -79,7 +86,7 @@
 							{% if request.user.is_authenticated %}
 								{% if not disable_navbar_change_password %}
 									<div class="dropdown-divider"></div>
-									<a class="dropdown-item" href="{% url 'edit_preferences' pk=user.id %}">Edit Preferences</a>
+									<a class="dropdown-item" href="{% url 'user_preferences' %}">Edit Preferences</a>
 									<a class="dropdown-item" href="{% url 'change_password' %}">Change password</a>
 									<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 								{% endif %}
@@ -92,7 +99,7 @@
 				
 			</nav>
 		{% endblock %}
-		<main class="px-5 py-4">
+		<main class="py-4">
 			<div class="container">
 				{% for message in messages %}
 					{% include 'utils/toast.html' with body=message %}
