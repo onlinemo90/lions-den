@@ -131,7 +131,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Edit ticket',
-					'form': TicketForm(instance=self.get_ticket(pk)),
+					'form': TicketForm(instance=self.get_object()),
 					'submit_btn_name': 'edit_ticket',
 				}
 			)
@@ -141,7 +141,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Update ticket',
-					'form': TicketStatusForm(instance=self.get_ticket(pk)),
+					'form': TicketStatusForm(instance=self.get_object(), user=request.user),
 					'submit_btn_name': 'update_ticket_status',
 				}
 			)
@@ -151,7 +151,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Assign ticket',
-					'form': TicketAssigneeForm(instance=self.get_ticket(pk)),
+					'form': TicketAssigneeForm(instance=self.get_object()),
 					'submit_btn_name': 'assign_ticket',
 				}
 			)
@@ -178,24 +178,24 @@ class TicketView(BaseView, DetailView):
 	
 	def post_sub(self, request, pk):
 		if 'edit_ticket' in request.POST:
-			form = TicketForm(request.POST, instance=self.get_ticket(pk))
+			form = TicketForm(request.POST, instance=self.get_object())
 			if form.is_valid():
 				form.save(request.user)
 				return self.redirect_to_self(request)
 		elif 'update_ticket_status' in request.POST:
-			form = TicketStatusForm(request.POST, instance=self.get_ticket(pk))
+			form = TicketStatusForm(request.POST, instance=self.get_object(), user=request.user)
 			if form.is_valid():
 				form.save(request.user)
 				return self.redirect_to_self(request)
 		elif 'assign_ticket' in request.POST:
-			form = TicketAssigneeForm(request.POST, instance=self.get_ticket(pk))
+			form = TicketAssigneeForm(request.POST, instance=self.get_object())
 			if form.is_valid():
 				form.save(request.user)
 				return self.redirect_to_self(request)
 		elif 'add_comment' in request.POST:
 			form = CommentForm(request.POST, prefix='comment')
 			if form.is_valid():
-				form.save(ticket=self.get_ticket(pk), creator=request.user)
+				form.save(ticket=self.get_object(), creator=request.user)
 				return self.redirect_to_self(request)
 		elif 'edit_comment' in request.POST:
 			form = CommentForm(request.POST, prefix='comment')
@@ -206,14 +206,14 @@ class TicketView(BaseView, DetailView):
 			comment_form = CommentForm(request.POST, prefix='comment')
 			attachment_form = TicketAttachmentForm(request.POST, request.FILES, prefix='attachment')
 			if comment_form.is_valid() and attachment_form.is_valid():
-				comment_form.save(ticket=self.get_ticket(pk), creator=request.user)
-				attachment_form.save(ticket=self.get_ticket(pk), comment=comment_form.instance, uploader=request.user)
+				comment_form.save(ticket=self.get_object(), creator=request.user)
+				attachment_form.save(ticket=self.get_object(), comment=comment_form.instance, uploader=request.user)
 				return self.redirect_to_self(request)
 
 	def post_ajax(self, request, pk):
 		if 'set_watcher_status' in request.POST:
 			# tickets are added to user's watched_tickets and not the other way around to prevent updating the ticket
-			ticket = self.get_ticket(pk)
+			ticket = self.get_object()
 			if request.POST.get('set_watcher_status') and ticket not in request.user.watched_tickets.all():
 				request.user.watched_tickets.add(ticket)
 			elif ticket in request.user.watched_tickets.all():
