@@ -122,7 +122,7 @@ class Comment(TrackedFieldsModel):
 	def __str__(self):
 		return self.text
 	
-	def has_been_edited(self):
+	def is_edited(self):
 		return self.added_date != self.last_updated_date
 
 
@@ -185,9 +185,9 @@ class TicketAction(models.Model):
 	def trigger_notifications(self):
 		# In-app notifications
 		for user in self.ticket.watchers.all():
-			if user != self.user: # users shouldn't be notified of their own actions
+			if user != self.user and user.wants_app_notifications(): # users shouldn't be notified of their own actions
 				TicketActionNotification(
-					user=self.user,
+					user=user,
 					action=self
 				).save()
 		

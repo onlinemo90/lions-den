@@ -17,7 +17,6 @@ class Migration(migrations.Migration):
             name='UserTicketNotification',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_read', models.BooleanField(default=False)),
                 ('action', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_notifications', to='ticket_system.ticketaction')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ticket_notifications', to=settings.AUTH_USER_MODEL)),
             ],

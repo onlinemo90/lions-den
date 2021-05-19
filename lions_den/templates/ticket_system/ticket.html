@@ -114,7 +114,7 @@
 									<b>{{ comment.creator }}</b>
 									{% if comment.attachments.count %}
 										added {% if comment.attachments.count == 1%} an attachment{% else %} {{ comment.attachments.count }} attachments{% endif %} and
-									{% endif%} commented on {{ comment.added_date }}{% if comment.has_been_edited %} (edited){% endif %}
+									{% endif%} commented on {{ comment.added_date }}{% if comment.is_edited %} (edited){% endif %}
 								</div>
 								<div class="float-right">
 									{% if request.user == comment.creator %}

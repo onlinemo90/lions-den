@@ -17,7 +17,7 @@ def logout_view(request):
 	return redirect('login')
 
 class PreferencesView(LoginRequiredMixin, UpdateView):
-	fields = ('wants_email_notifications',)
+	fields = ('notification_method',)
 	template_name = 'zoo_auth/preferences.html'
 	context_object_name = 'user'
 	success_url = reverse_lazy('user_preferences')
@@ -39,4 +39,4 @@ class NotificationsView(LoginRequiredMixin, ListView):
 				notification = TicketActionNotification.objects.get(id=request.POST.get('id'))
 				if notification.user == request.user:
 					notification.delete()
-					return JsonResponse()
+					return JsonResponse({})

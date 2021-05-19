@@ -44,7 +44,13 @@ class ZooUser(AbstractUser):
 	last_name = models.CharField(blank=True, max_length=64)
 	
 	# Preferences
-	wants_email_notifications = models.BooleanField(verbose_name='Receive notifications via email', blank=False, default=False)
+	class NotificationMethod(models.TextChoices):
+		NONE = 'NONE', _('None')
+		APP = 'APP', _('Bell icon')
+		EMAIL = 'EMAIL', _('E-mail')
+		APP_AND_EMAIL = 'A&E', _('Both')
+	
+	notification_method = models.CharField(max_length=5, choices=NotificationMethod.choices, verbose_name='Notification Method', blank=False, default=NotificationMethod.APP)
 	
 	username = None
 	USERNAME_FIELD = 'email'
@@ -89,12 +95,12 @@ class ZooUser(AbstractUser):
 		if not text_message:
 			text_message = html2text.html2text(html_message)
 		
-		users = users.exclude(wants_email_notifications=False)
-		admins = ZooUser.admins.filter(wants_email_notifications=True)
+		users = [user for user in users.all() if user.wants_email_notifications()]
+		admins = [user for user in ZooUser.admins.all() if user.wants_email_notifications()]
 		bcc_users = []
 		
 		if notify_admins:
-			users = users.difference(admins)
+			users = [user for user in users if user not in admins]
 		if notify_separately:
 			mailing_lists = [(user,) for user in users]
 			if notify_admins:
@@ -124,6 +130,13 @@ class ZooUser(AbstractUser):
 			html_message=html_message,
 			notify_admins=True
 		)
+	
+	# Preferences
+	def wants_email_notifications(self):
+		return self.notification_method in (self.NotificationMethod.EMAIL, self.NotificationMethod.APP_AND_EMAIL)
+	
+	def wants_app_notifications(self):
+		return self.notification_method in (self.NotificationMethod.APP, self.NotificationMethod.APP_AND_EMAIL)
 
 
 class Zoo(models.Model):

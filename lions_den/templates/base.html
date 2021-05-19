@@ -73,8 +73,15 @@
 				<ul class="navbar-nav ml-auto">
 					{% block extra_navbar_items %}{% endblock %}
 					
-					{% if request.user.is_authenticated %}
+					{% if request.user.is_authenticated and request.user.wants_app_notifications %}
 						{% include 'utils/buttons/bell.html' with css_class='navbar-image mr-3' stroke='var(--colorBackground)' href='user_notifications'|rev_url %}
+						{% if user.ticket_notifications.count %}
+							<div class="notification-count">
+								<span class="badge notification-count">
+									{% if user.ticket_notifications.count < 100 %}{{ user.ticket_notifications.count }}{% else %}99+{% endif %}
+								</span>
+							</div>
+						{% endif %}
 					{% endif %}
 					
 					<li class="nav-item dropdown">
@@ -86,7 +93,7 @@
 							{% if request.user.is_authenticated %}
 								{% if not disable_navbar_change_password %}
 									<div class="dropdown-divider"></div>
-									<a class="dropdown-item" href="{% url 'user_preferences' %}">Edit Preferences</a>
+									<a class="dropdown-item" href="{% url 'user_preferences' %}">Preferences</a>
 									<a class="dropdown-item" href="{% url 'change_password' %}">Change password</a>
 									<a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
 								{% endif %}

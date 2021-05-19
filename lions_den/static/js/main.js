@@ -467,7 +467,11 @@ function deleteTicketNotification(notificationID){
 		url: document.URL,
 		data: 'delete_notification&id=' + notificationID,
 		success: function(response){
-			$('#id_row_ticket_notification_' + notificationID).remove();
+			$('#id_row_notification_' + notificationID).remove();
+			if (!$('tr[id^=id_row_ticket_notification_]').length){
+				$('#id_notifications_table').hide();
+				$('#id_no_notifications_text').show();
+			}
 		},
 	});
 }
