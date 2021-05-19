@@ -141,7 +141,7 @@ class TicketView(BaseView, DetailView):
 				template_name='utils/modals/modal_form.html',
 				context={
 					'title': 'Update ticket',
-					'form': TicketStatusForm(instance=self.get_object(), user=request.user),
+					'form': TicketStatusForm(instance=self.get_object()),
 					'submit_btn_name': 'update_ticket_status',
 				}
 			)
@@ -183,7 +183,7 @@ class TicketView(BaseView, DetailView):
 				form.save(request.user)
 				return self.redirect_to_self(request)
 		elif 'update_ticket_status' in request.POST:
-			form = TicketStatusForm(request.POST, instance=self.get_object(), user=request.user)
+			form = TicketStatusForm(request.POST, instance=self.get_object())
 			if form.is_valid():
 				form.save(request.user)
 				return self.redirect_to_self(request)
