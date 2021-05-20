@@ -30,7 +30,7 @@ p, label, pre {
 	color: var(--colorForeground);
 }
 
-input[type=text], input[type=password], input[type=number], textarea, .selectdatewidget, .select {
+input[type=text], input[type=search], input[type=password], input[type=number], textarea, .selectdatewidget, .select {
 	background-color: var(--colorBackground) !important;
 	color: var(--colorContrast) !important;
 	border: 1px solid var(--colorAccent) !important;
@@ -62,14 +62,17 @@ select:focus,
 	color: var(--colorContrast);
 }
 
+a.bg-primary:hover,
 a.bg-primary:focus,
 a.bg-primary:active,
-a.bg-primary:hover,
-button.btn-primary:focus,
+a.btn-primary:hover,
+a.btn-primary:focus,
+a.btn-primary:active,
 button.btn-primary:hover,
+button.btn-primary:focus,
 button.btn-primary:active,
-input[type="button"].btn-primary:focus,
 input[type="button"].btn-primary:hover,
+input[type="button"].btn-primary:focus,
 input[type="button"].btn-primary:active {
 	background-color: var(--colorPrimaryDark) !important;
 	box-shadow: var(--colorPrimary) !important;
@@ -361,4 +364,8 @@ span.notification-count {
 	pointer-events: none;
 	position: absolute;
 	border-radius: 50%;
+}
+
+.search-btn {
+	padding-top: 7px;
 }

@@ -1,5 +1,4 @@
 import functools
-import operator
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, JsonResponse
@@ -8,7 +7,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import never_cache
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.db.models import Q
 
 from .models import Ticket, Comment
@@ -64,25 +63,20 @@ class BaseView(LoginRequiredMixin, View):
 		pass
 
 
-class TicketListView(BaseView):
+class TicketListView(BaseView, ListView):
 	template_name = 'ticket_system/ticket_list.html'
-	default_queryset = Ticket.objects.all().order_by('-id')
+	queryset = Ticket.objects
+	ordering = '-id'
+	context_object_name = 'tickets'
 	
-	def get(self, request):
-		return render(
-			request=request,
-			template_name=self.template_name,
-			context={
-				'ticket_model': Ticket,
-				'tickets': Ticket.objects.all().order_by('-id')
-			}
-		)
+	def get_context_data(self):
+		return super().get_context_data(ticket_model=Ticket)
 	
 	def get_ajax_sub(self, request):
 		filtered_tickets = functools.reduce(
 			lambda ticket_list, field_dict: ticket_list.filter(**field_dict),
 			[{field: request.GET.get(field)} for field in request.GET if hasattr(Ticket, field)],
-			self.default_queryset
+			self.get_queryset()
 		)
 		if '__user_is_assignee__' in request.GET:
 			filtered_tickets = filtered_tickets.filter(assignee=request.user)
@@ -98,14 +92,15 @@ class TicketListView(BaseView):
 				functools.reduce(lambda x, y: x | y, (Q(title__icontains=word) for word in keywords)) |
 				functools.reduce(lambda x, y: x | y, (Q(description__icontains=word) for word in keywords)) |
 				functools.reduce(lambda x, y: x | y, (Q(comments__text__icontains=word) for word in keywords))
-			).distinct()
-		
+			)
+			if len(keywords) == 1 and keywords[0].isdigit():
+				filtered_tickets = Ticket.objects.filter(id=keywords[0]) | filtered_tickets
+			filtered_tickets = filtered_tickets.distinct()
+			
 		return render(
 			request=request,
 			template_name='ticket_system/ticket_list_table.html',
-			context={
-				'tickets': filtered_tickets
-			}
+			context={'tickets': filtered_tickets}
 		)
 
 

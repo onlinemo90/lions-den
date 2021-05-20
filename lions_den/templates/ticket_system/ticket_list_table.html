@@ -1,26 +1,34 @@
-<table id="table_ticket_list" class="table">
-	<thead>
-		<tr>
-			<th>ID</th>
-			<th>Title</th>
-			<th>App</th>
-			<th>Priority</th>
-			<th>Status</th>
-			<th>Created on</th>
-			<th>Last Updated on</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for ticket in tickets %}
-			<tr>
-				<td>{{ ticket.id }}</td>
-				<td><a href="{% url 'ticket_page' pk=ticket.id %}">{{ ticket.title }}</a></td>
-				<td>{{ ticket.get_app_display }}</td>
-				<td>{{ ticket.get_priority_display }}</td>
-				<td>{{ ticket.get_status_display }}</td>
-				<td>{{ ticket.created_date }}</td>
-				<td>{{ ticket.last_updated_date }}</td>
-			</tr>
-		{% endfor %}
-	</tbody>
-</table>
+<div id="id_ticket_search_result">
+	{% if tickets.count > 0 %}
+		<table class="table">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Title</th>
+					<th>App</th>
+					<th>Priority</th>
+					<th>Status</th>
+					<th>Created on</th>
+					<th>Last Updated on</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for ticket in tickets %}
+					<tr>
+						<td>{{ ticket.id }}</td>
+						<td><a href="{% url 'ticket_page' pk=ticket.id %}">{{ ticket.title }}</a></td>
+						<td>{{ ticket.get_app_display }}</td>
+						<td>{{ ticket.get_priority_display }}</td>
+						<td>{{ ticket.get_status_display }}</td>
+						<td>{{ ticket.created_date }}</td>
+						<td>{{ ticket.last_updated_date }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% else %}
+		<div class="container">
+			<p>No tickets found, please refine your search</p>
+		</div>
+	{% endif %}
+</div>

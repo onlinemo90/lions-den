@@ -389,8 +389,8 @@ function addCategoryForm(){
 
 // Ticket List----------------------------------------------------------------------------------------------------------
 function submitTicketSearch(){
-	// Reset filter dropdowns
-	$('#ticket_list_filters select').prop('selectedIndex', 0);
+	$('#ticket_list_filters select').prop('selectedIndex', 0); // clears active filters
+	updateClearFiltersButton(false);
 	filterTicketList();
 }
 
@@ -425,13 +425,33 @@ function filterTicketList(){
 		url: document.URL,
 		data: Object.keys(data).map(key => `${key}=${data[key]}`).join('&'),
 		success: function(response){
-			$('#table_ticket_list').replaceWith(response);
+			$('#id_ticket_search_result').replaceWith(response);
 		},
 	});
 }
 
+function updateClearFiltersButton(isEnable){
+	let iconStroke = '', iconFill = '';
+	if (isEnable){
+		iconStroke = 'var(--colorPrimaryDark)';
+	} else {
+		iconStroke = 'var(--colorForeground)';
+	}
+	$('#id_ticket_list_clear_filters_button svg').attr({'stroke': iconStroke });
+}
+
 document.addEventListener("DOMContentLoaded", function(){
-	$('#ticket_list_filters select').on('change', filterTicketList);
+	$('#ticket_list_filters select').on('change', filterTicketList); // trigger filtering
+	$('#ticket_list_filters select').on('change', function(){
+		console.log($('#ticket_list_filters select').filter(function(){ return this['selectedIndex'] != 0; }).length);
+		if ($('#ticket_list_filters select').filter(function(){ return this['selectedIndex'] != 0; }).length > 0){
+			console.log('activating');
+			updateClearFiltersButton(true);
+		} else {
+			console.log('deactivating');
+			updateClearFiltersButton(false);
+		}
+	});
 });
 //----------------------------------------------------------------------------------------------------------------------
 

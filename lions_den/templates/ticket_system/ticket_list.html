@@ -5,17 +5,11 @@
 		<h2 class="title pr-2" style="display:inline-block">Tickets</h2>
 	</div>
 	
-	{% for ticket in object_list %}
-		<a class="btn-primary" href="{% url 'ticket_page' pk=ticket.id %}">
-			<div class="container border mb-3">
-				<p class="my-2">{{ ticket.title }}</p>
-			</div>
-		</a>
-	{% endfor %}
-	
-	<div class="mb-3">
-		<input id="id_search_text" type="text" class="textinput textInput form-control" style="width:20%; display:inline" placeholder="Search" />
-		{% include 'utils/buttons/search.html' with onclick='submitTicketSearch()' %}
+	<div class="input-group mb-3" style="width:30%">
+		<input id="id_search_text" type="search" class="textinput form-control" style="width:20%; display:inline" placeholder="Search" onkeypress="if(event.keyCode === 13) { submitTicketSearch(); }"/>
+		<div class="input-group-append">
+			{% include 'utils/buttons/search.html' with size=20 css_class='btn btn-primary search-btn' onclick='submitTicketSearch()' %}
+		</div>
 	</div>
 	
 	<div id="ticket_list_filters" class="mb-3">
@@ -39,6 +33,8 @@
 				<option value="1">Assigned to me</option>
 			</select>
 		{% endif %}
+		
+		{% include 'utils/buttons/filter.html' with css_class='ml-2' onclick="submitTicketSearch()" stroke='var(--colorForeground)' tooltip_text="Clear filters" id="id_ticket_list_clear_filters_button" %}
 		
 	</div>
 	
