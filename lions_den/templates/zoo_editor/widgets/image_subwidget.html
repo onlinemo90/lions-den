@@ -1,1 +1,3 @@
-<img id="{{ widget.subwidget_id }}" src="{{ widget.value.url }}"/>
+<a href="#" onclick="if (!$(this).parents('#modal').length) { microLite(this); return false; }">
+	<img id="{{ widget.subwidget_id }}" src="{{ widget.value.url }}"/>
+</a>

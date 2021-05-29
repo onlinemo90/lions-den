@@ -55,7 +55,7 @@ function getModal(modalID, extraData){
 				$('main').append(response);
 			}
 			$('#modal').modal('show');
-			initDynamicBlobFieldDisplay(); // allow for newly created image and audio fields to dynamically update
+			initDynamicBlobFields(); // allow for newly created image and audio fields to dynamically update
 		},
 	});
 }
@@ -76,66 +76,99 @@ function submitModalForm(formName, successFunction){ // Submit AJAX modal form
 //----------------------------------------------------------------------------------------------------------------------
 
 // Dynamic image & audio updating in subject forms----------------------------------------------------------------------
-function setDynamicBlobDisplay(displayID, widgetID, audioControlID, updateFunction) {
-	let reloadAudio = function(){ if (audioControlID){ $("#" + audioControlID)[0].load() } };
-	var initialValue = document.getElementById(displayID).src;
-	document.querySelector('#' + widgetID).addEventListener('change', function() {
-		var file = document.getElementById(widgetID).files[0];
-		var displayElement = document.getElementById(displayID);
-		if (file){
-			var reader  = new FileReader();
-			reader.onload = updateFunction;
-			reader.readAsDataURL(file);
-		} else {
-			displayElement.src = initialValue;
-			reloadAudio();
-		}
-	});
-}
+class AbstractDynamicBlobInput {
+	constructor(typeStr) {
+		let inputId = 'id_subject_' + typeStr;
+		this.input = $('#' + inputId);
+		this.displayWidget = $('#' + inputId + '-display');
+		this.initialDisplayValue = this.displayWidget.prop('src');
 
-function setDynamicImageDisplay(displayID, widgetID, audioControlID){
-	return setDynamicBlobDisplay(displayID, widgetID, null,
-		function(e){
-			var file = document.getElementById(widgetID).files[0];
-			let formdata = new FormData();
-			if (formdata) {
-				formdata.append("image", file);
-				formdata.append("update_image_display", null);
-				$.ajax({
-					url: document.URL,
-					type: "POST",
-					data: formdata,
-					processData: false,
-					contentType: false,
-					success: function(data){ document.getElementById(displayID).src = data['image_src'] },
-					error: function() {}
-				});
+		// Add events
+		if (this.input.length){
+			let _this = this; // so we can access the object within declared functions
+			this.input.on('change', function() {
+				var file = _this.input.prop('files')[0];
+				if (file){
+					var reader = new FileReader();
+					reader.onload = _this.updateDisplayFromInput();
+					reader.readAsDataURL(file);
+				} else {
+					_this.setDisplayWidget(null);
+				}
+			});
+		}
+	}
+
+	updateDisplayFromInput() {
+		// Must be defined per subclass
+	}
+
+	setDisplayWidget(newBlob, alertUser){
+		if (!newBlob){
+			this.displayWidget.prop('src', this.initialDisplayValue);
+			this.input.val(''); // clear input contents
+			if (alertUser) {
+				alert('The provided file format is not supported');
 			}
+		} else {
+			this.displayWidget.prop('src', newBlob);
 		}
-	)
+	}
 }
 
-function setDynamicAudioDisplay(displayID, widgetID, audioControlID){
-	return setDynamicBlobDisplay(displayID, widgetID, null,
-		function(e){
-			$("#" + audioControlID)[0].load();
-			document.getElementById(displayID).src = e.target.result;
+class DynamicImageInput extends AbstractDynamicBlobInput {
+	constructor(){ super('image'); }
+
+	updateDisplayFromInput() {
+		var _this = this;
+		var file = this.input.prop('files')[0];
+		let formdata = new FormData();
+		if (formdata) {
+			formdata.append("image", file);
+			formdata.append("update_image_display", null);
+			$.ajax({
+				url: document.URL,
+				type: "POST",
+				data: formdata,
+				processData: false,
+				contentType: false,
+				success: function(data){
+					_this.setDisplayWidget(data['image_src'], true); // will revert the display if nothing returned from server
+				}
+			});
 		}
-	)
+	}
 }
 
-function initDynamicBlobFieldDisplay(){
-	if (document.getElementById("id_subject_image")){
-		setDynamicImageDisplay("id_subject_image-display", "id_subject_image");
+class DynamicAudioInput extends AbstractDynamicBlobInput {
+	constructor(){
+		super('audio');
+		this.audioControl = $('#' + this.displayWidget.prop('id') + '_controls')[0];
 	}
 
-	if (document.getElementById("id_subject_audio")){
-		setDynamicAudioDisplay("id_subject_audio-display", "id_subject_audio", "id_subject_audio-display_controls");
+	setDisplayWidget(newBlob, alertUser){
+		super.setDisplayWidget(newBlob, alertUser);
+		if (!newBlob){
+			this.audioControl.load();
+		}
 	}
+
+	updateDisplayFromInput(e) {
+		var _this = this;
+		return function(e) {
+			_this.setDisplayWidget(e.target.result);
+			_this.audioControl.load();
+		}
+	}
+}
+
+function initDynamicBlobFields(){
+	new DynamicImageInput();
+	new DynamicAudioInput();
 }
 
 document.addEventListener("DOMContentLoaded", function(){
-	initDynamicBlobFieldDisplay();
+	initDynamicBlobFields();
 });
 //----------------------------------------------------------------------------------------------------------------------
 

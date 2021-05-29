@@ -112,7 +112,10 @@ class SubjectPageView(BaseZooView):
 	
 	def post_ajax(self, request, zoo_id, subject_id):
 		if 'update_image_display' in request.POST:
-			return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+			try:
+				return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+			except:
+				return JsonResponse({})
 		elif 'add_new_attribute' in request.POST:
 			if 'name' in request.POST: # name field actually returns the category id
 				attribute_category = AttributeCategory.objects.using(zoo_id).get(id=request.POST.get('name'))
