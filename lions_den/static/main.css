@@ -231,10 +231,10 @@ a.direction-button:focus, a.direction-button:hover {
 	color: var(--colorPrimaryDark);
 }
 
-div.tile:hover {
+div.tile-clickable:hover {
 	background-color: var(--colorAccent) !important;
 }
 
-div.tile:hover h2.tile-label {
+div.tile-clickable:hover h2.tile-label {
 	color:var(--colorPrimaryDark) !important;
 }
