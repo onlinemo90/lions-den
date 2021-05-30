@@ -178,7 +178,10 @@ class SubjectsListView(BaseZooView):
 
 	def post_ajax(self, request, zoo_id):
 		if 'update_image_display' in request.POST:
-			return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url })
+			try:
+				return JsonResponse({'image_src': self.model.image.field.from_file(request.FILES["image"]).url})
+			except:
+				return JsonResponse({})
 		elif 'modal_new_subject' in request.POST:
 			new_subject_form = self.model.form(data=request.POST, files=request.FILES, zoo_id=zoo_id)
 			if new_subject_form.is_valid():
