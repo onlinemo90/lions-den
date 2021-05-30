@@ -443,12 +443,9 @@ function updateClearFiltersButton(isEnable){
 document.addEventListener("DOMContentLoaded", function(){
 	$('#ticket_list_filters select').on('change', filterTicketList); // trigger filtering
 	$('#ticket_list_filters select').on('change', function(){
-		console.log($('#ticket_list_filters select').filter(function(){ return this['selectedIndex'] != 0; }).length);
 		if ($('#ticket_list_filters select').filter(function(){ return this['selectedIndex'] != 0; }).length > 0){
-			console.log('activating');
 			updateClearFiltersButton(true);
 		} else {
-			console.log('deactivating');
 			updateClearFiltersButton(false);
 		}
 	});

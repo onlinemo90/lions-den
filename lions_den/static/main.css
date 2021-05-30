@@ -57,9 +57,7 @@ audio:focus,
 select:focus,
 .uneditable-input:focus {
 	box-shadow: var(--colorPrimary) !important;
-	outline: 0 none;
-	background-color: var(--colorBackground) !important;
-	color: var(--colorContrast);
+	border: 1px solid var(--colorPrimaryDark) !important;
 }
 
 a.bg-primary:hover,
