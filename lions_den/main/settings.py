@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 	'zoo_auth.apps.ZooAuthConfig',
 	'zoo_editor.apps.ModelEditorConfig',
+	'location_field.apps.DefaultConfig',
 	'crispy_forms',
 	'django.forms',
 	'django.contrib.admin',
@@ -148,3 +149,11 @@ EMAIL_HOST_PASSWORD =  'ZSL@ldn2020'
 
 # Allow additional template definitions
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
+# Django-location API
+LOCATION_FIELD = {
+    'provider.google.api': '//maps.google.com/maps/api/js?sensor=false',
+    'provider.google.api_key': 'AIzaSyCxNRmB0sOLzAMVyTlroxIlGm6uXREpRfo',
+    'provider.google.api_libraries': '',
+    'provider.google.map.type': 'ROADMAP',
+}
