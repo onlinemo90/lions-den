@@ -193,7 +193,7 @@ class TicketView(BaseView, DetailView):
 				form.save(ticket=self.get_object(), creator=request.user)
 				return self.redirect_to_self(request)
 		elif 'edit_comment' in request.POST:
-			form = CommentForm(request.POST, prefix='comment')
+			form = CommentForm(request.POST, instance=Comment.objects.filter(id=request.POST.get('comment-id')).get(), prefix='comment')
 			if form.is_valid():
 				form.save()
 				return self.redirect_to_self(request)
