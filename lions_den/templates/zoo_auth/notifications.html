@@ -26,5 +26,5 @@
 			</tbody>
 		</table>
 	{% endif %}
-	<p id="id_no_notifications_text" class="container" {% if user.ticket_notifications.count %}hidden{% endif %}>You have no unread notifications</p>
+	<p id="id_no_notifications_text" class="container" {% if user.ticket_notifications.count %}style="display:none"{% endif %}>You have no unread notifications</p>
 {% endblock %}

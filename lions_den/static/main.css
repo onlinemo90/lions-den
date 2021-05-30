@@ -352,6 +352,10 @@ div.ticket-tab-content {
 	border-bottom: 1px solid var(--colorAccent);
 }
 
+.ticket-filter-active {
+	border-color: var(--colorPrimary) !important;
+}
+
 div.notification-count {
 	position: relative;
 	left: -2rem;

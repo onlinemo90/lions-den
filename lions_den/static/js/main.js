@@ -388,12 +388,6 @@ function addCategoryForm(){
 //----------------------------------------------------------------------------------------------------------------------
 
 // Ticket List----------------------------------------------------------------------------------------------------------
-function submitTicketSearch(){
-	$('#ticket_list_filters select').prop('selectedIndex', 0); // clears active filters
-	updateClearFiltersButton(false);
-	filterTicketList();
-}
-
 function filterTicketList(){
 	let data = {};
 
@@ -430,6 +424,12 @@ function filterTicketList(){
 	});
 }
 
+function clearTicketFilters(){
+	$('#ticket_list_filters select').prop('selectedIndex', 0); // clears active filters
+	updateClearFiltersButton(false);
+	$('#ticket_list_filters select').trigger('change');
+}
+
 function updateClearFiltersButton(isEnable){
 	let iconStroke = '', iconFill = '';
 	if (isEnable){
@@ -447,6 +447,17 @@ document.addEventListener("DOMContentLoaded", function(){
 			updateClearFiltersButton(true);
 		} else {
 			updateClearFiltersButton(false);
+		}
+	});
+
+	let activeFilterClass = 'ticket-filter-active';
+	$('#ticket_list_filters select').on('change', function(){
+		if (!$(this).prop('selectedIndex')){
+			if ($(this).hasClass(activeFilterClass)){
+				$(this).toggleClass(activeFilterClass);
+			}
+		} else if (!$(this).hasClass(activeFilterClass)) {
+			$(this).toggleClass(activeFilterClass);
 		}
 	});
 });
@@ -485,7 +496,7 @@ function deleteTicketNotification(notificationID){
 		data: 'delete_notification&id=' + notificationID,
 		success: function(response){
 			$('#id_row_notification_' + notificationID).remove();
-			if (!$('tr[id^=id_row_ticket_notification_]').length){
+			if (!$('tr[id^=id_row_notification_]').length){
 				$('#id_notifications_table').hide();
 				$('#id_no_notifications_text').show();
 			}

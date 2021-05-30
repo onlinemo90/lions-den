@@ -6,9 +6,9 @@
 	</div>
 	
 	<div class="input-group mb-3" style="width:30%">
-		<input id="id_search_text" type="search" class="textinput form-control" style="width:20%; display:inline" placeholder="Search" onsearch="submitTicketSearch();"/>
+		<input id="id_search_text" type="search" class="textinput form-control" style="width:20%; display:inline" placeholder="Search" onsearch="filterTicketList();"/>
 		<div class="input-group-append">
-			{% include 'utils/buttons/search.html' with size=20 css_class='btn btn-primary search-btn' onclick='submitTicketSearch()' %}
+			{% include 'utils/buttons/search.html' with size=20 css_class='btn btn-primary search-btn' onclick='filterTicketList()' %}
 		</div>
 	</div>
 	
@@ -34,7 +34,7 @@
 			</select>
 		{% endif %}
 		
-		{% include 'utils/buttons/filter.html' with css_class='ml-2' onclick="submitTicketSearch()" stroke='var(--colorForeground)' tooltip_text="Clear filters" id="id_ticket_list_clear_filters_button" %}
+		{% include 'utils/buttons/filter.html' with css_class='ml-2' onclick="clearTicketFilters()" stroke='var(--colorForeground)' tooltip_text="Clear filters" id="id_ticket_list_clear_filters_button" %}
 		
 	</div>
 	
