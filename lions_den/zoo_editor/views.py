@@ -195,12 +195,12 @@ class SubjectsListView(BaseZooView):
 # Renderable Views---------------------------------------------------
 class ZoosIndexView(LoginRequiredMixin, View):
 	def get(self, request):
-		if len(request.user.allowed_zoos) == 1:
-			return redirect(request.user.allowed_zoos[0].id + '/')
+		if len(request.user.zoos) == 1:
+			return redirect(request.user.zoos[0].id + '/')
 		return render(
 			request=request,
 			template_name = 'zoo_editor/zoos_list.html',
-			context={'zoos': request.user.allowed_zoos}
+			context={'zoos': request.user.zoos}
 		)
 
 

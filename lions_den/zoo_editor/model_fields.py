@@ -138,10 +138,10 @@ class BlobField(models.BinaryField):
 class ImageBlobField(BlobField):
 	obj_class = ImageBlob
 	
-	def __init__(self, size, format='PNG', *args, **kwargs):
+	def __init__(self, *args, **kwargs):
+		self.size = kwargs.pop('size', None)
+		self.format = kwargs.pop('format', None)
 		super().__init__(*args, **kwargs)
-		self.size = size
-		self.format = format
 
 	def get_db_prep_value(self, value, connection, prepared=False):
 			return self.obj_class(bytes=value.read(), parent_field=self).as_rotated_without_exif().getvalue() if value else None

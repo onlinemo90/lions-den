@@ -1,0 +1,6 @@
+<select name="{{ name }}" id="id_select_{{ name }}" class="select form-control">
+	<option selected value>{{ default_label }}</option>
+	{% for value, label in field_enum.choices %}
+		<option value="{{ value }}">{{ label }}</option>
+	{% endfor %}
+</select>

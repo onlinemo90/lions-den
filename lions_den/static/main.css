@@ -30,7 +30,7 @@ p, label {
 	color: var(--colorForeground);
 }
 
-input[type=text], input[type=password], input[type=number], textarea, .selectdatewidget, .select {
+input[type=text], input[type=search], input[type=password], input[type=number], textarea, .selectdatewidget, .select {
 	background-color: var(--colorBackground) !important;
 	color: var(--colorContrast) !important;
 	border: 1px solid var(--colorAccent) !important;
@@ -57,19 +57,20 @@ audio:focus,
 select:focus,
 .uneditable-input:focus {
 	box-shadow: var(--colorPrimary) !important;
-	outline: 0 none;
-	background-color: var(--colorBackground) !important;
-	color: var(--colorContrast);
+	border: 1px solid var(--colorPrimaryDark) !important;
 }
 
+a.bg-primary:hover,
 a.bg-primary:focus,
 a.bg-primary:active,
-a.bg-primary:hover,
-button.btn-primary:focus,
+a.btn-primary:hover,
+a.btn-primary:focus,
+a.btn-primary:active,
 button.btn-primary:hover,
+button.btn-primary:focus,
 button.btn-primary:active,
-input[type="button"].btn-primary:focus,
 input[type="button"].btn-primary:hover,
+input[type="button"].btn-primary:focus,
 input[type="button"].btn-primary:active {
 	background-color: var(--colorPrimaryDark) !important;
 	box-shadow: var(--colorPrimary) !important;
@@ -86,6 +87,14 @@ select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
 	-webkit-text-fill-color: var(--colorContrast) !important;
 	-webkit-box-shadow: 0 0 0 30px var(--colorBackground) inset !important;
+}
+
+input[type="file"] {
+	color: var(--colorForeground);
+}
+
+a:focus, a:hover, a:active {
+	color: var(--colorPrimaryDark);
 }
 
 
@@ -112,8 +121,12 @@ select:-webkit-autofill:focus {
 	flex-direction: row !important;
 }
 
-.navbar-brand {
+.navbar-brand, .navbar .nav-link {
 	color: var(--colorBackground) !important;
+}
+
+.navbar-brand:hover, .navbar .nav-link:hover {
+	color: var(--colorContrast) !important;
 }
 
 .dropdown-menu {
@@ -127,6 +140,10 @@ select:-webkit-autofill:focus {
 .modal-content, .dropdown-menu, .dropdown-item {
 	background-color: var(--colorBackground) !important;
 	color: var(--colorContrast) !important;
+}
+
+.dropdown-item:focus, .dropdown-item:hover {
+    background-color: var(--colorAccent) !important;
 }
 
 .modal-header {
@@ -143,6 +160,51 @@ select:-webkit-autofill:focus {
 	border: 1px solid var(--colorAccent) !important;
 }
 
+div.border {
+	border: 1px solid var(--colorAccent) !important;
+}
+
+div.border-bottom {
+	border-bottom: 1px solid var(--colorAccent) !important;
+}
+
+.table-bordered td, .table-bordered th {
+	border: 1px solid var(--colorAccent) !important;
+}
+
+.table {
+	color: var(--colorForeground) !important;
+}
+
+.table td, .table th {
+	border-top: 1px solid var(--colorAccent);
+}
+
+.table thead th {
+	border-bottom: 2px solid var(--colorAccent);
+}
+
+div.ticket-tabs-nav {
+	border-bottom: 1px solid var(--colorAccent);
+}
+
+.nav-tabs {
+	border-bottom: 1px solid var(--colorAccent);
+}
+
+.nav-tabs .nav-link.active {
+	color: var(--colorPrimaryDark);
+}
+
+.nav-tabs .nav-link.active {
+	background-color: var(--colorBackground);
+	border-color: var(--colorAccent) var(--colorAccent) transparent var(--colorAccent);
+	color: var(--colorPrimary);
+}
+
+.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+	border-color: var(--colorAccent) var(--colorAccent) transparent var(--colorAccent);
+}
 
 /* Custom-------------------------------------------------------------------------------------------------------------*/
 .page-header{
@@ -237,4 +299,83 @@ div.tile-clickable:hover {
 
 div.tile-clickable:hover h2.tile-label {
 	color:var(--colorPrimaryDark) !important;
+}
+
+a.edit-ticket-button {
+	color: var(--colorForeground);
+}
+
+a.edit-ticket-button:focus, a.edit-ticket-button:hover {
+	color: var(--colorPrimaryDark);
+}
+
+div.comment {
+	border: 1px solid var(--colorAccent);
+	border-radius: .25rem;
+	overflow: hidden;
+}
+
+div.comment a.edit-ticket-button {
+	display: none;
+}
+
+div.comment:hover a.edit-ticket-button {
+	display: block;
+}
+
+div.comment-header {
+	background-color: var(--colorAccent) !important;
+	color: var(--colorForeground);
+	padding: .75rem 1.25rem;
+    margin-bottom: 0;
+}
+
+div.comment-body {
+	background-color: var(--colorBackground);
+	color: var(--colorForeground);
+	padding: .75rem 1.25rem;
+}
+
+.dropdown-submenu {
+	position: relative;
+}
+
+.dropdown-submenu a::after {
+	transform: rotate(-90deg);
+	position: absolute;
+	right: 6px;
+	top: .8em;
+}
+
+.dropdown-submenu .dropdown-menu {
+	top: 0;
+	left: 100%;
+	margin-left: .1rem;
+	margin-right: .1rem;
+}
+
+div.ticket-tab-content {
+	border-left: 1px solid var(--colorAccent);
+	border-right: 1px solid var(--colorAccent);
+	border-bottom: 1px solid var(--colorAccent);
+}
+
+.ticket-filter-active {
+	border-color: var(--colorPrimary) !important;
+}
+
+div.notification-count {
+	position: relative;
+	left: -2rem;
+}
+
+span.notification-count {
+	background: red;
+	pointer-events: none;
+	position: absolute;
+	border-radius: 50%;
+}
+
+.search-btn {
+	padding-top: 7px;
 }

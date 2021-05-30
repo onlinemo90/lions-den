@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+		<title></title>
+		
+		<style type="text/css">
+		</style>
+	</head>
+	<body style="margin:0; padding:0; background-color:#F2F2F2;">
+		<center>
+			<table width="100%" border="1" cellpadding="3" cellspacing="0" bgcolor="#F2F2F2">
+				<tr bgcolor="#68b733">
+					<td align="center" valign="top"><strong>Field</strong></td>
+					{% if action.is_creation %}
+						<td align="center" valign="top"><strong>Value</strong></td>
+					{% else %}
+						<td align="center" valign="top"><strong>Original value</strong></td>
+						<td align="center" valign="top"><strong>New value</strong></td>
+					{% endif %}
+				</tr>
+				{% for change in action.changes.all %}
+					<tr>
+						<td align="center" valign="top">
+							<strong>{{ change.get_field_name }}</strong>
+						</td>
+						{% if not action.is_creation %}
+							<td align="center" valign="top">
+								{{ change.get_old_value_display|default:'-' }}
+							</td>
+						{% endif %}
+						<td align="center" valign="top">
+							{{ change.get_new_value_display|default:'-' }}
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</center>
+	</body>
+</html>

@@ -7,6 +7,25 @@ window.addEventListener('load', function () {
 });
 //----------------------------------------------------------------------------------------------------------------------
 
+// Enable submenus in Bootstrap dropdowns-------------------------------------------------------------------------------
+window.addEventListener('load', function () {
+	$('.dropdown-menu a.dropdown-toggle').on('mouseenter', function(e) {
+		if (!$(this).next().hasClass('show')) {
+			$(this).parents('.dropdown-menu').first().find('.show').removeClass('show');
+		}
+		var $subMenu = $(this).next('.dropdown-menu');
+		if (!$subMenu.hasClass('show')){
+			$subMenu.toggleClass('show');
+		}
+
+		$(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function(e) {
+			$('.dropdown-submenu .show').removeClass('show');
+		});
+		return false;
+	});
+});
+//----------------------------------------------------------------------------------------------------------------------
+
 // Setup AJAX to support POST requests----------------------------------------------------------------------------------
 function getCookie(name) {
     var cookieValue = null;
@@ -38,6 +57,31 @@ $.ajaxSetup({
 });
 //----------------------------------------------------------------------------------------------------------------------
 
+// Responsive Form Submit Buttons---------------------------------------------------------------------------------------
+function initResponsiveSubmitButtons() {
+	// Adding the hidden spinners to all submit buttons
+	let SPINNER_HTML = '<div style="display:none" class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></div> '
+	let SPINNER_SELECTOR = '.spinner-border';
+	let submitBtnSelector = 'button[type=submit]';
+	$(submitBtnSelector).each(function() {
+		if ($(this).children(SPINNER_SELECTOR).length == 0) {
+			$(this).prepend(SPINNER_HTML + ' ');
+		}
+	});
+
+	// Making it so successfully submitting forms shows the spinners
+	$('form').on('submit', function(){
+		$(this).find(SPINNER_SELECTOR).css('display', 'inline-block');
+
+		// The submit buttons on modal footers are dummies that call the onclick of a hidden submit button, so need to explicitly change them
+		$('.modal-footer button[type=submit] ' + SPINNER_SELECTOR).css('display', 'inline-block');
+	});
+}
+
+window.addEventListener('load', function () {
+	initResponsiveSubmitButtons();
+});
+
 // Modals---------------------------------------------------------------------------------------------------------------
 function getModal(modalID, extraData){
 	data = modalID;
@@ -56,11 +100,13 @@ function getModal(modalID, extraData){
 			}
 			$('#modal').modal('show');
 			initDynamicBlobFields(); // allow for newly created image and audio fields to dynamically update
+			initResponsiveSubmitButtons();
 		},
 	});
 }
 
 function submitModalForm(formName, successFunction){ // Submit AJAX modal form
+	$('#modalForm').triggerHandler('submit'); // to trigger any on submit event handlers
 	formData = new FormData($('#modalForm')[0]);
 	formData.append(formName, '');
 	$.ajax({
@@ -380,5 +426,123 @@ function addCategoryForm(){
 
 	// Increment form count
 	$('#id_form-TOTAL_FORMS').val(numForms + 1);
+}
+//----------------------------------------------------------------------------------------------------------------------
+
+// Ticket List----------------------------------------------------------------------------------------------------------
+function filterTicketList(){
+	let data = {};
+
+	// Fields whose values map directly to model
+	filterFields = ['app', 'priority', 'status'];
+	for (let filterField of filterFields){
+		let filterValue = $('#id_select_' + filterField).val();
+		if (filterValue){
+			data[filterField] = filterValue;
+		}
+	}
+
+	// Fields whose values need server interpretation
+	filterFields = ['creator', 'assignee', 'watcher'];
+	for (let filterField of filterFields){
+		if ($('#id_select_' + filterField).val()){
+			data['__user_is_' + filterField + '__'] = '';
+		}
+	}
+
+	// Get search text
+	let searchText = $('#id_search_text').val();
+	if (searchText){
+		data['__search__'] = searchText;
+	}
+
+	$.ajax({
+		type: 'GET',
+		url: document.URL,
+		data: Object.keys(data).map(key => `${key}=${data[key]}`).join('&'),
+		success: function(response){
+			$('#id_ticket_search_result').replaceWith(response);
+		},
+	});
+}
+
+function clearTicketFilters(){
+	$('#ticket_list_filters select').prop('selectedIndex', 0); // clears active filters
+	updateClearFiltersButton(false);
+	$('#ticket_list_filters select').trigger('change');
+}
+
+function updateClearFiltersButton(isEnable){
+	let iconStroke = '', iconFill = '';
+	if (isEnable){
+		iconStroke = 'var(--colorPrimaryDark)';
+	} else {
+		iconStroke = 'var(--colorForeground)';
+	}
+	$('#id_ticket_list_clear_filters_button svg').attr({'stroke': iconStroke });
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+	$('#ticket_list_filters select').on('change', filterTicketList); // trigger filtering
+	$('#ticket_list_filters select').on('change', function(){
+		if ($('#ticket_list_filters select').filter(function(){ return this['selectedIndex'] != 0; }).length > 0){
+			updateClearFiltersButton(true);
+		} else {
+			updateClearFiltersButton(false);
+		}
+	});
+
+	let activeFilterClass = 'ticket-filter-active';
+	$('#ticket_list_filters select').on('change', function(){
+		if (!$(this).prop('selectedIndex')){
+			if ($(this).hasClass(activeFilterClass)){
+				$(this).toggleClass(activeFilterClass);
+			}
+		} else if (!$(this).hasClass(activeFilterClass)) {
+			$(this).toggleClass(activeFilterClass);
+		}
+	});
+});
+//----------------------------------------------------------------------------------------------------------------------
+
+// Ticket Page----------------------------------------------------------------------------------------------------------
+function setUserWatcherStatus(addAsWatcher){
+	formData = new FormData();
+	formData.append('set_watcher_status', addAsWatcher);
+	$.ajax({
+		type: 'POST',
+		url: document.URL,
+		data: formData,
+		processData: false,
+		contentType: false,
+		success: function(response){
+			buttonSelector = $('#add_as_watcher_btn');
+			iconSelector = $('svg', buttonSelector);
+			if (response['user_is_watcher']){
+				iconSelector.attr({'stroke': 'var(--colorPrimary)'});
+			} else {
+				iconSelector.attr({'stroke': 'var(--colorForeground)'});
+			}
+			// Hide tooltip
+			buttonSelector.attr({'data-original-title': ''});
+		},
+	});
+}
+//----------------------------------------------------------------------------------------------------------------------
+
+// User Notifications---------------------------------------------------------------------------------------------------
+function deleteTicketNotification(notificationID){
+	$.ajax({
+		type: 'POST',
+		url: document.URL,
+		data: 'delete_notification&id=' + notificationID,
+		success: function(response){
+			$('#id_row_notification_' + notificationID).remove();
+			if (!$('tr[id^=id_row_notification_]').length){
+				$('#id_notifications_table').hide();
+				$('#id_no_notifications_text').show();
+			}
+		},
+	});
 }
 //----------------------------------------------------------------------------------------------------------------------

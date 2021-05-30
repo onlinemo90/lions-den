@@ -1,0 +1,42 @@
+{% extends "ticket_system/base.html" %}
+
+{% block content %}
+	<div class="page-header">
+		<h2 class="title pr-2" style="display:inline-block">Tickets</h2>
+	</div>
+	
+	<div class="input-group mb-3" style="width:30%">
+		<input id="id_search_text" type="search" class="textinput form-control" style="width:20%; display:inline" placeholder="Search" onsearch="filterTicketList();"/>
+		<div class="input-group-append">
+			{% include 'utils/buttons/search.html' with size=20 css_class='btn btn-primary search-btn' onclick='filterTicketList()' %}
+		</div>
+	</div>
+	
+	<div id="ticket_list_filters" class="mb-3">
+		{% include 'ticket_system/ticket_list_filter_field.html' with field_enum=ticket_model.App name='app' default_label='All Apps'  %}
+		{% include 'ticket_system/ticket_list_filter_field.html' with field_enum=ticket_model.Priority name='priority' default_label='All Priorities' %}
+		{% include 'ticket_system/ticket_list_filter_field.html' with field_enum=ticket_model.Status name='status' default_label='All Statuses' %}
+		
+		<select name="creator" id="id_select_creator" class="select form-control">
+			<option selected value>Reported by anyone</option>
+			<option value="1">Reported by me</option>
+		</select>
+		
+		<select name="watcher" id="id_select_watcher" class="select form-control">
+			<option selected value>Watched by anyone</option>
+			<option value="1">Watched by me</option>
+		</select>
+		
+		{% if request.user.is_staff %}
+			<select name="assignee" id="id_select_assignee" class="select form-control">
+				<option selected value>Assigned to anyone</option>
+				<option value="1">Assigned to me</option>
+			</select>
+		{% endif %}
+		
+		{% include 'utils/buttons/filter.html' with css_class='ml-2' onclick="clearTicketFilters()" stroke='var(--colorForeground)' tooltip_text="Clear filters" id="id_ticket_list_clear_filters_button" %}
+		
+	</div>
+	
+	{% include 'ticket_system/ticket_list_table.html' %}
+{% endblock %}

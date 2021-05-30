@@ -30,7 +30,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 	'zoo_auth.apps.ZooAuthConfig',
-	'zoo_editor.apps.ModelEditorConfig',
+	'zoo_editor.apps.ZooEditorConfig',
+	'ticket_system.apps.TicketSystemConfig',
 	'crispy_forms',
 	'django.forms',
 	'django.contrib.admin',
@@ -145,6 +146,7 @@ EMAIL_PORT = 465
 EMAIL_HOST = 'mail.zooverse.org'
 EMAIL_HOST_USER = 'contact@zooverse.org'
 EMAIL_HOST_PASSWORD =  'ZSL@ldn2020'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Allow additional template definitions
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'

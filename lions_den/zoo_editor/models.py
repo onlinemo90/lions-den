@@ -74,8 +74,8 @@ class Subject(AbstractBaseModel):
 
 class Species(Subject):
 	audio = AudioBlobField(editable=True, null=True, blank=True)
-	weight = DefaultCharField()
-	size = DefaultCharField()
+	weight = DefaultCharField(blank=True)
+	size = DefaultCharField(blank=True)
 	
 	class Meta:
 		db_table = 'SPECIES'
