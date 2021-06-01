@@ -93,10 +93,10 @@ function getModal(modalID, extraData){
 		url: document.URL,
 		data: data,
 		success: function(response){
-			if (document.getElementById('modal')){
+			if ($('#modal').length){
 				$('#modal').replaceWith(response);
 			} else {
-				$('main').append(response);
+				$('main').after(response);
 			}
 			$('#modal').modal('show');
 			initDynamicBlobFields(); // allow for newly created image and audio fields to dynamically update

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<div class="page-header">
+		<h2 class="title pr-2" style="display:inline-block">Locations</h2>
+		{% include 'utils/buttons/plus.html' with css_class='add-button' onclick="getModal('add_location')" tooltip_text='Add a new location' %}
+	</div>
+	
+	{% for location in locations %}
+		<p><a href="{{ location.id }}">{{ location.name }}</a></p>
+	{% endfor %}
+{% endblock %}

@@ -27,13 +27,15 @@
 			</tr>
 		</table>
 		
-		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'species_list' zoo.id %}'">Species</button>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'species_list' zoo_id=zoo.id %}'">Species</button>
 		
-		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'individuals_list' zoo.id %}'">Individuals</button>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'individuals_list' zoo_id=zoo.id %}'">Individuals</button>
 		
-		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'groups_list' zoo.id %}'">Groups</button>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'groups_list' zoo_id=zoo.id %}'">Groups</button>
 		
-		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'attribute_categories_list' zoo.id%}'">Attribute Categories</button>
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'attribute_categories_list' zoo_id=zoo.id %}'">Attribute Categories</button>
+		
+		<button type="button" class="zoo-page-btn btn-lg btn-block my-1" onclick="location='{% url 'locations_list' zoo_id=zoo.id %}'">Locations</button>
 		
 	</div>
 {% endblock %}

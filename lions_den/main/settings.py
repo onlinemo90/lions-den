@@ -154,8 +154,7 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 # Django-location API
 LOCATION_FIELD = {
-    'provider.google.api': '//maps.google.com/maps/api/js?sensor=false',
-    'provider.google.api_key': 'AIzaSyCxNRmB0sOLzAMVyTlroxIlGm6uXREpRfo',
-    'provider.google.api_libraries': '',
-    'provider.google.map.type': 'ROADMAP',
+	'map.provider': 'openstreetmap',
+    'search.provider': 'nominatim',
+	'provider.openstreetmap.max_zoom': 18,
 }

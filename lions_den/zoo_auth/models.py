@@ -148,6 +148,8 @@ class Zoo(models.Model):
 	date_joined = models.DateField(auto_now_add=True)
 	last_commit_date = models.DateField(blank=True)
 	
+	coordinates = models.CharField(unique=True, max_length=255, blank=True)
+	
 	users = models.ManyToManyField(get_user_model(), related_name='_zoos')
 	
 	def __str__(self):

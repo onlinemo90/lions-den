@@ -35,6 +35,12 @@
 	</div>
 {% endif %}
 
+{% if 'location' in form.fields %}
+	<div class="form-section">
+		{{ form.location|as_crispy_field }}
+	</div>
+{% endif %}
+
 {% if 'gender' in form.fields %}
 	<div class="form-section">
 		{{ form.gender|as_crispy_field }}
