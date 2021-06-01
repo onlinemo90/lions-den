@@ -41,7 +41,7 @@ class BaseZooView(LoginRequiredMixin, View):
 		return handler(request, *args, **kwargs)
 	
 	def get_zoo(self, zoo_id):
-		return Zoo.objects.filter(id=zoo_id).get()
+		return Zoo.objects.get(id=zoo_id)
 	
 	def redirect_to_self(self, request):
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -51,7 +51,7 @@ class SubjectPageView(BaseZooView):
 	template_name = 'zoo_editor/subject.html'
 	
 	def get_subject(self, zoo_id, subject_id):
-		return self.model.objects.using(zoo_id).filter(id=subject_id).get()
+		return self.model.objects.using(zoo_id).get(id=subject_id)
 	
 	def get_forms(self, request, subject):
 		request_data = request.POST if request.POST else None
@@ -159,9 +159,9 @@ class SubjectsListView(BaseZooView):
 		elif 'modal_delete_subject' in request.GET:
 			return render(
 				request=request,
-				template_name='zoo_editor/modals/delete_subject_modal.html',
+				template_name='utils/modals/modal_delete_prompt.html',
 				context={
-					'subject': self.model.objects.using(zoo_id).filter(id=request.GET.get('subject_id')).get()
+					'object': self.model.objects.using(zoo_id).get(id=request.GET.get('subject_id'))
 				}
 			)
 		else:
@@ -172,8 +172,8 @@ class SubjectsListView(BaseZooView):
 		return None
 
 	def post(self, request, zoo_id):
-		if 'submit_delete_subject' in request.POST:
-			subject = self.model.objects.using(zoo_id).filter(id=request.POST.get('subject_id')).get()
+		if 'submit_delete' in request.POST:
+			subject = self.model.objects.using(zoo_id).get(id=request.POST.get('object_id'))
 			subject.delete()
 			return self.redirect_to_self(request)
 
@@ -364,13 +364,25 @@ class ZooLocationListView(BaseZooView, ListView):
 					'submit_btn_name': 'modal_new_location',
 				}
 			)
+		elif 'modal_delete_location' in request.GET:
+			return render(
+				request=request,
+				template_name='utils/modals/modal_delete_prompt.html',
+				context={
+					'object': self.model.objects.using(zoo_id).get(id=request.GET.get('location_id'))
+				}
+			)
 	
 	def post(self, request, zoo_id):
 		if 'modal_new_location' in request.POST:
 			form = NewZooLocationForm(data=request.POST, zoo_id=zoo_id)
 			if form.is_valid():
 				form.save()
-				return redirect(reverse_lazy('location', kwargs={'zoo_id':zoo_id, 'location_id':form.instance.id}))
+				return redirect(reverse_lazy('location', kwargs={'zoo_id': zoo_id, 'location_id': form.instance.id}))
+		elif 'submit_delete' in request.POST:
+			location = self.model.objects.using(zoo_id).get(id=request.POST.get('object_id'))
+			location.delete()
+			return self.redirect_to_self(request)
 		return self.get(request, zoo_id)
 
 
