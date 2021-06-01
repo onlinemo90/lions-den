@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load lions_den_tags %}
 
 {% block content %}
 	<div class="page-header">
@@ -6,7 +7,18 @@
 		{% include 'utils/buttons/plus.html' with css_class='add-button' onclick="getModal('add_location')" tooltip_text='Add a new location' %}
 	</div>
 	
-	{% for location in locations %}
-		<p><a href="{{ location.id }}">{{ location.name }}</a></p>
-	{% endfor %}
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for location in locations %}
+			<tr>
+				<td><a href="{{ location.id }}">{{ location.name }}</a></td>
+				<td>{% include 'utils/buttons/close.html' with css_class='close' stroke='var(--danger)' onclick="getModal('modal_delete_location', 'location_id="|addstr:location.id|addstr:"')" %}</td>
+			</tr>
+			{% endfor %}
 {% endblock %}

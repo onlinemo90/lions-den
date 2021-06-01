@@ -142,7 +142,7 @@ class ZooLocationForm(BaseModelForm):
 	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.fields['coordinates'].widget.attrs.update({'disabled': ''}) # prevent manual change of coordinates
+		self.fields['coordinates'].widget.attrs.update({'readonly': ''}) # prevent manual change of coordinates
 
 
 class AvailableSubjectAttributeCategoriesForm(BaseModelForm):

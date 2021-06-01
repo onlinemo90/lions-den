@@ -11,7 +11,7 @@
 	
 	<hr>
 	
-	{% if location.species %}
+	{% if location.species.count %}
 		<p class="mb-0">Species in this location:</p>
 		<ul>
 			{% for species in location.species.all %}
