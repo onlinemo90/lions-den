@@ -97,6 +97,14 @@ a:focus, a:hover, a:active {
 	color: var(--colorPrimaryDark);
 }
 
+li {
+	color: var(--colorPrimary);
+}
+
+hr {
+	border-color: var(--colorAccent);
+}
+
 
 /* Crispy Forms-------------------------------------------------------------------------------------------------------*/
 .selectdatewidget, .select {

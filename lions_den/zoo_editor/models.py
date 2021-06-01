@@ -5,6 +5,8 @@ from abc import abstractmethod
 from django.db import models
 from django.db.models.functions import Lower
 
+from location_field.models.plain import PlainLocationField
+
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
@@ -27,6 +29,17 @@ class AbstractBaseModel(models.Model):
 	def zoo(self):
 		assert self._state.db is not None, f'{self} does not belong to any zoo'
 		return Zoo.objects.filter(id=self._state.db).first()
+
+
+class ZooLocation(AbstractBaseModel):
+	name = DefaultCharField(blank=False, unique=True)
+	coordinates = PlainLocationField(blank=False)
+
+	class Meta:
+		db_table = 'LOCATION'
+	
+	def __str__(self):
+		return self.name
 
 
 class SubjectManager(models.Manager):
@@ -76,6 +89,7 @@ class Species(Subject):
 	audio = AudioBlobField(editable=True, null=True, blank=True)
 	weight = DefaultCharField(blank=True)
 	size = DefaultCharField(blank=True)
+	location = models.ForeignKey(ZooLocation, related_name='species', null=True, on_delete=models.SET_NULL)
 	
 	class Meta:
 		db_table = 'SPECIES'

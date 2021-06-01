@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from django.forms.models import modelformset_factory
 
-from .models import Species, Individual, Group, AttributeCategory
+from .models import Species, Individual, Group, AttributeCategory, ZooLocation
 from .form_fields import ImageBlobField, AudioBlobField
 
 
@@ -26,6 +26,13 @@ class BaseModelForm(forms.ModelForm):
 		else:
 			super().__init__(*args, **kwargs)
 		self.instance._meta.default_manager._db = self.zoo_id  # needed to ensure uniqueness constraints can be validated
+		
+		if 'location' in self.fields:
+			self.fields['location'] = forms.ModelChoiceField(
+				queryset=ZooLocation.objects.using(self.zoo_id).all(),
+				required=self.fields['location'].required,
+				empty_label=''
+			)
 
 
 class BaseSubjectForm(BaseModelForm):
@@ -43,16 +50,18 @@ class BaseSubjectForm(BaseModelForm):
 class SpeciesForm(BaseSubjectForm):
 	image = ImageBlobField()
 	audio = AudioBlobField(required=False)
+	location = forms.ModelChoiceField(queryset=None, required=False)
 	weight = forms.CharField(required=False)
 	size = forms.CharField(required=False)
 	
 	class Meta:
 		model = Species
-		fields = ('name', 'image', 'audio', 'size', 'weight')
+		fields = ('name', 'image', 'audio', 'location', 'size', 'weight')
 		labels = {
 			'name': 'Name',
 			'image': 'Image',
 			'audio': 'Audio',
+			'location': 'Location',
 			'size': 'Size',
 			'weight': 'Weight'
 		}
@@ -114,6 +123,26 @@ class GroupForm(BaseSubjectForm):
 		# Hide foreign key fields (front-end handled by Javascript)
 		self.fields['species'].widget.attrs.update({'hidden': True})
 		self.fields['individuals'].widget.attrs.update({'hidden': True})
+
+
+class NewZooLocationForm(BaseModelForm):
+	class Meta:
+		model = ZooLocation
+		fields = ('name',)
+	
+	def save(self, commit=True):
+		self.instance.coordinates = self.instance.zoo.coordinates
+		super().save(commit)
+
+
+class ZooLocationForm(BaseModelForm):
+	class Meta:
+		model = ZooLocation
+		fields = ('name', 'coordinates')
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.fields['coordinates'].widget.attrs.update({'disabled': ''}) # prevent manual change of coordinates
 
 
 class AvailableSubjectAttributeCategoriesForm(BaseModelForm):

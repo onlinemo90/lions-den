@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+	<form method="POST" enctype="multipart/form-data" id="modalForm">
+		{% csrf_token %}
+		{{ form.media }}
+		{{ form|crispy }}
+		<button type="submit" name="submit_location" class="btn btn-primary">Submit</button>
+	</form>
+	
+	<hr>
+	
+	{% if location.species %}
+		<p class="mb-0">Species in this location:</p>
+		<ul>
+			{% for species in location.species.all %}
+				<li><a href="{% url 'species_page' zoo_id=location.zoo.id subject_id=species.id %}">{{ species }}</a></li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<p>There are no species at this location</p>
+	{% endif %}
+	
+{% endblock %}

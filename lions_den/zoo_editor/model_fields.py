@@ -109,7 +109,6 @@ class ImageBlob(BlobObject):
 		return output_file
 
 
-
 class AudioBlob(BlobObject):
 	@property
 	def url(self):

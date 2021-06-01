@@ -15,8 +15,8 @@
 		
 		<!-- Main CSS & JS -->
 		<link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
-		<script src="{% static 'js/main.js'%}"></script>
-		<script src="{% static 'js/microlite.min.js'%}"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+		<script src="{% static 'js/microlite.min.js' %}"></script>
 		
 		<!-- Title and Favicon -->
 		<title>Lion's Den</title>
@@ -49,6 +49,7 @@
 														<a class="dropdown-item" href="{% url 'individuals_list' zoo_id=zoo.id %}">Individuals</a>
 														<a class="dropdown-item" href="{% url 'groups_list' zoo_id=zoo.id %}">Groups</a>
 														<a class="dropdown-item" href="{% url 'attribute_categories_list' zoo_id=zoo.id %}">Attribute Categories</a>
+														<a class="dropdown-item" href="{% url 'locations_list' zoo_id=zoo.id %}">Locations</a>
 													</div>
 												</li>
 											{% else %}
@@ -56,6 +57,7 @@
 												<li><a class="dropdown-item" href="{% url 'individuals_list' zoo_id=zoo.id %}">Individuals</a></li>
 												<li><a class="dropdown-item" href="{% url 'groups_list' zoo_id=zoo.id %}">Groups</a></li>
 												<li><a class="dropdown-item" href="{% url 'attribute_categories_list' zoo_id=zoo.id %}">Attribute Categories</a></li>
+												<li><a class="dropdown-item" href="{% url 'locations_list' zoo_id=zoo.id %}">Locations</a></li>
 											{% endif %}
 											{% if not forloop.last %}
 												<div class="dropdown-divider"></div>
@@ -116,5 +118,10 @@
 				{% block content %}{% endblock %}
 			</div>
 		</main>
+		
+		<!-- djago-location -->
+		<script type="application/javascript" src="{% static 'location_field/leaflet.js' %}"></script>
+		<script type="application/javascript" src="{% static 'location_field/l.control.geosearch.js' %}"></script>
+		<link rel="stylesheet" type="text/css" href="{% static 'location_field/leaflet.css' %}" media="all">
 	</body>
 </html>

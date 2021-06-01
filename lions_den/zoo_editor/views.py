@@ -1,18 +1,21 @@
 import json
 
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.contrib import messages
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 # noinspection PyUnresolvedReferences
 from zoo_auth.models import Zoo
 
-from .models import Species, Individual, Group, AttributeCategory
-from .forms import get_attributes_formset, get_attribute_categories_formset, AvailableSubjectAttributeCategoriesForm
+from .models import Species, Individual, Group, ZooLocation, AttributeCategory
+from .forms import get_attributes_formset, get_attribute_categories_formset, ZooLocationForm, NewZooLocationForm, AvailableSubjectAttributeCategoriesForm
 
 
 # Base Views---------------------------------------------------------
@@ -340,3 +343,55 @@ class AttributeCategoryListView(BaseZooView):
 				return self.redirect_to_self(request)
 		
 		return self.get(request, zoo_id)
+
+
+class ZooLocationListView(BaseZooView, ListView):
+	model = ZooLocation
+	template_name = 'zoo_editor/locations_list.html'
+	context_object_name = 'locations'
+	
+	def get_queryset(self):
+		return ZooLocation.objects.using(self.kwargs['zoo_id']).all()
+	
+	def get_ajax(self, request, zoo_id):
+		if 'add_location' in request.GET:
+			return render(
+				request=request,
+				template_name='utils/modals/modal_form.html',
+				context={
+					'title': f'New Location',
+					'form': NewZooLocationForm(zoo_id=zoo_id),
+					'submit_btn_name': 'modal_new_location',
+				}
+			)
+	
+	def post(self, request, zoo_id):
+		if 'modal_new_location' in request.POST:
+			form = NewZooLocationForm(data=request.POST, zoo_id=zoo_id)
+			if form.is_valid():
+				form.save()
+				return redirect(reverse_lazy('location', kwargs={'zoo_id':zoo_id, 'location_id':form.instance.id}))
+		return self.get(request, zoo_id)
+
+
+class ZooLocationPageView(BaseZooView, DetailView):
+	model = ZooLocation
+	form = ZooLocationForm
+	template_name = 'zoo_editor/location.html'
+	context_object_name = 'location'
+	
+	def get_object(self):
+		return self.model.objects.using(self.kwargs['zoo_id']).get(id=self.kwargs['location_id'])
+	
+	def get_context_data(self, **kwargs):
+		return super().get_context_data(form=self.form(instance=self.get_object()))
+	
+	def post(self, request, zoo_id, location_id):
+		if 'submit_location' in request.POST:
+			form = ZooLocationForm(data=request.POST, instance=self.get_object())
+			if form.is_valid():
+				form.save()
+				return self.redirect_to_self(request)
+	
+	
+	
