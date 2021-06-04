@@ -1,21 +1,25 @@
 {% load lions_den_tags %}
 
-<label>{{ title }}</label>
-
-<br>
-
-{{ form_field }} {# Form field is hidden so alternate controls can be used #}
-
-<select style="min-width:12em" class="select" id="group_select_{{ members_type }}">
-	<option selected></option>
-	{# Options will be retrieved via Javascript from the form field #}
-</select>
-<button type="button" onclick="addMemberToGroup('{{ members_type }}')">Add</button>
-
-<ul id="group_list_{{ members_type }}" class="list-group">
-	{# Options will be retrieved via Javascript from the form field. The following is used as a template for those list items #}
-	<li id="GROUP_LIST_ITEM_TEMPLATE_{{ members_type }}" class="list-group-item" hidden>
-		[MEMBER_NAME]
-		{% include 'utils/buttons/close.html' with css_class='close' stroke='var(--danger)' onclick="removeMemberFromGroup('"|addstr:members_type|addstr:"', [VALUE])" %}
-	</li>
-</ul>
+<div id="multi_select_form_field__{{ members_type }}">
+	<label>{{ form_field.label }}</label>
+	
+	<br/>
+	
+	<div hidden style="display:none">
+		{{ form_field }} {# Form field must be hidden so custom controls can be used #}
+	</div>
+	
+	<select style="min-width:12em" class="select form-control NON_MEMBERS_SELECT">
+		<option selected></option>
+		{# Options will be retrieved via Javascript from the form field #}
+	</select>
+	<button type="button" class="btn-sm btn-primary ADD_MEMBER_BUTTON">Add</button>
+	
+	<ul class="list-group mt-3 MEMBERS_LIST">
+		{# Options will be retrieved via Javascript from the form field. The following is used as a template for those list items #}
+		<li class="list-group-item" value="GROUP_LIST_ITEM_TEMPLATE" hidden>
+			[MEMBER_NAME]
+			{% include 'utils/buttons/close.html' with css_class='close REMOVE_MEMBER_BUTTON' stroke='var(--danger)' %}
+		</li>
+	</ul>
+</div>
