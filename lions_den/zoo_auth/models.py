@@ -74,11 +74,11 @@ class ZooUser(AbstractUser):
 	def has_access(self, zoo_id):
 		return any(zoo.id==zoo_id for zoo in self.zoos)
 	
-	def notify(self, subject, text_message=None, html_message=None):
-		type(self).notify_users([self], subject, text_message, html_message, notify_admins=False)
+	def notify(self, subject, text_message=None, html_message=None, ignore_preferences=False):
+		type(self).notify_users([self], subject, text_message, html_message, notify_admins=False, ignore_preferences=ignore_preferences)
 	
 	@classmethod
-	def notify_users(cls, users, subject, text_message=None, html_message=None, notify_separately=True, notify_admins=True):
+	def notify_users(cls, users, subject, text_message=None, html_message=None, notify_separately=True, notify_admins=True, ignore_preferences=False):
 		"""
 		Sends an email to the relevant users
 		:param users: queryset of users meant to be notified
@@ -95,7 +95,7 @@ class ZooUser(AbstractUser):
 		if not text_message:
 			text_message = html2text.html2text(html_message)
 		
-		users = [user for user in users.all() if user.wants_email_notifications()]
+		users = [user for user in users if user.wants_email_notifications() or ignore_preferences]
 		admins = [user for user in ZooUser.admins.all() if user.wants_email_notifications()]
 		bcc_users = []
 		

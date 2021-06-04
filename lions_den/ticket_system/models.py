@@ -192,7 +192,7 @@ class TicketAction(models.Model):
 				).save()
 
 		# Email notifications
-		users_to_notify = self.ticket.watchers.exclude(id=self.user.id) # users shouldn't be notified of their own actions
+		users_to_notify = self.ticket.watchers.exclude(id=self.user.id).all() # users shouldn't be notified of their own actions
 		get_user_model().notify_users(
 			users=users_to_notify,
 			subject=str(self),
