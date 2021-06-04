@@ -26,16 +26,11 @@ class BaseModelForm(forms.ModelForm):
 		else:
 			super().__init__(*args, **kwargs)
 		self.instance._meta.default_manager._db = self.zoo_id  # needed to ensure uniqueness constraints can be validated
-		
-		if 'location' in self.fields:
-			self.fields['location'] = forms.ModelChoiceField(
-				queryset=ZooLocation.objects.using(self.zoo_id).all(),
-				required=self.fields['location'].required,
-				empty_label=''
-			)
 
 
 class BaseSubjectForm(BaseModelForm):
+	image = ImageBlobField()
+	
 	def __init__(self, *args, **kwargs):
 		# Stabilising HTML element ID generation to allow Javascript ID matching on field HTML elements
 		kwargs['auto_id'] = 'id_subject_%s'
@@ -45,10 +40,16 @@ class BaseSubjectForm(BaseModelForm):
 				Unless you're trying to display multiple SubjectForms in one page, this shouldn't be needed.
 			""")
 		super().__init__(*args, **kwargs)
+		
+		if 'location' in self.fields:
+			self.fields['location'] = forms.ModelChoiceField(
+				queryset=ZooLocation.objects.using(self.zoo_id).all(),
+				required=self.fields['location'].required,
+				empty_label=''
+			)
 
 
 class SpeciesForm(BaseSubjectForm):
-	image = ImageBlobField()
 	audio = AudioBlobField(required=False)
 	location = forms.ModelChoiceField(queryset=None, required=False)
 	weight = forms.CharField(required=False)
@@ -69,7 +70,6 @@ class SpeciesForm(BaseSubjectForm):
 
 class IndividualForm(BaseSubjectForm):
 	species = forms.ModelChoiceField(queryset=None) # set in __init__
-	image = ImageBlobField()
 	place_of_birth = forms.CharField(required=False)
 	dob = forms.DateField(
 		widget=forms.widgets.SelectDateWidget(
@@ -98,12 +98,13 @@ class IndividualForm(BaseSubjectForm):
 		if 'instance' in kwargs:
 			del self.fields['species']
 		else:
-			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(kwargs['zoo_id']).all())
+			self.fields['species'] = forms.ModelChoiceField(empty_label='', queryset=Species.objects.using(self.zoo_id).all())
 
 
 class GroupForm(BaseSubjectForm):
-	image = ImageBlobField()
 	audio = AudioBlobField(required=False)
+	species = forms.ModelMultipleChoiceField(queryset=None, required=False)
+	individuals = forms.ModelMultipleChoiceField(queryset=None, required=False)
 	
 	class Meta:
 		model = Group
@@ -117,12 +118,8 @@ class GroupForm(BaseSubjectForm):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		
-		self.fields['species'] = forms.ModelMultipleChoiceField(queryset=Species.objects.using(self.zoo_id).all(), required=False)
-		self.fields['individuals'] = forms.ModelMultipleChoiceField(queryset=Individual.objects.using(self.zoo_id).all(), required=False)
-		
-		# Hide foreign key fields (front-end handled by Javascript)
-		self.fields['species'].widget.attrs.update({'hidden': True})
-		self.fields['individuals'].widget.attrs.update({'hidden': True})
+		self.fields['species'].queryset = Species.objects.using(self.zoo_id).all()
+		self.fields['individuals'].queryset = Individual.objects.using(self.zoo_id).all()
 
 
 class NewZooLocationForm(BaseModelForm):
@@ -136,16 +133,42 @@ class NewZooLocationForm(BaseModelForm):
 
 
 class ZooLocationForm(BaseModelForm):
+	species = forms.ModelMultipleChoiceField(required=False, queryset=None)
+	
 	class Meta:
 		model = ZooLocation
-		fields = ('name', 'coordinates')
+		fields = ('name', 'coordinates', 'species')
 	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.fields['coordinates'].widget.attrs.update({'readonly': ''}) # prevent manual change of coordinates
+		
+		if 'instance' in kwargs:
+			self.fields['species'].queryset = Species.objects.using(self.zoo_id).all()
+			self.fields['species'].initial = self.instance.species.all()
+	
+	def save(self, commit=True):
+		super().save(commit)
+		
+		# Remove this location from all species that have it
+		species_to_save = set()
+		for species in self.instance.species.all():
+			species.location = None
+			species_to_save.add(species)
+
+		# Add this location to the species added to the form
+		for species in self.cleaned_data['species'].all():
+			species.location = self.instance
+			species_to_save.add(species)
+		
+		# Save edited species
+		for species in species_to_save:
+			species.save()
 
 
 class AvailableSubjectAttributeCategoriesForm(BaseModelForm):
+	name = forms.ModelChoiceField(label='Category', empty_label='', queryset=None)
+	
 	class Meta:
 		model = AttributeCategory
 		fields = ('name',)
@@ -154,11 +177,7 @@ class AvailableSubjectAttributeCategoriesForm(BaseModelForm):
 		super().__init__(zoo_id=subject.zoo.id, *args, **kwargs)
 		
 		used_categories = [attribute.category.id for attribute in subject.attributes.all()] + exclude_categories
-		self.fields['name'] = forms.ModelChoiceField(
-			label='Category',
-			empty_label='',
-			queryset=AttributeCategory.objects.using(subject.zoo.id).exclude(id__in=used_categories)
-		)
+		self.fields['name'].queryset = AttributeCategory.objects.using(subject.zoo.id).exclude(id__in=used_categories)
 	
 	def save(self, commit=True):
 		raise AttributeError('This form is not meant to alter data!')

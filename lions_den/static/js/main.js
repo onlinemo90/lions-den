@@ -310,57 +310,53 @@ document.addEventListener("DOMContentLoaded", function(){
 //----------------------------------------------------------------------------------------------------------------------
 
 // Group Page - Show and Edit Members-----------------------------------------------------------------------------------
-function addMemberToGroup(membersType){
-	memberId = document.getElementById('group_select_' + membersType).value;
-	if (memberId){
-		$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', true); // select in hidden form field
-		$('#group_list_' + membersType + ' li[value=' + memberId + ']').prop('hidden', false); // show in members list
-		$('#group_select_' + membersType + ' option[value=' + memberId + ']').prop('hidden', true); // hide from non-members select
-
-		$('#group_select_' + membersType).prop('selectedIndex', 0); // reset selection
-	}
-}
-
-function removeMemberFromGroup(membersType, memberId){
-	$('#id_subject_' + membersType + ' option[value=' + memberId + ']').attr('selected', false); // unselect in hidden form field
-	$('#group_list_' + membersType + ' li[value=' + memberId + ']').prop('hidden', true); // hide from members list
-	$('#group_select_' + membersType + ' option[value=' + memberId + ']').prop('hidden', false); // show in non-members select
-}
-
-function createGroupListItem(membersType, text, value){
-	let memberListItem = document.getElementById('GROUP_LIST_ITEM_TEMPLATE_' + membersType).cloneNode(true);
-	memberListItem.removeAttribute('id');
-	memberListItem.value = value;
-	memberListItem.innerHTML = memberListItem.innerHTML.replaceAll('[VALUE]', value).replaceAll('[MEMBER_NAME]', text);
-	return memberListItem;
-}
-
-function initGroupMembersDisplay(membersType){
-	for (let option of document.getElementById('id_subject_' + membersType).options){
-		// Non-members select
-		let selectOption = document.createElement('option');
-		selectOption.text = option.innerHTML;
-		selectOption.value = option.value;
-
-		// Members list
-		let memberListItem = createGroupListItem(membersType, option.innerHTML, option.value);
-
-		if (option.selected){
-			memberListItem.removeAttribute('hidden'); // un-hide from list
-			selectOption.setAttributeNode(document.createAttribute('hidden')); // hide from select
-		}
-
-		// Add elements
-		document.getElementById('group_select_' + membersType).add(selectOption);
-		document.getElementById('group_list_' + membersType).appendChild(memberListItem);
-	}
-}
-
 document.addEventListener("DOMContentLoaded", function(){
-	['species', 'individuals'].forEach(function(membersType){
-		if (document.getElementById('id_subject_' + membersType)){
-			initGroupMembersDisplay(membersType);
-		}
+	let multiSelectFormIdPrefix = 'multi_select_form_field__';
+	$('div[id^=' + multiSelectFormIdPrefix + ']').each(function(){
+		var container = $(this);
+		var hiddenInput = $('select[multiple]', container);
+
+		// Populate members list and non-members select
+		hiddenInput.find('option').each(function(){ // Loop each option of the hidden select
+			// Non-members select
+			let selectOption = document.createElement('option');
+			selectOption.text = $(this).html();
+			selectOption.value = $(this).val();
+
+			// Members list
+			let memberListItem = $('li[value=GROUP_LIST_ITEM_TEMPLATE]', container).clone();
+			memberListItem.val($(this).val());
+			memberListItem.html(memberListItem.html().replaceAll('[MEMBER_NAME]', $(this).html()));
+
+			if ($(this).prop('selected')){
+				memberListItem.removeAttr('hidden'); // un-hide from list
+				selectOption.setAttributeNode(document.createAttribute('hidden')); // hide from select
+			}
+
+			// Add elements
+			$('.NON_MEMBERS_SELECT', container).append(selectOption);
+			$('.MEMBERS_LIST', container).append(memberListItem);
+		});
+
+		// Set onclick of button for adding members to group
+		$('.ADD_MEMBER_BUTTON', this).click(function(){
+			memberId = $('.NON_MEMBERS_SELECT', container).val();
+			if (memberId){
+				$('option[value=' + memberId + ']', hiddenInput).attr('selected', true); // select in hidden form field
+				$('.MEMBERS_LIST li[value=' + memberId + ']', container).prop('hidden', false); // show in members list
+				$('.NON_MEMBERS_SELECT option[value=' + memberId + ']', container).prop('hidden', true); // hide from non-members select
+
+				$('.NON_MEMBERS_SELECT', container).prop('selectedIndex', 0); // reset selection
+			}
+		});
+
+		// Set onclick of button for removing members to group
+		$('.REMOVE_MEMBER_BUTTON', this).click(function(){
+			let memberId = $(this).parent().val();
+			$('option[value=' + memberId + ']', hiddenInput).attr('selected', false); // unselect in hidden form field
+			$('.MEMBERS_LIST li[value=' + memberId + ']', container).prop('hidden', true); // hide from members list
+			$('.NON_MEMBERS_SELECT option[value=' + memberId + ']', container).prop('hidden', false); // show in non-members select
+		});
 	});
 });
 //----------------------------------------------------------------------------------------------------------------------
