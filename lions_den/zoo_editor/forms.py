@@ -20,12 +20,18 @@ class BaseModelForm(forms.ModelForm):
 		else:
 			raise Exception('zoo_id must be given to create zoo-related form')
 
+		super().__init__(*args, **kwargs)
 		if 'instance' not in kwargs:
-			super().__init__(*args, **kwargs)
 			self.instance._state.db = self.zoo_id
-		else:
-			super().__init__(*args, **kwargs)
 		self.instance._meta.default_manager._db = self.zoo_id  # needed to ensure uniqueness constraints can be validated
+	
+	def save(self, commit=True):
+		super().save(commit)
+		
+		# Django does not allow automatic setting of related fields via the model that does not own them - this fixes that
+		related_field_names = { field.name for field in self.instance._meta.model._meta.related_objects }
+		for related_field in set(self.cleaned_data).intersection(related_field_names):
+			getattr(self.instance, related_field).set(self.cleaned_data[related_field])
 
 
 class BaseSubjectForm(BaseModelForm):
@@ -133,7 +139,7 @@ class NewZooLocationForm(BaseModelForm):
 
 
 class ZooLocationForm(BaseModelForm):
-	species = forms.ModelMultipleChoiceField(required=False, queryset=None)
+	species = forms.ModelMultipleChoiceField(required=False, label='Species at this location', queryset=None)
 	
 	class Meta:
 		model = ZooLocation
@@ -146,24 +152,6 @@ class ZooLocationForm(BaseModelForm):
 		if 'instance' in kwargs:
 			self.fields['species'].queryset = Species.objects.using(self.zoo_id).all()
 			self.fields['species'].initial = self.instance.species.all()
-	
-	def save(self, commit=True):
-		super().save(commit)
-		
-		# Remove this location from all species that have it
-		species_to_save = set()
-		for species in self.instance.species.all():
-			species.location = None
-			species_to_save.add(species)
-
-		# Add this location to the species added to the form
-		for species in self.cleaned_data['species'].all():
-			species.location = self.instance
-			species_to_save.add(species)
-		
-		# Save edited species
-		for species in species_to_save:
-			species.save()
 
 
 class AvailableSubjectAttributeCategoriesForm(BaseModelForm):
