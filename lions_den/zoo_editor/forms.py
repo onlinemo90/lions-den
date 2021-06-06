@@ -5,6 +5,7 @@ from django.forms.models import modelformset_factory
 
 from .models import Species, Individual, Group, AttributeCategory, ZooLocation
 from .form_fields import ImageBlobField, AudioBlobField
+from .widgets import SelectMultipleWithEditableList
 
 
 class BaseModelForm(forms.ModelForm):
@@ -109,8 +110,16 @@ class IndividualForm(BaseSubjectForm):
 
 class GroupForm(BaseSubjectForm):
 	audio = AudioBlobField(required=False)
-	species = forms.ModelMultipleChoiceField(queryset=None, required=False)
-	individuals = forms.ModelMultipleChoiceField(queryset=None, required=False)
+	species = forms.ModelMultipleChoiceField(
+		required=False,
+		widget=SelectMultipleWithEditableList,
+		queryset=None,
+	)
+	individuals = forms.ModelMultipleChoiceField(
+		required=False,
+		widget=SelectMultipleWithEditableList,
+		queryset=None,
+	)
 	
 	class Meta:
 		model = Group
@@ -139,7 +148,12 @@ class NewZooLocationForm(BaseModelForm):
 
 
 class ZooLocationForm(BaseModelForm):
-	species = forms.ModelMultipleChoiceField(required=False, label='Species at this location', queryset=None)
+	species = forms.ModelMultipleChoiceField(
+		required=False,
+		label='Species at this location',
+		widget=SelectMultipleWithEditableList,
+		queryset=None
+	)
 	
 	class Meta:
 		model = ZooLocation

@@ -2,14 +2,14 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-	<form method="POST" enctype="multipart/form-data" id="modalForm">
+	<form method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
 		{{ form.media }}
 		{{ form.name|as_crispy_field }}
 		{{ form.coordinates|as_crispy_field }}
 		
 		<div style="width:50%">
-			{% include 'zoo_editor/group_members.html' with form_field=form.species %}
+			{{ form.species|as_crispy_field }}
 		</div>
 		
 		<br/>

@@ -1,0 +1,21 @@
+{% load lions_den_tags %}
+
+<div id="SELECT_MULTIPLE_WITH_EDITABLE_LIST">
+	<div hidden style="display:none"> {# Form field must be hidden so custom controls can be used #}
+		{% include 'django/forms/widgets/select.html' %}
+	</div>
+	
+	<select style="min-width:12em" class="select form-control NON_MEMBERS_SELECT">
+		<option selected></option>
+		{# Options will be retrieved via Javascript from the form field #}
+	</select>
+	<button type="button" class="btn-sm btn-primary ADD_MEMBER_BUTTON">Add</button>
+	
+	<ul class="list-group mt-3 MEMBERS_LIST">
+		{# Options will be retrieved via Javascript from the form field. The following is used as a template for those list items #}
+		<li class="list-group-item" value="GROUP_LIST_ITEM_TEMPLATE" hidden>
+			[MEMBER_NAME]
+			{% include 'utils/buttons/close.html' with css_class='close REMOVE_MEMBER_BUTTON' stroke='var(--danger)' %}
+		</li>
+	</ul>
+</div>
