@@ -55,7 +55,7 @@ class ZooUserCreationForm(ZooUserBaseForm, UserCreationForm):
 		if user.pk:
 			user.notify(
 				subject='Account created',
-				text_message=f"An account has been created for you in Lion's Den\nYour default password is: {random_password}",
+				text_message=f"Hello {user.first_name},\n\nAn account has been created for you in Lion's Den.\nYour default password is:\n\t{random_password}\n\nWelcome to the Zooverse team!",
 				ignore_preferences=True
 			)
 		return user
