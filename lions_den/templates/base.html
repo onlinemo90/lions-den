@@ -100,6 +100,8 @@
 								{% endif %}
 							{% elif not disable_navbar_login %}
 								<a class="dropdown-item" href="{% url 'login' %}">Login</a>
+							{% else %}
+								<a class="dropdown-item" href="{% url 'password_reset' %}">Reset password</a>
 							{% endif %}
 						</div>
 					</li>
