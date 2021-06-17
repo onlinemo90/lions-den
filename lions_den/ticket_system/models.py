@@ -154,7 +154,7 @@ class TicketAction(models.Model):
 	target = GenericForeignKey('content_type', 'object_id')
 	
 	def __str__(self):
-		return f'{self.target}: {self.user} {self._get_predicate_str(as_html=False)}'
+		return f'{self.ticket}: {self.user} {self._get_predicate_str(as_html=False)}'
 	
 	def is_creation(self):
 		return self.type == self.Type.CREATE
