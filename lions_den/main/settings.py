@@ -138,7 +138,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Authentication
 AUTH_USER_MODEL = 'zoo_auth.ZooUser'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = '/zoos'
+LOGIN_REDIRECT_URL = '/'
 
 # Email
 EMAIL_USE_SSL = True

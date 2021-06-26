@@ -17,10 +17,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
 
 urlpatterns = [
-    path('', lambda request : redirect('login'), name='home'),
     path('', include('zoo_auth.urls')),
     path('zoos/', include('zoo_editor.urls'), name='zoos'),
     path('admin/', admin.site.urls),

@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout, get_user_model
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.views.generic import ListView
+from django.views.generic import TemplateView, ListView
 from django.views.generic.edit import UpdateView
 
 # noinspection PyUnresolvedReferences
@@ -15,6 +15,11 @@ def logout_view(request):
 	logout(request)
 	messages.info(request, 'You have been logged out')
 	return redirect('login')
+
+
+class HomeView(LoginRequiredMixin, TemplateView):
+	template_name = 'zoo_auth/front_page.html'
+
 
 class PreferencesView(LoginRequiredMixin, UpdateView):
 	fields = ('notification_method',)
