@@ -10,10 +10,8 @@
 		<div class="container p-4">
 			<form method="POST">
 				{% csrf_token %}
-				<fieldset class="form-group">
-					{{ form|crispy }}
-				</fieldset>
-				<div class="container text-center">
+				{{ form|crispy }}
+				<div class="text-center">
 					<button type="submit" class="btn btn-primary rounded">{{ submit_button_label }}</button>
 				</div>
 			</form>
